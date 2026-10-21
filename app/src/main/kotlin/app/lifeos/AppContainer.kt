@@ -36,6 +36,8 @@ import app.lifeos.documents.AndroidDocumentAccess
 import app.lifeos.documents.VaultDocumentStore
 import app.lifeos.documents.vaultDir
 import app.lifeos.feature.life.LifeDependencies
+import app.lifeos.backup.BackupManager
+import app.lifeos.security.AppLock
 import app.lifeos.feature.life.hub.lifeAttention
 import app.lifeos.feature.ledger.LedgerDependencies
 import kotlinx.coroutines.CoroutineScope
@@ -117,6 +119,14 @@ class AppContainer private constructor(
         background = appScope,
     )
 
+    val appLock = AppLock()
+
+    /** Schreibt eine passwortgeschützte Sicherung (Datenbank + Dokumente) nach [out]. Blockierend – im Hintergrund aufrufen. */
+    fun exportBackup(out: java.io.OutputStream, passphrase: CharArray): BackupManager.Summary {
+        val version = runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "?"
+        return BackupManager(backupWorkDir(context)).export(database.openHelper.writableDatabase, LifeOsDatabase.VERSION, vault, out, passphrase, version)
+    }
+
     /** Entfernt Tresor-Dateien ohne Datensatz (z. B. nach abgebrochenem Import) und alte Freigabe-Kopien. */
     suspend fun cleanUpFiles() {
         AndroidDocumentAccess.clearShared(context)
@@ -170,6 +180,8 @@ class AppContainer private constructor(
         }
     }
 }
+
+fun backupWorkDir(context: Context) = java.io.File(context.noBackupFilesDir, "backup-work")
 
 sealed interface StartResult {
     data class Ready(val container: AppContainer) : StartResult

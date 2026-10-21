@@ -92,9 +92,9 @@ abstract class LifeOsDatabase : RoomDatabase() {
          * Es gibt bewusst KEIN `fallbackToDestructiveMigration` – fehlt eine Migration, stürzt die
          * App lieber kontrolliert ab, als Nutzerdaten zu löschen.
          */
-        fun open(context: Context, passphrase: ByteArray): LifeOsDatabase {
+        fun open(context: Context, passphrase: ByteArray, name: String = FILE_NAME): LifeOsDatabase {
             System.loadLibrary("sqlcipher")
-            return Room.databaseBuilder(context.applicationContext, LifeOsDatabase::class.java, FILE_NAME)
+            return Room.databaseBuilder(context.applicationContext, LifeOsDatabase::class.java, name)
                 .openHelperFactory(SupportOpenHelperFactory(passphrase.copyOf()))
                 .addCallback(SchemaCallback)
                 .addMigrations(*Migrations.ALL)

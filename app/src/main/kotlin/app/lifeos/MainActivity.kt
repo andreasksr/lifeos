@@ -20,6 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.first
+import app.lifeos.ui.LockScreen
 import androidx.fragment.app.FragmentActivity
 import app.lifeos.core.designsystem.theme.ContinuumColors
 import app.lifeos.core.designsystem.theme.ContinuumTheme
@@ -79,7 +83,15 @@ class MainActivity : FragmentActivity() {
                         )
                     }
                 }
-                is StartResult.Ready -> LifeOsShell(s.container, systemAnimationsOff, pendingOpen)
+                is StartResult.Ready -> {
+                    val lockEnabled by s.container.settings.appLockEnabled.collectAsStateWithLifecycle(initialValue = null)
+                    val locked by s.container.appLock.locked.collectAsStateWithLifecycle()
+                    when {
+                        lockEnabled == null -> ContinuumTheme(motionEnabled = false) { Box(Modifier.fillMaxSize().background(ContinuumColors.Obsidian)) }
+                        lockEnabled == true && locked -> ContinuumTheme(motionEnabled = false) { LockScreen(onUnlocked = s.container.appLock::unlock) }
+                        else -> LifeOsShell(s.container, systemAnimationsOff, pendingOpen)
+                    }
+                }
             }
         }
     }
@@ -93,6 +105,16 @@ class MainActivity : FragmentActivity() {
                 c.notificationAccess.openSettings()
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        container?.let { c -> lifecycleScope.launch { c.appLock.onForeground(c.settings.appLockEnabled.first()) } }
+    }
+
+    override fun onStop() {
+        container?.appLock?.onBackground()
+        super.onStop()
     }
 
     override fun onResume() {

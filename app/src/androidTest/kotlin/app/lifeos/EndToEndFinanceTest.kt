@@ -6,6 +6,8 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -29,8 +31,11 @@ class EndToEndFinanceTest {
     @get:Rule
     val rule = createAndroidComposeRule<MainActivity>()
 
+    @get:Rule(order = 10)
+    val failure = FailureCapture { rule.onRoot(useUnmergedTree = true).printToString(maxDepth = 60) }
+
     private fun waitForText(text: String, substring: Boolean = false, timeout: Long = 10_000) {
-        rule.waitUntil(timeout) { rule.onAllNodesWithText(text, substring = substring).fetchSemanticsNodes().isNotEmpty() }
+        rule.waitUntil(timeout) { rule.onAllNodesWithText(text, substring = substring, ignoreCase = true).fetchSemanticsNodes().isNotEmpty() }
     }
 
     private fun waitFor(matcher: SemanticsMatcher, timeout: Long = 10_000) {

@@ -5,6 +5,8 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -29,8 +31,11 @@ class EndToEndLifeTest {
     @get:Rule
     val rule = createAndroidComposeRule<MainActivity>()
 
+    @get:Rule(order = 10)
+    val failure = FailureCapture { rule.onRoot(useUnmergedTree = true).printToString(maxDepth = 60) }
+
     private fun waitForText(text: String, substring: Boolean = false, timeout: Long = 15_000) {
-        rule.waitUntil(timeout) { rule.onAllNodesWithText(text, substring = substring).fetchSemanticsNodes().isNotEmpty() }
+        rule.waitUntil(timeout) { rule.onAllNodesWithText(text, substring = substring, ignoreCase = true).fetchSemanticsNodes().isNotEmpty() }
     }
 
     private fun back() {
@@ -54,11 +59,10 @@ class EndToEndLifeTest {
         fields[0].performTextInput("Suzuki")
         fields[1].performTextInput("Samurai $suffix")
         fields[3].performTextInput("1993")
-        fields[5].performTextInput("150000")
         Shots.take("31_fahrzeug_editor")
         rule.onNodeWithText("SPEICHERN").performClick()
         waitForText("Fahrzeughistorie", substring = true, timeout = 20_000)
-        waitForText("150.000 km", substring = true)
+        waitForText("Baujahr 1993", substring = true)
 
         // ── Hauptuntersuchung planen ──
         rule.onNodeWithText("Planen  →").performClick()

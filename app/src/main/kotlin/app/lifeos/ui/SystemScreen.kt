@@ -115,16 +115,19 @@ fun SystemScreen(container: AppContainer, systemAnimationsOff: Boolean, onBack: 
                 checkError?.let { Text(it, style = Continuum.type.body, color = ContinuumColors.Alert) }
             }
         }
+        item { BackupSection(container, index = 2) }
+        item { AppLockSection(container, index = 3) }
         item {
-            SpineSection("Sicherheit", index = 2, shape = NodeShape.HEX) {
+            SpineSection("Sicherheit", index = 4, shape = NodeShape.HEX) {
                 InfoRow("Datenbank", "verschlüsselt · SQLCipher AES-256")
                 InfoRow("Schlüssel", "Android Keystore · nicht exportierbar")
                 InfoRow("Netzwerk", "keine Internet-Berechtigung")
-                InfoRow("Android-Backup", "deaktiviert")
+                InfoRow("Dokumente", "verschlüsselt · AES-256-GCM")
+                InfoRow("Android-Cloud-Backup", "deaktiviert · eigene Sicherung oben")
             }
         }
         item {
-            SpineSection("Version", index = 3, shape = NodeShape.DOT) {
+            SpineSection("Version", index = 5, shape = NodeShape.DOT) {
                 InfoRow("LifeOS", version)
                 InfoRow("Datenbankschema", "v${LifeOsDatabase.VERSION}")
             }

@@ -14,7 +14,15 @@ class AppSettings(private val repository: SettingsRepository) {
         repository.put(KEY_MOTION, if (enabled) "1" else "0")
     }
 
+    /** Optionale App-Sperre (Biometrie oder Gerätesperre). Standard: aus. */
+    val appLockEnabled: Flow<Boolean> = repository.observe(KEY_APP_LOCK).map { it == "1" }
+
+    suspend fun setAppLockEnabled(enabled: Boolean) {
+        repository.put(KEY_APP_LOCK, if (enabled) "1" else "0")
+    }
+
     companion object {
         const val KEY_MOTION = "ui.motion.enabled"
+        const val KEY_APP_LOCK = "security.app_lock"
     }
 }

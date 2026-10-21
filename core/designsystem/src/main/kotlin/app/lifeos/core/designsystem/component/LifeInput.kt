@@ -56,6 +56,7 @@ fun LifeTextField(
     singleLine: Boolean = true,
     leading: Glyph? = null,
     trailing: (@Composable () -> Unit)? = null,
+    visualTransformation: androidx.compose.ui.text.input.VisualTransformation = androidx.compose.ui.text.input.VisualTransformation.None,
 ) {
     val errorText = error
     val interaction = remember { MutableInteractionSource() }
@@ -73,6 +74,7 @@ fun LifeTextField(
             cursorBrush = SolidColor(ContinuumColors.Cyan),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
+            visualTransformation = visualTransformation,
             interactionSource = interaction,
             modifier = Modifier
                 .fillMaxWidth()

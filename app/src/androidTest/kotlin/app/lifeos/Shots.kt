@@ -26,4 +26,16 @@ object Shots {
         val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return
         resolver.openOutputStream(uri)?.use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
+
+    fun text(name: String, content: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+        val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+        val values = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, "$name.txt")
+            put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+            put(MediaStore.Downloads.RELATIVE_PATH, "Download/lifeos-shots")
+        }
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return
+        resolver.openOutputStream(uri)?.use { it.write(content.toByteArray()) }
+    }
 }

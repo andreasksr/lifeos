@@ -23,6 +23,8 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.lifeos.AppContainer
@@ -223,6 +225,7 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                                     is AttentionTarget.Node -> openNode(target.id)
                                 }
                             },
+                            openSearch = { navController.navigate(SEARCH_ROUTE) },
                             captureExpense = { openCapture(CaptureType.EXPENSE) },
                             captureIncome = { openCapture(CaptureType.INCOME) },
                             extraCaptures = listOf(
@@ -242,6 +245,7 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                         newTask = { projectId -> navController.navigate(PlanningRoutes.task(null, null, projectId)) },
                         openTransaction = { navController.navigate(LedgerRoutes.edit(it)) },
                         openNode = { openNode(it) },
+                        openMap = { navController.navigate(mapRoute(it)) },
                     ),
                 )
                 lifeGraph(
@@ -252,8 +256,19 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                         openEvent = { navController.navigate(PlanningRoutes.event(it)) },
                         newLesson = { navController.navigate(PlanningRoutes.event(null, container.clock.today())) },
                         openSystem = { navController.navigate(SYSTEM_ROUTE) },
+                        openSearch = { navController.navigate(SEARCH_ROUTE) },
+                        openMap = { navController.navigate(mapRoute(it)) },
                     ),
                 )
+                composable(MAP_ROUTE, arguments = listOf(navArgument("id") { type = NavType.StringType; nullable = true; defaultValue = null })) { entry ->
+                    val id = entry.arguments?.getString("id")?.let { runCatching { NodeId(it) }.getOrNull() }
+                    val vm: LifeMapViewModel = viewModel(factory = viewModelFactory { initializer { LifeMapViewModel(container, id) } })
+                    LifeMapScreen(vm, onBack = { navController.popBackStack() }, onOpen = { openNode(it) })
+                }
+                composable(SEARCH_ROUTE) {
+                    val vm: SearchViewModel = viewModel(factory = viewModelFactory { initializer { SearchViewModel(container) } })
+                    SearchScreen(vm, onBack = { navController.popBackStack() }, onOpen = { openNode(it) })
+                }
                 composable(SYSTEM_ROUTE) {
                     SystemScreen(container, systemAnimationsOff, onBack = { navController.popBackStack() })
                 }
@@ -265,6 +280,9 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
 }
 
 const val SYSTEM_ROUTE = "life/system"
+const val SEARCH_ROUTE = "search"
+const val MAP_ROUTE = "map?id={id}"
+fun mapRoute(id: NodeId?) = if (id == null) "map" else "map?id=${id.value}"
 
 fun NavHostController.navigateTopLevel(route: String) {
     navigate(route) {
