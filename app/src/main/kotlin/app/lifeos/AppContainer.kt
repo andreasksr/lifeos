@@ -13,7 +13,11 @@ import app.lifeos.core.domain.links.LinkNodes
 import app.lifeos.core.domain.ports.IntegrityChecker
 import app.lifeos.core.domain.settings.AppSettings
 import app.lifeos.core.security.DatabaseKeyManager
+import app.lifeos.feature.home.HomeDependencies
 import app.lifeos.feature.ledger.LedgerDependencies
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * Manuelle Dependency Injection (ADR-003). Einzige Stelle, die Datenbank, Sicherheit und Features
@@ -24,15 +28,23 @@ class AppContainer private constructor(
     val clock: LifeClock,
     val ids: IdGenerator,
 ) {
-    private val ledgerRepository = RoomLedgerRepository(database)
-    private val settingsRepository = RoomSettingsRepository(database)
+    /** Lebt so lange wie die App – für Aktionen, die einen Bildschirm überdauern (z. B. Rückgängig). */
+    val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    val ledgerRepository = RoomLedgerRepository(database)
+    val settingsRepository = RoomSettingsRepository(database)
+    val linkRepository = RoomLinkRepository(database)
 
     val settings = AppSettings(settingsRepository)
     val integrityChecker: IntegrityChecker = RoomIntegrityChecker(database)
-    private val linkRepository = RoomLinkRepository(database)
     val linkNodes = LinkNodes(linkRepository, ids, clock)
     val ensureLedgerDefaults = EnsureLedgerDefaults(ledgerRepository, settingsRepository, ids, clock)
-    val ledger = LedgerDependencies(ledgerRepository, linkRepository, clock, ids)
+    val ledger = LedgerDependencies(ledgerRepository, linkRepository, clock, ids, appScope)
+    val home = HomeDependencies(
+        settings = settingsRepository,
+        clock = clock,
+        finance = { month -> ledger.observeMonth(month) },
+    )
 
     companion object {
         /** Muss außerhalb des Main-Threads aufgerufen werden (Keystore-Zugriff). */

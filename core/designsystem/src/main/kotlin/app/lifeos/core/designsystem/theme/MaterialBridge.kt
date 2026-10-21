@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 
 /**
- * Material3 wird nur als technisches Fundament genutzt (Dialoge, Datumsauswahl, Textauswahl).
+ * Material3 wird nur als technisches Fundament genutzt (DatePicker, Textauswahl, Ripple).
  * Dieses Mapping sorgt dafür, dass auch diese Bausteine CONTINUUM-Farben tragen.
  */
 @Composable
@@ -18,20 +18,25 @@ internal fun MaterialBridge(content: @Composable () -> Unit) {
         colorScheme = darkColorScheme(
             primary = c.Cyan,
             onPrimary = c.Obsidian,
+            primaryContainer = c.Elevated,
+            onPrimaryContainer = c.Frost,
             secondary = c.Violet,
             onSecondary = c.Obsidian,
+            tertiary = c.Mint,
             background = c.Obsidian,
-            onBackground = c.Ice,
-            surface = c.ObsidianRaised,
-            onSurface = c.Ice,
-            surfaceVariant = c.ObsidianHigh,
-            onSurfaceVariant = c.IceMuted,
-            surfaceContainerHigh = c.ObsidianHigh,
-            surfaceContainerHighest = c.ObsidianHigh,
-            surfaceContainer = c.ObsidianRaised,
+            onBackground = c.Frost,
+            surface = c.Deep,
+            onSurface = c.Frost,
+            surfaceVariant = c.Elevated,
+            onSurfaceVariant = c.Muted,
+            surfaceContainerLowest = c.Obsidian,
+            surfaceContainerLow = c.Deep,
+            surfaceContainer = c.Deep,
+            surfaceContainerHigh = c.Elevated,
+            surfaceContainerHighest = c.Elevated,
             outline = c.HairlineStrong,
             outlineVariant = c.Hairline,
-            error = c.Flare,
+            error = c.Alert,
             onError = c.Obsidian,
         ),
     ) {

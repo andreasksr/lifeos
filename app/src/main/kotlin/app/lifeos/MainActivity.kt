@@ -46,10 +46,12 @@ class MainActivity : ComponentActivity() {
                     Box(Modifier.fillMaxSize().background(ContinuumColors.Obsidian))
                 }
                 is StartResult.KeyLost -> ContinuumTheme(motionEnabled = false) {
-                    RecoveryScreen(
-                        reason = s.reason,
-                        onWipe = { scope.launch { start = app.wipeAndRestart() } },
-                    )
+                    Box(Modifier.fillMaxSize().background(ContinuumColors.Obsidian)) {
+                        RecoveryScreen(
+                            reason = s.reason,
+                            onWipe = { scope.launch { start = app.wipeAndRestart() } },
+                        )
+                    }
                 }
                 is StartResult.Ready -> LifeOsShell(s.container, systemAnimationsOff)
             }

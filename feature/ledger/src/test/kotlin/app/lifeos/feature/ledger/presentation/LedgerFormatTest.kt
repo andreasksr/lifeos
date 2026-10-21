@@ -20,6 +20,17 @@ class LedgerFormatTest {
     }
 
     @Test
+    fun `faelligkeit und begruessung`() {
+        assertEquals("heute fällig", LedgerFormat.relativeDue(today, today))
+        assertEquals("in 3 Tagen fällig", LedgerFormat.relativeDue(today.plusDays(3), today))
+        assertEquals("seit 2 Tagen überfällig", LedgerFormat.relativeDue(today.minusDays(2), today))
+        assertEquals("Guten Morgen", LedgerFormat.greeting(7))
+        assertEquals("Gute Nacht", LedgerFormat.greeting(2))
+        assertEquals("21. Oktober 2026", LedgerFormat.longDate(LocalDate.of(2026, 10, 21)))
+        assertEquals("Mär", LedgerFormat.monthAxis(YearMonth.of(2026, 3)))
+    }
+
+    @Test
     fun `prozent ist abgerundet`() {
         assertEquals("113 %", LedgerFormat.percent(1_133))
         assertEquals("0 %", LedgerFormat.percent(9))

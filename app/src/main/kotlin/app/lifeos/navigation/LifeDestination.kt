@@ -1,26 +1,22 @@
 package app.lifeos.navigation
 
-import app.lifeos.core.designsystem.component.NodeShape
-import app.lifeos.feature.ledger.LedgerRoutes
+import app.lifeos.core.designsystem.component.Glyph
 
 /**
- * Zentrale Liste aller Hauptbereiche von LifeOS. Neue Module werden hier registriert und erst
- * sichtbar, wenn `implemented = true` – so gibt es nie funktionslose Navigationseinträge.
+ * Die fünf Hauptbereiche von LifeOS (Auftrag Teil 11). Ein Bereich erscheint erst in der Navigation,
+ * wenn er `implemented = true` ist – es gibt nie funktionslose Navigationseinträge.
  */
 enum class LifeDestination(
     val route: String,
     val label: String,
-    val shape: NodeShape,
+    val glyph: Glyph,
     val implemented: Boolean,
-    val phase: Int,
 ) {
-    TODAY("today", "Heute", NodeShape.DOT, implemented = false, phase = 5),
-    LEDGER(LedgerRoutes.OVERVIEW, "Finanzen", NodeShape.DIAMOND, implemented = true, phase = 1),
-    PROJECTS("projects", "Projekte", NodeShape.LINKED, implemented = false, phase = 4),
-    ASSETS("assets", "Besitz", NodeShape.RING, implemented = false, phase = 4),
-    LEARNING("learning", "Lernen", NodeShape.DOT, implemented = false, phase = 6),
-    ARCHIVE("archive", "Archiv", NodeShape.RING, implemented = false, phase = 5),
-    SYSTEM("system", "System", NodeShape.RING, implemented = true, phase = 1);
+    HOME("home", "Home", Glyph.HOME, implemented = true),
+    FINANCE("finance", "Finanzen", Glyph.WALLET, implemented = true),
+    PLANNING("planning", "Planung", Glyph.TASKS, implemented = false),
+    PROJECTS("projects", "Projekte", Glyph.PROJECT, implemented = false),
+    LIFE("life", "Mein Leben", Glyph.LIFE, implemented = true);
 
     companion object {
         val visible: List<LifeDestination> get() = entries.filter { it.implemented }

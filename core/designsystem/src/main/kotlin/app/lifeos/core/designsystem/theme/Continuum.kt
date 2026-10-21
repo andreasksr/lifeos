@@ -8,41 +8,58 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * CONTINUUM – Design-Tokens. Einzige Quelle für Farben, Typografie, Abstände und Bewegung.
- * Komponenten verwenden ausschließlich diese Tokens (keine Hex-Werte in Feature-Code).
+ * LIFEOS CONTINUUM – Design-Tokens (v2). Einzige Quelle für Farben, Typografie, Abstände und Bewegung.
+ * Feature-Code verwendet ausschließlich diese Tokens.
  */
 @Immutable
 object ContinuumColors {
-    /** Tiefes Obsidian – Hintergrund. */
-    val Obsidian = Color(0xFF05060A)
-    val ObsidianRaised = Color(0xFF0A0C12)
-    val ObsidianHigh = Color(0xFF11141C)
+    // Grundpalette (Auftrag 2.3)
+    val Obsidian = Color(0xFF080C14)
+    val Deep = Color(0xFF101827)
+    val Elevated = Color(0xFF172235)
+    val Frost = Color(0xFFF0F5FF)
+    val Muted = Color(0xFF91A5BF)
+    val Cyan = Color(0xFF8DEAFF)
+    val Violet = Color(0xFFB29AFF)
+    val Mint = Color(0xFF62E6C7)
 
-    /** Haarlinien – Konturen statt Flächen. */
-    val Hairline = Color(0x24DCE8FF)
-    val HairlineStrong = Color(0x45DCE8FF)
+    /** Tertiärtext – nur für Nebeninformationen (Kontrast ≈ 4.6:1 auf Obsidian). */
+    val Faint = Color(0xFF74859C)
 
-    /** Eisweiß – Typografie. Kontrast auf Obsidian: Ice ≈ 18:1, IceMuted ≈ 8:1, IceFaint ≈ 4.6:1. */
-    val Ice = Color(0xFFEAF2FF)
-    val IceMuted = Color(0xFFA3AFC2)
-    val IceFaint = Color(0xFF6F7A8E)
+    // Funktionale Zusatzfarben – nur für Zustände, immer zusammen mit Text/Form.
+    /** Bald fällig / Achtung. */
+    val Amber = Color(0xFFFFC27A)
 
-    /** Lichtsignaturen. Cyan = Zufluss/aktiv, Violett = Abfluss/Struktur. */
-    val Cyan = Color(0xFF52E5F2)
-    val Violet = Color(0xFF9D7CFF)
+    /** Überschritten / überfällig / Fehler. */
+    val Alert = Color(0xFFFF7D9C)
 
-    /** Nur für Grenzüberschreitungen (Budget überzogen) – immer zusätzlich mit Text/Symbol. */
-    val Flare = Color(0xFFFF7AB6)
+    val Hairline = Color(0x1AF0F5FF)
+    val HairlineStrong = Color(0x33F0F5FF)
+    val Scrim = Color(0xCC04060B)
+
+    /** Kategorische Reihe für Verteilungen – aus der Grundpalette abgeleitet, keine Neonfarben. */
+    val Series: List<Color> = listOf(
+        Cyan, Violet, Mint, Color(0xFF6E9BFF), Color(0xFFD7A6FF), Color(0xFF4FC3D9),
+        Color(0xFF9FB8FF), Color(0xFF7FD9B9), Color(0xFFC2B5E8), Muted,
+    )
 
     val Signature: Brush get() = Brush.horizontalGradient(listOf(Cyan, Violet))
     val SignatureVertical: Brush get() = Brush.verticalGradient(listOf(Cyan, Violet))
+
+    // ── Aliasse für Bestandscode aus v0.1 ──
+    val ObsidianRaised get() = Deep
+    val ObsidianHigh get() = Elevated
+    val Ice get() = Frost
+    val IceMuted get() = Muted
+    val IceFaint get() = Faint
+    val Flare get() = Alert
 }
 
 @Immutable
@@ -54,9 +71,16 @@ object ContinuumSpacing {
     val l: Dp = 16.dp
     val xl: Dp = 24.dp
     val xxl: Dp = 32.dp
+    val xxxl: Dp = 48.dp
     val gutter: Dp = 20.dp
 
-    /** Breite der linken Zeitleisten-Spalte, in der die LifeLine verläuft. */
+    /** Breite der Spalte, in der die LifeLine (Spine) vertikal verläuft. */
+    val spineRail: Dp = 48.dp
+
+    /** x-Position der Spine-Linie (Mitte der Rail) – Zurück-Knopf und Knoten sitzen genau darauf. */
+    val spineX: Dp = 24.dp
+
+    /** Alias für v0.1-Zeitleisten. */
     val timelineRail: Dp = 28.dp
 
     /** Mindestgröße für Touch-Ziele (Barrierefreiheit). */
@@ -64,43 +88,60 @@ object ContinuumSpacing {
 
     val hairline: Dp = 1.dp
     val line: Dp = 1.5.dp
-    val chamfer: Dp = 10.dp
+    val chamfer: Dp = 14.dp
+
+    /** Höhe der LifeNavigation ohne Systemleiste. */
+    val navHeight: Dp = 72.dp
 }
 
+private val Trimmed = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None)
+
 /**
- * Typografie. Ziffern immer in [figures] (Monospace + tabellarische Ziffern), damit Beträge
- * untereinander exakt fluchten. Eigene Schriften (z. B. Space Grotesk / JetBrains Mono, OFL) werden
- * in Phase 2 eingebunden – bis dahin Systemschriften.
+ * Typografie: Space Grotesk (Überschriften, Labels), Inter (Fließtext), JetBrains Mono (alle Zahlen).
+ * Alle Größen in sp – skalieren mit der Systemschriftgröße.
  */
 @Immutable
 data class ContinuumTypography(
+    /** Große Seitentitel / Datum auf Home. */
     val display: TextStyle = TextStyle(
-        fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Light,
-        fontSize = 34.sp, lineHeight = 40.sp, letterSpacing = (-0.5).sp, color = ContinuumColors.Ice,
+        fontFamily = LifeFonts.Grotesk, fontWeight = FontWeight.Light,
+        fontSize = 38.sp, lineHeight = 42.sp, letterSpacing = (-1).sp, color = ContinuumColors.Frost,
+    ),
+    val headline: TextStyle = TextStyle(
+        fontFamily = LifeFonts.Grotesk, fontWeight = FontWeight.Normal,
+        fontSize = 26.sp, lineHeight = 32.sp, letterSpacing = (-0.4).sp, color = ContinuumColors.Frost,
     ),
     val title: TextStyle = TextStyle(
-        fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Normal,
-        fontSize = 20.sp, lineHeight = 26.sp, letterSpacing = 0.sp, color = ContinuumColors.Ice,
+        fontFamily = LifeFonts.Grotesk, fontWeight = FontWeight.Medium,
+        fontSize = 18.sp, lineHeight = 24.sp, letterSpacing = (-0.1).sp, color = ContinuumColors.Frost,
     ),
     val body: TextStyle = TextStyle(
-        fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Normal,
-        fontSize = 15.sp, lineHeight = 22.sp, color = ContinuumColors.Ice,
+        fontFamily = LifeFonts.Inter, fontWeight = FontWeight.Normal,
+        fontSize = 15.sp, lineHeight = 22.sp, color = ContinuumColors.Frost,
     ),
-    val bodyMuted: TextStyle = body.copy(color = ContinuumColors.IceMuted),
-    /** Versal-Label mit Laufweite – Abschnitte, Metrik-Beschriftungen. */
+    val bodyMuted: TextStyle = body.copy(color = ContinuumColors.Muted),
+    val small: TextStyle = TextStyle(
+        fontFamily = LifeFonts.Inter, fontWeight = FontWeight.Normal,
+        fontSize = 13.sp, lineHeight = 18.sp, color = ContinuumColors.Muted,
+    ),
+    /** Technische Beschriftung: Versalien, kontrollierte Laufweite. */
     val label: TextStyle = TextStyle(
-        fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Medium,
-        fontSize = 11.sp, lineHeight = 14.sp, letterSpacing = 1.6.sp, color = ContinuumColors.IceMuted,
+        fontFamily = LifeFonts.Grotesk, fontWeight = FontWeight.Medium,
+        fontSize = 11.sp, lineHeight = 14.sp, letterSpacing = 1.4.sp, color = ContinuumColors.Muted,
+        lineHeightStyle = Trimmed,
     ),
     val figures: TextStyle = TextStyle(
-        fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Normal,
-        fontSize = 15.sp, lineHeight = 20.sp, fontFeatureSettings = "tnum", color = ContinuumColors.Ice,
+        fontFamily = LifeFonts.Mono, fontWeight = FontWeight.Normal,
+        fontSize = 15.sp, lineHeight = 20.sp, fontFeatureSettings = "tnum", color = ContinuumColors.Frost,
     ),
+    val figuresSmall: TextStyle = figures.copy(fontSize = 12.sp, lineHeight = 16.sp),
+    val figuresMedium: TextStyle = figures.copy(fontSize = 20.sp, lineHeight = 26.sp),
     val figuresLarge: TextStyle = TextStyle(
-        fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Light,
-        fontSize = 30.sp, lineHeight = 36.sp, letterSpacing = (-0.5).sp, fontFeatureSettings = "tnum",
-        color = ContinuumColors.Ice,
+        fontFamily = LifeFonts.Mono, fontWeight = FontWeight.Light,
+        fontSize = 32.sp, lineHeight = 38.sp, letterSpacing = (-1).sp, fontFeatureSettings = "tnum",
+        color = ContinuumColors.Frost,
     ),
+    val figuresHuge: TextStyle = figuresLarge.copy(fontSize = 52.sp, lineHeight = 58.sp, letterSpacing = (-2).sp),
 )
 
 /**
@@ -111,10 +152,13 @@ data class ContinuumTypography(
 data class ContinuumMotion(val enabled: Boolean = true) {
     val quickMillis: Int get() = if (enabled) 160 else 0
     val standardMillis: Int get() = if (enabled) 320 else 0
-    val emphasisMillis: Int get() = if (enabled) 560 else 0
+    val emphasisMillis: Int get() = if (enabled) 620 else 0
 
-    /** Periode des wandernden Lichtpulses auf der LifeLine. */
-    val pulseMillis: Int = 4200
+    /** Verzögerung zwischen gestaffelt erscheinenden Elementen. */
+    val staggerMillis: Int get() = if (enabled) 55 else 0
+
+    /** Periode des wandernden Lichtpulses. */
+    val pulseMillis: Int = 5200
 }
 
 val LocalContinuumTypography = staticCompositionLocalOf { ContinuumTypography() }

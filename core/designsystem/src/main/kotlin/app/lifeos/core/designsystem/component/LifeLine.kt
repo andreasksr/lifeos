@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.lifeos.core.designsystem.theme.Continuum
 import app.lifeos.core.designsystem.theme.ContinuumColors
@@ -34,31 +35,35 @@ enum class LineMeaning {
     /** Zeit / neutraler Verlauf: Cyan → Violett. */
     TIME,
 
-    /** Geld fließt zu: Cyan-betont. */
+    /** Geld fließt zu: Mint. */
     INFLOW,
 
-    /** Geld fließt ab: Violett-betont. */
+    /** Geld fließt ab: Violett. */
     OUTFLOW,
 
-    /** Fortschritt / Auslastung: Verlauf; über 100 % wechselt das Ende zu Flare. */
+    /** Fortschritt / Auslastung: Verlauf; Überschreitung wird jenseits der 100-%-Marke in Alert gezeigt. */
     PROGRESS,
+
+    /** Erledigt / positiv abgeschlossen: Mint. */
+    DONE,
 }
 
-internal fun lineBrush(meaning: LineMeaning, overflow: Boolean = false): Brush = when {
-    overflow -> Brush.horizontalGradient(listOf(ContinuumColors.Violet, ContinuumColors.Flare))
-    meaning == LineMeaning.INFLOW -> Brush.horizontalGradient(listOf(ContinuumColors.Cyan.copy(alpha = 0.55f), ContinuumColors.Cyan))
-    meaning == LineMeaning.OUTFLOW -> Brush.horizontalGradient(listOf(ContinuumColors.Violet.copy(alpha = 0.55f), ContinuumColors.Violet))
-    else -> ContinuumColors.Signature
+internal fun lineBrush(meaning: LineMeaning): Brush = when (meaning) {
+    LineMeaning.INFLOW -> Brush.horizontalGradient(listOf(ContinuumColors.Mint.copy(alpha = 0.5f), ContinuumColors.Mint))
+    LineMeaning.OUTFLOW -> Brush.horizontalGradient(listOf(ContinuumColors.Violet.copy(alpha = 0.5f), ContinuumColors.Violet))
+    LineMeaning.DONE -> Brush.horizontalGradient(listOf(ContinuumColors.Cyan, ContinuumColors.Mint))
+    LineMeaning.TIME, LineMeaning.PROGRESS -> ContinuumColors.Signature
 }
 
 /**
- * Die LifeLine – zentrales Gestaltungselement von CONTINUUM.
+ * Die LifeLine als Messlinie.
  *
- * Eine feine Haarlinie über die volle Breite; darauf ein leuchtendes Segment für [progress]
- * (0..1, `null` = volle Linie ohne Messwert). Optional wandert ein Lichtpuls entlang der Linie –
- * nur wenn Bewegung aktiv ist. Werte > 1 werden als Überschreitung dargestellt.
+ * - `progress == null`: volle Linie (Trenner/Zeitachse), optional mit wanderndem Lichtpuls.
+ * - `progress in 0..1`: leuchtendes Segment auf einer Haarlinie.
+ * - `progress > 1`: **Überschreitung wird nicht abgeschnitten.** Die Linie wird so skaliert, dass die
+ *   100-%-Marke bei `1/progress` der Breite liegt; der Teil darüber hinaus erscheint in Alert.
  *
- * Zeichnet ausschließlich im Draw-Pass: keine Recomposition pro Frame.
+ * Zeichnet ausschließlich im Draw-Pass: keine Recomposition pro Animationsframe.
  */
 @Composable
 fun LifeLine(
@@ -67,25 +72,20 @@ fun LifeLine(
     meaning: LineMeaning = LineMeaning.TIME,
     pulse: Boolean = false,
     progressDescription: String? = null,
+    thickness: Dp = 2.dp,
 ) {
     val motion = Continuum.motion
     val target = progress?.coerceAtLeast(0f) ?: 1f
-    val animated by animateFloatAsState(
-        targetValue = target,
-        animationSpec = tween(motion.emphasisMillis),
-        label = "lifeLineProgress",
-    )
+    val animated by animateFloatAsState(target, tween(motion.emphasisMillis), label = "lifeLine")
     val pulseState: State<Float> = if (pulse && motion.enabled) {
         rememberInfiniteTransition(label = "lifeLinePulse").animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
+            initialValue = 0f, targetValue = 1f,
             animationSpec = infiniteRepeatable(tween(motion.pulseMillis, easing = LinearEasing), RepeatMode.Restart),
             label = "pulse",
         )
     } else {
         remember { mutableFloatStateOf(-1f) }
     }
-
     val semanticsModifier = if (progress != null) {
         Modifier.semantics {
             progressBarRangeInfo = ProgressBarRangeInfo(progress.coerceIn(0f, 1f), 0f..1f)
@@ -94,52 +94,46 @@ fun LifeLine(
     } else {
         Modifier
     }
-
     Canvas(
         modifier
             .fillMaxWidth()
-            .height(10.dp)
+            .height(thickness * 5)
             .then(semanticsModifier),
     ) {
-        drawLifeLine(
-            fraction = animated,
-            meaning = meaning,
-            pulseAt = pulseState.value,
-            showTrack = progress != null,
-        )
+        drawMeasureLine(animated, meaning, pulseState.value, showTrack = progress != null, thickness.toPx())
     }
 }
 
-private fun DrawScope.drawLifeLine(fraction: Float, meaning: LineMeaning, pulseAt: Float, showTrack: Boolean) {
+internal fun DrawScope.drawMeasureLine(value: Float, meaning: LineMeaning, pulseAt: Float, showTrack: Boolean, stroke: Float) {
     val y = size.height / 2f
-    val stroke = 1.5.dp.toPx()
-    val overflow = fraction > 1f
-    val visible = fraction.coerceIn(0f, 1f)
-
+    val w = size.width
     if (showTrack) {
-        drawLine(ContinuumColors.Hairline, Offset(0f, y), Offset(size.width, y), strokeWidth = 1.dp.toPx())
+        drawLine(ContinuumColors.Hairline, Offset(0f, y), Offset(w, y), strokeWidth = stroke * 0.6f, cap = StrokeCap.Round)
     }
-    if (visible > 0f) {
-        val end = Offset(size.width * visible, y)
-        val brush = lineBrush(meaning, overflow)
-        // Glow: breite, transparente Linie unter der scharfen Linie
-        drawLine(brush, Offset(0f, y), end, strokeWidth = stroke * 4f, cap = StrokeCap.Round, alpha = 0.12f)
-        drawLine(brush, Offset(0f, y), end, strokeWidth = stroke, cap = StrokeCap.Round)
-        // Endpunkt als präzise Markierung
-        if (showTrack) {
-            drawCircle(if (overflow) ContinuumColors.Flare else ContinuumColors.Ice, radius = stroke * 1.4f, center = end)
-        }
+    val overflow = value > 1f
+    val limitX = if (overflow) w / value else w * value.coerceIn(0f, 1f)
+    if (limitX > 0f) {
+        val brush = lineBrush(meaning)
+        drawLine(brush, Offset(0f, y), Offset(limitX, y), strokeWidth = stroke * 3.5f, cap = StrokeCap.Round, alpha = 0.10f)
+        drawLine(brush, Offset(0f, y), Offset(limitX, y), strokeWidth = stroke, cap = StrokeCap.Round)
     }
-    if (pulseAt in 0f..1f && visible > 0f) {
-        val x = size.width * visible * pulseAt
+    if (overflow) {
+        drawLine(ContinuumColors.Alert.copy(alpha = 0.15f), Offset(limitX, y), Offset(w, y), strokeWidth = stroke * 3.5f, cap = StrokeCap.Round)
+        drawLine(ContinuumColors.Alert, Offset(limitX, y), Offset(w, y), strokeWidth = stroke, cap = StrokeCap.Round)
+        // 100-%-Marke
+        drawLine(ContinuumColors.Frost, Offset(limitX, y - stroke * 2.2f), Offset(limitX, y + stroke * 2.2f), strokeWidth = stroke * 0.8f)
+    } else if (showTrack && limitX > 0f) {
+        drawCircle(ContinuumColors.Frost, radius = stroke * 1.25f, center = Offset(limitX, y))
+    }
+    if (pulseAt in 0f..1f) {
+        val end = if (overflow) w else limitX
+        val x = end * pulseAt
         drawCircle(
             brush = Brush.radialGradient(
-                colors = listOf(Color.White.copy(alpha = 0.9f), ContinuumColors.Cyan.copy(alpha = 0f)),
-                center = Offset(x, y),
-                radius = stroke * 5f,
+                colors = listOf(Color.White.copy(alpha = 0.85f), ContinuumColors.Cyan.copy(alpha = 0f)),
+                center = Offset(x, y), radius = stroke * 6f,
             ),
-            radius = stroke * 5f,
-            center = Offset(x, y),
+            radius = stroke * 6f, center = Offset(x, y),
         )
     }
 }
