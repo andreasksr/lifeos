@@ -37,7 +37,7 @@ ksp {
 
 dependencies {
     implementation(project(":core:domain"))
-    implementation(libs.androidx.room.runtime)
+    api(libs.androidx.room.runtime) // LifeOsDatabase erbt von RoomDatabase – für :app sichtbar
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.sqlite)
