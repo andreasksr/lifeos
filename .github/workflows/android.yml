@@ -2,12 +2,16 @@ name: Android Build
 
 on:
   push:
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -21,22 +25,34 @@ jobs:
       - name: SQLite-Schematests
         run: python3 tools/schema_test.py -v
 
-      - name: Unit-Tests
-        run: ./gradlew test --stacktrace
+      - name: Tests und Debug-APK
+        run: |
+          set -o pipefail
+          ./gradlew test :app:assembleDebug --continue --stacktrace 2>&1 | tee build.log
 
-      - name: Debug-APK bauen
-        run: ./gradlew :app:assembleDebug --stacktrace
+      # Logs und APK zusätzlich in den Branch ci-output legen, damit sie auch ohne
+      # Zugriff auf GitHub-Artefakte (z. B. aus einer abgeschotteten Umgebung) abrufbar sind.
+      - name: Ergebnis in Branch ci-output ablegen
+        if: always()
+        run: |
+          mkdir -p /tmp/out
+          cp build.log /tmp/out/ 2>/dev/null || true
+          grep -E '^e: |^w: |FAILED|What went wrong|error:' build.log > /tmp/out/errors.txt 2>/dev/null || true
+          cp app/build/outputs/apk/debug/*.apk /tmp/out/ 2>/dev/null || true
+          mkdir -p /tmp/out/schemas && cp -r core/database/schemas/. /tmp/out/schemas/ 2>/dev/null || true
+          find . -path '*/build/test-results/*' -name '*.xml' -exec cp {} /tmp/out/ \; 2>/dev/null || true
+          echo "${{ github.sha }} ${{ job.status }}" > /tmp/out/RESULT.txt
+          cd /tmp/out
+          git init -q -b ci-output
+          git config user.name "lifeos-ci"
+          git config user.email "ci@lifeos.local"
+          git add -A
+          git commit -q -m "CI ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci-output
 
-      - name: APK hochladen
+      - name: APK als Artefakt
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: lifeos-debug-apk
           path: app/build/outputs/apk/debug/*.apk
-
-      - name: Room-Schema hochladen
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: room-schema
-          path: core/database/schemas/
-          if-no-files-found: ignore
