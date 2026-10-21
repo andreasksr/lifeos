@@ -60,6 +60,11 @@ import app.lifeos.feature.planning.home.PlanningHomeSection
 import app.lifeos.feature.planning.home.PlanningHomeViewModel
 import app.lifeos.feature.planning.home.PlanningTodayBlock
 import app.lifeos.feature.planning.planningGraph
+import app.lifeos.feature.projects.ProjectsCrossNavigation
+import app.lifeos.feature.projects.ProjectsHomeSection
+import app.lifeos.feature.projects.ProjectsHomeViewModel
+import app.lifeos.feature.projects.ProjectsRoutes
+import app.lifeos.feature.projects.projectsGraph
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -71,6 +76,7 @@ enum class CaptureType(val label: String, val glyph: Glyph) {
     INCOME("Einnahme", Glyph.ARROW_IN),
     TASK("Aufgabe", Glyph.TASKS),
     EVENT("Termin", Glyph.CALENDAR),
+    PROJECT("Projekt", Glyph.PROJECT),
 }
 
 /** App-Rahmen: Theme, LifeFrame mit durchgehender LifeLine, Navigation, Schnellerfassung. */
@@ -97,6 +103,11 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                     // Termine brauchen Zeit und Ort – direkt der vollständige Editor.
                     capture = null
                     navController.navigate(PlanningRoutes.event(null, container.clock.today()))
+                    return
+                }
+                CaptureType.PROJECT -> {
+                    capture = null
+                    navController.navigate(ProjectsRoutes.edit(null))
                     return
                 }
             }
@@ -126,6 +137,14 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                     NodeType.TASK -> navController.navigate(PlanningRoutes.task(id))
                     NodeType.EVENT -> navController.navigate(PlanningRoutes.event(id))
                     NodeType.TRANSACTION -> navController.navigate(LedgerRoutes.edit(id))
+                    NodeType.PROJECT, NodeType.MILESTONE -> {
+                        val projectId = if (container.linkRepository.node(id)?.type == NodeType.MILESTONE) {
+                            container.projectRepository.milestones().firstOrNull { it.id == id }?.projectId
+                        } else {
+                            id
+                        }
+                        projectId?.let { navController.navigate(ProjectsRoutes.detail(it)) }
+                    }
                     else -> Unit
                 }
             }
@@ -157,10 +176,19 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                         openPlanning = { navController.navigateTopLevel(LifeDestination.PLANNING.route) },
                         newTask = { openCapture(CaptureType.TASK) },
                     )
+                    val projectsHome: ProjectsHomeViewModel = viewModel(factory = viewModelFactory { initializer { ProjectsHomeViewModel(container.projects) } })
                     HomeRoute(
                         vm = vm,
                         sectionContent = mapOf(
                             HomeSectionId.PLANNING to { index, density -> PlanningHomeSection(planningHome, planningNav, index, density == HomeDensity.ADVANCED) },
+                            HomeSectionId.PROJECTS to { index, density ->
+                                ProjectsHomeSection(
+                                    projectsHome, index, density == HomeDensity.ADVANCED,
+                                    openProjects = { navController.navigateTopLevel(LifeDestination.PROJECTS.route) },
+                                    openProject = { navController.navigate(ProjectsRoutes.detail(it)) },
+                                    newProject = { navController.navigate(ProjectsRoutes.edit(null)) },
+                                )
+                            },
                         ),
                         todayContent = { density ->
                             PlanningTodayBlock(
@@ -188,12 +216,22 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                             extraCaptures = listOf(
                                 Triple("Aufgabe", Glyph.TASKS) { openCapture(CaptureType.TASK) },
                                 Triple("Termin", Glyph.CALENDAR) { openCapture(CaptureType.EVENT) },
+                                Triple("Projekt", Glyph.PROJECT) { openCapture(CaptureType.PROJECT) },
                             ),
                         ),
                     )
                 }
                 ledgerGraph(navController, container.ledger)
                 planningGraph(navController, container.planning)
+                projectsGraph(
+                    navController, container.projects,
+                    ProjectsCrossNavigation(
+                        openTask = { navController.navigate(PlanningRoutes.task(it)) },
+                        newTask = { projectId -> navController.navigate(PlanningRoutes.task(null, null, projectId)) },
+                        openTransaction = { navController.navigate(LedgerRoutes.edit(it)) },
+                        openNode = { openNode(it) },
+                    ),
+                )
                 composable(LifeDestination.LIFE.route) {
                     LifeHubScreen(onOpenSystem = { navController.navigate(SYSTEM_ROUTE) })
                 }
@@ -234,13 +272,13 @@ private fun CaptureOverlay(
             when (type) {
                 CaptureType.EXPENSE, CaptureType.INCOME -> QuickExpenseCapture(captureVm, onDone = onDismiss)
                 CaptureType.TASK -> QuickTaskCapture(taskVm, onDone = onDismiss)
-                CaptureType.EVENT, null -> Text("", style = Continuum.type.small)
+                CaptureType.EVENT, CaptureType.PROJECT, null -> Text("", style = Continuum.type.small)
             }
         }
         when (type) {
             CaptureType.EXPENSE, CaptureType.INCOME -> QuickCaptureSaveBar(captureVm)
             CaptureType.TASK -> QuickTaskSaveBar(taskVm)
-            CaptureType.EVENT, null -> Unit
+            CaptureType.EVENT, CaptureType.PROJECT, null -> Unit
         }
     }
 }

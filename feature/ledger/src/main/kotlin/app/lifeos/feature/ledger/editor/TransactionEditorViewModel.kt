@@ -61,6 +61,35 @@ class TransactionEditorViewModel(
     /** Verknüpfte Objekte (Projekte, Fahrzeuge …) – dieselbe Buchung, nur verknüpft. */
     val links: Flow<List<LinkedNode>> = editId?.let { deps.links.observeNeighbors(it) } ?: emptyFlow()
 
+    /** Mögliche Zuordnungen: Projekte, Fahrzeuge, Inventar. */
+    val assignTargets: Flow<List<app.lifeos.core.model.NodeSummary>> =
+        deps.links.observeNodes(setOf(app.lifeos.core.model.NodeType.PROJECT, app.lifeos.core.model.NodeType.VEHICLE, app.lifeos.core.model.NodeType.ASSET))
+
+    /** Bei neuen Buchungen: gewählte Zuordnungen, die nach dem Speichern verknüpft werden. */
+    private val _pendingTargets = MutableStateFlow<Set<NodeId>>(emptySet())
+    val pendingTargets: StateFlow<Set<NodeId>> = _pendingTargets.asStateFlow()
+
+    /** Ordnet zu oder entfernt die Zuordnung. Bestehende Buchung: sofort; neue: nach dem Speichern. */
+    fun toggleTarget(target: app.lifeos.core.model.NodeSummary, currentlyLinked: Boolean) {
+        val id = editId
+        if (id == null) {
+            _pendingTargets.update { if (target.id in it) it - target.id else it + target.id }
+            return
+        }
+        viewModelScope.launch {
+            try {
+                if (currentlyLinked) deps.unlinkNodes(id, target.id) else deps.linkNodes(id, target.id, relationFor(target.type))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _state.update { it.copy(errors = mapOf(EditorField.GENERAL to "Zuordnung fehlgeschlagen.")) }
+            }
+        }
+    }
+
+    private fun relationFor(type: app.lifeos.core.model.NodeType) =
+        if (type == app.lifeos.core.model.NodeType.PROJECT) app.lifeos.core.model.LinkRelation.PART_OF else app.lifeos.core.model.LinkRelation.CONCERNS
+
     init {
         viewModelScope.launch {
             try {
@@ -129,10 +158,16 @@ class TransactionEditorViewModel(
                 viewModelScope.launch {
                     try {
                         when (val saved = deps.record(result.draft)) {
-                            is LedgerResult.Success -> _state.update {
+                            is LedgerResult.Success -> {
+                                if (editId == null && _pendingTargets.value.isNotEmpty()) {
+                                    val targets = deps.links.observeNodes(emptySet()).first().filter { it.id in _pendingTargets.value }
+                                    targets.forEach { t -> deps.linkNodes(saved.value, t.id, relationFor(t.type)) }
+                                }
+                                _state.update {
                                 val label = app.lifeos.core.model.LifeFormat.kindLabel(result.draft.kind)
                                 val amount = app.lifeos.core.model.MoneyText.format(result.draft.amountMinor)
                                 it.copy(saving = false, outcome = EditorOutcome.Saved(if (current.isEdit) "$label geändert · $amount" else "$label gespeichert · $amount"))
+                                }
                             }
                             is LedgerResult.Invalid -> _state.update {
                                 it.copy(saving = false, errors = EditorFormLogic.domainMessages(saved.errors))

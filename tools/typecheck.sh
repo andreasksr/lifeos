@@ -18,7 +18,7 @@ COMPOSE="-Xplugin=$KOTLIN_HOME/lib/compose-compiler-plugin.jar"
 declare -A SRC=(
   [model]=core/model [domain]=core/domain [security]=core/security [database]=core/database
   [designsystem]=core/designsystem [ledger]=feature/ledger [home]=feature/home
-  [planning]=feature/planning [projects]=feature/projects [life]=feature/life [app]=app
+  [planning]=feature/planning [projects]=feature/projects [life]=feature/life [app]=app [apptest]=app
 )
 declare -A CPLIST=(
   [model]=_core_model__compileClasspath [domain]=_core_domain__compileClasspath
@@ -26,17 +26,18 @@ declare -A CPLIST=(
   [designsystem]=_core_designsystem__debugCompileClasspath [ledger]=_feature_ledger__debugCompileClasspath
   [home]=_feature_home__debugCompileClasspath [planning]=_feature_home__debugCompileClasspath
   [projects]=_feature_home__debugCompileClasspath [life]=_feature_home__debugCompileClasspath
-  [app]=_app__debugCompileClasspath
+  [app]=_app__debugCompileClasspath [apptest]=_app__debugAndroidTestCompileClasspath
 )
 declare -A PROJDEPS=(
   [model]="" [domain]="model" [security]="" [database]="model domain"
   [designsystem]="model" [ledger]="model domain designsystem" [home]="model domain designsystem"
   [planning]="model domain designsystem" [projects]="model domain designsystem" [life]="model domain designsystem"
   [app]="model domain security database designsystem ledger home planning projects life"
+  [apptest]="model domain security database designsystem ledger home planning projects life app"
 )
-declare -A ANDROID=([security]=1 [database]=1 [designsystem]=1 [ledger]=1 [home]=1 [planning]=1 [projects]=1 [life]=1 [app]=1)
-declare -A USES_COMPOSE=([designsystem]=1 [ledger]=1 [home]=1 [planning]=1 [projects]=1 [life]=1 [app]=1)
-ORDER=(model domain security database designsystem ledger home planning projects life app)
+declare -A ANDROID=([security]=1 [database]=1 [designsystem]=1 [ledger]=1 [home]=1 [planning]=1 [projects]=1 [life]=1 [app]=1 [apptest]=1)
+declare -A USES_COMPOSE=([designsystem]=1 [ledger]=1 [home]=1 [planning]=1 [projects]=1 [life]=1 [app]=1 [apptest]=1)
+ORDER=(model domain security database designsystem ledger home planning projects life app apptest)
 
 classpath_for() {
   local m="$1" cp="" f
@@ -52,12 +53,13 @@ classpath_for() {
 compile() {
   local m="$1"
   local dir="$ROOT/${SRC[$m]}/src/main"
+  [[ "$m" == "apptest" ]] && dir="$ROOT/app/src/androidTest"
   [[ -d "$dir" ]] || { echo "  (übersprungen: $dir fehlt)"; return 0; }
   local files; files=$(find "$dir" -name '*.kt' | sort)
   [[ -n "$files" ]] || return 0
   # R-Klasse aus den Ressourcenordnern erzeugen (nicht-transitiv, nur eigene Ressourcen)
   local rstub="$OUT/rstub-$m.kt"
-  python3 "$ROOT/tools/rstub.py" "$ROOT/${SRC[$m]}" > "$rstub"
+  if [[ "$m" == "apptest" ]]; then : > "$rstub"; else python3 "$ROOT/tools/rstub.py" "$ROOT/${SRC[$m]}" > "$rstub"; fi
   [[ -s "$rstub" ]] && files="$files $rstub"
   local extra=()
   [[ -n "${USES_COMPOSE[$m]:-}" ]] && extra+=("$COMPOSE")

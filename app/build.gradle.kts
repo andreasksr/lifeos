@@ -64,6 +64,7 @@ dependencies {
     implementation(project(":feature:ledger"))
     implementation(project(":feature:home"))
     implementation(project(":feature:planning"))
+    implementation(project(":feature:projects"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

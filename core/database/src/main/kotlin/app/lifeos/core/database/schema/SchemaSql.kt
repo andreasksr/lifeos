@@ -11,6 +11,9 @@ package app.lifeos.core.database.schema
  *   garantiert wirksam werden (`CREATE TRIGGER IF NOT EXISTS` allein würde alte Fassungen behalten).
  * - `QUERY_*`: Prüfabfragen für den Integritätsprüfer.
  *
+ * Datumsprüfung: `date(x, '+0 days') IS NOT x`. Der Modifikator erzwingt die Normalisierung – ältere
+ * SQLite-Versionen (Android 14: 3.39) geben `date('2026-02-30')` sonst unverändert zurück.
+ *
  * Fehlermeldungen beginnen mit `LIFEOS_`, damit die Datenschicht sie eindeutig zuordnen kann.
  * Änderungen hier erfordern eine Schema-Migration und neue Tests.
  */
@@ -165,7 +168,7 @@ object SchemaSql {
             WHEN NEW.`kind` <> 'TRANSFER' AND NEW.`counter_account_id` IS NOT NULL THEN RAISE(ABORT, 'LIFEOS_TX_COUNTER_ACCOUNT')
             WHEN NEW.`currency` <> (SELECT `currency` FROM `account` WHERE `node_id` = NEW.`account_id`) THEN RAISE(ABORT, 'LIFEOS_TX_CURRENCY')
             WHEN NEW.`counter_account_id` IS NOT NULL AND NEW.`currency` <> (SELECT `currency` FROM `account` WHERE `node_id` = NEW.`counter_account_id`) THEN RAISE(ABORT, 'LIFEOS_TX_CURRENCY')
-            WHEN NEW.`booking_date` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' OR date(NEW.`booking_date`) IS NOT NEW.`booking_date` THEN RAISE(ABORT, 'LIFEOS_TX_DATE')
+            WHEN NEW.`booking_date` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' OR date(NEW.`booking_date`, '+0 days') IS NOT NEW.`booking_date` THEN RAISE(ABORT, 'LIFEOS_TX_DATE')
         END; END"""
 
     const val TRIGGER_TX_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_ledger_transaction_check_update`
@@ -180,7 +183,7 @@ object SchemaSql {
             WHEN NEW.`kind` <> OLD.`kind` AND EXISTS (SELECT 1 FROM `transaction_split` WHERE `transaction_id` = NEW.`node_id`) THEN RAISE(ABORT, 'LIFEOS_TX_KIND_LOCKED')
             WHEN NEW.`currency` <> (SELECT `currency` FROM `account` WHERE `node_id` = NEW.`account_id`) THEN RAISE(ABORT, 'LIFEOS_TX_CURRENCY')
             WHEN NEW.`counter_account_id` IS NOT NULL AND NEW.`currency` <> (SELECT `currency` FROM `account` WHERE `node_id` = NEW.`counter_account_id`) THEN RAISE(ABORT, 'LIFEOS_TX_CURRENCY')
-            WHEN NEW.`booking_date` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' OR date(NEW.`booking_date`) IS NOT NEW.`booking_date` THEN RAISE(ABORT, 'LIFEOS_TX_DATE')
+            WHEN NEW.`booking_date` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' OR date(NEW.`booking_date`, '+0 days') IS NOT NEW.`booking_date` THEN RAISE(ABORT, 'LIFEOS_TX_DATE')
         END; END"""
 
     const val TRIGGER_SPLIT_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_transaction_split_check_insert`
@@ -225,8 +228,8 @@ object SchemaSql {
             WHEN NEW.`amount_minor` <= 0 THEN RAISE(ABORT, 'LIFEOS_RECURRING_AMOUNT')
             WHEN NEW.`kind` NOT IN ('EXPENSE', 'INCOME') THEN RAISE(ABORT, 'LIFEOS_RECURRING_KIND')
             WHEN NEW.`interval_months` NOT IN (1, 2, 3, 6, 12) THEN RAISE(ABORT, 'LIFEOS_RECURRING_INTERVAL')
-            WHEN date(NEW.`anchor_date`) IS NOT NEW.`anchor_date` THEN RAISE(ABORT, 'LIFEOS_RECURRING_DATE')
-            WHEN NEW.`end_date` IS NOT NULL AND (date(NEW.`end_date`) IS NOT NEW.`end_date` OR NEW.`end_date` < NEW.`anchor_date`) THEN RAISE(ABORT, 'LIFEOS_RECURRING_DATE')
+            WHEN date(NEW.`anchor_date`, '+0 days') IS NOT NEW.`anchor_date` THEN RAISE(ABORT, 'LIFEOS_RECURRING_DATE')
+            WHEN NEW.`end_date` IS NOT NULL AND (date(NEW.`end_date`, '+0 days') IS NOT NEW.`end_date` OR NEW.`end_date` < NEW.`anchor_date`) THEN RAISE(ABORT, 'LIFEOS_RECURRING_DATE')
             WHEN (SELECT `direction` FROM `category` WHERE `node_id` = NEW.`category_id`) <> NEW.`kind` THEN RAISE(ABORT, 'LIFEOS_RECURRING_DIRECTION')
             WHEN NEW.`currency` <> (SELECT `currency` FROM `account` WHERE `node_id` = NEW.`account_id`) THEN RAISE(ABORT, 'LIFEOS_RECURRING_CURRENCY')
         END; END"""
@@ -237,8 +240,8 @@ object SchemaSql {
             WHEN NEW.`amount_minor` <= 0 THEN RAISE(ABORT, 'LIFEOS_RECURRING_AMOUNT')
             WHEN NEW.`kind` NOT IN ('EXPENSE', 'INCOME') THEN RAISE(ABORT, 'LIFEOS_RECURRING_KIND')
             WHEN NEW.`interval_months` NOT IN (1, 2, 3, 6, 12) THEN RAISE(ABORT, 'LIFEOS_RECURRING_INTERVAL')
-            WHEN date(NEW.`anchor_date`) IS NOT NEW.`anchor_date` THEN RAISE(ABORT, 'LIFEOS_RECURRING_DATE')
-            WHEN NEW.`end_date` IS NOT NULL AND (date(NEW.`end_date`) IS NOT NEW.`end_date` OR NEW.`end_date` < NEW.`anchor_date`) THEN RAISE(ABORT, 'LIFEOS_RECURRING_DATE')
+            WHEN date(NEW.`anchor_date`, '+0 days') IS NOT NEW.`anchor_date` THEN RAISE(ABORT, 'LIFEOS_RECURRING_DATE')
+            WHEN NEW.`end_date` IS NOT NULL AND (date(NEW.`end_date`, '+0 days') IS NOT NEW.`end_date` OR NEW.`end_date` < NEW.`anchor_date`) THEN RAISE(ABORT, 'LIFEOS_RECURRING_DATE')
             WHEN (SELECT `direction` FROM `category` WHERE `node_id` = NEW.`category_id`) <> NEW.`kind` THEN RAISE(ABORT, 'LIFEOS_RECURRING_DIRECTION')
             WHEN NEW.`currency` <> (SELECT `currency` FROM `account` WHERE `node_id` = NEW.`account_id`) THEN RAISE(ABORT, 'LIFEOS_RECURRING_CURRENCY')
         END; END"""
@@ -249,7 +252,7 @@ object SchemaSql {
             WHEN NEW.`status` NOT IN ('BOOKED', 'SKIPPED') THEN RAISE(ABORT, 'LIFEOS_BOOKING_STATUS')
             WHEN NEW.`status` = 'BOOKED' AND NEW.`transaction_id` IS NULL THEN RAISE(ABORT, 'LIFEOS_BOOKING_TX')
             WHEN NEW.`status` = 'SKIPPED' AND NEW.`transaction_id` IS NOT NULL THEN RAISE(ABORT, 'LIFEOS_BOOKING_TX')
-            WHEN date(NEW.`due_date`) IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_BOOKING_DATE')
+            WHEN date(NEW.`due_date`, '+0 days') IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_BOOKING_DATE')
         END; END"""
 
     const val TRIGGER_RECURRING_BOOKING_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_recurring_booking_check_update`
@@ -280,7 +283,7 @@ object SchemaSql {
             WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`repeat_unit` NOT IN ('DAY', 'WEEK', 'MONTH', 'YEAR') THEN RAISE(ABORT, 'LIFEOS_REPEAT')
             WHEN NEW.`repeat_interval` < 1 OR NEW.`repeat_interval` > 365 THEN RAISE(ABORT, 'LIFEOS_REPEAT')
             WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`due_date` IS NULL THEN RAISE(ABORT, 'LIFEOS_TASK_REPEAT_DUE')
-            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`) IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_TASK_DATE')
+            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`, '+0 days') IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_TASK_DATE')
             WHEN NEW.`due_time` IS NOT NULL AND NEW.`due_time` NOT GLOB '[0-2][0-9]:[0-5][0-9]' THEN RAISE(ABORT, 'LIFEOS_TASK_TIME')
         END; END"""
 
@@ -292,7 +295,7 @@ object SchemaSql {
             WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`repeat_unit` NOT IN ('DAY', 'WEEK', 'MONTH', 'YEAR') THEN RAISE(ABORT, 'LIFEOS_REPEAT')
             WHEN NEW.`repeat_interval` < 1 OR NEW.`repeat_interval` > 365 THEN RAISE(ABORT, 'LIFEOS_REPEAT')
             WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`due_date` IS NULL THEN RAISE(ABORT, 'LIFEOS_TASK_REPEAT_DUE')
-            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`) IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_TASK_DATE')
+            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`, '+0 days') IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_TASK_DATE')
             WHEN NEW.`due_time` IS NOT NULL AND NEW.`due_time` NOT GLOB '[0-2][0-9]:[0-5][0-9]' THEN RAISE(ABORT, 'LIFEOS_TASK_TIME')
         END; END"""
 
@@ -303,8 +306,8 @@ object SchemaSql {
             WHEN NEW.`status` NOT IN ('PLANNED', 'ACTIVE', 'PAUSED', 'DONE', 'CANCELLED') THEN RAISE(ABORT, 'LIFEOS_PROJECT_STATUS')
             WHEN NEW.`progress_mode` NOT IN ('TASKS', 'MILESTONES', 'MANUAL') THEN RAISE(ABORT, 'LIFEOS_PROJECT_PROGRESS')
             WHEN NEW.`progress_mode` = 'MANUAL' AND (NEW.`manual_progress` IS NULL OR NEW.`manual_progress` < 0 OR NEW.`manual_progress` > 1000) THEN RAISE(ABORT, 'LIFEOS_PROJECT_PROGRESS')
-            WHEN date(NEW.`start_date`) IS NOT NEW.`start_date` THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
-            WHEN NEW.`target_date` IS NOT NULL AND (date(NEW.`target_date`) IS NOT NEW.`target_date` OR NEW.`target_date` < NEW.`start_date`) THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
+            WHEN date(NEW.`start_date`, '+0 days') IS NOT NEW.`start_date` THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
+            WHEN NEW.`target_date` IS NOT NULL AND (date(NEW.`target_date`, '+0 days') IS NOT NEW.`target_date` OR NEW.`target_date` < NEW.`start_date`) THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
             WHEN NEW.`budget_minor` IS NOT NULL AND NEW.`budget_minor` <= 0 THEN RAISE(ABORT, 'LIFEOS_PROJECT_BUDGET')
         END; END"""
 
@@ -314,8 +317,8 @@ object SchemaSql {
             WHEN NEW.`status` NOT IN ('PLANNED', 'ACTIVE', 'PAUSED', 'DONE', 'CANCELLED') THEN RAISE(ABORT, 'LIFEOS_PROJECT_STATUS')
             WHEN NEW.`progress_mode` NOT IN ('TASKS', 'MILESTONES', 'MANUAL') THEN RAISE(ABORT, 'LIFEOS_PROJECT_PROGRESS')
             WHEN NEW.`progress_mode` = 'MANUAL' AND (NEW.`manual_progress` IS NULL OR NEW.`manual_progress` < 0 OR NEW.`manual_progress` > 1000) THEN RAISE(ABORT, 'LIFEOS_PROJECT_PROGRESS')
-            WHEN date(NEW.`start_date`) IS NOT NEW.`start_date` THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
-            WHEN NEW.`target_date` IS NOT NULL AND (date(NEW.`target_date`) IS NOT NEW.`target_date` OR NEW.`target_date` < NEW.`start_date`) THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
+            WHEN date(NEW.`start_date`, '+0 days') IS NOT NEW.`start_date` THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
+            WHEN NEW.`target_date` IS NOT NULL AND (date(NEW.`target_date`, '+0 days') IS NOT NEW.`target_date` OR NEW.`target_date` < NEW.`start_date`) THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
             WHEN NEW.`budget_minor` IS NOT NULL AND NEW.`budget_minor` <= 0 THEN RAISE(ABORT, 'LIFEOS_PROJECT_BUDGET')
         END; END"""
 
@@ -323,7 +326,7 @@ object SchemaSql {
         BEFORE INSERT ON `milestone`
         BEGIN SELECT CASE
             WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'MILESTONE' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
-            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`) IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_MILESTONE_DATE')
+            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`, '+0 days') IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_MILESTONE_DATE')
         END; END"""
 
     /** Meilensteine sind eigene Knoten: fällt die Meilenstein-Zeile weg (z. B. per Projekt-Kaskade), geht ihr Knoten mit. */

@@ -174,6 +174,10 @@ class FakeLinkRepository(private val nodes: MutableMap<NodeId, NodeSummary>) : L
 
     override suspend fun search(query: String, types: Set<NodeType>, limit: Int) =
         nodes.values.filter { (types.isEmpty() || it.type in types) && it.title.contains(query, ignoreCase = true) }.take(limit)
+
+    override fun observeAllLinks() = links
+
+    override fun observeNodes(types: Set<NodeType>) = links.map { nodes.values.filter { types.isEmpty() || it.type in types } }
 }
 
 class FakeSettingsRepository : SettingsRepository {

@@ -20,6 +20,9 @@ import app.lifeos.core.domain.planning.AgendaBuilder
 import app.lifeos.feature.home.HomeDependencies
 import app.lifeos.feature.home.HomeSectionSource
 import app.lifeos.feature.planning.PlanningDependencies
+import app.lifeos.feature.projects.ProjectsDependencies
+import app.lifeos.feature.projects.projectAttention
+import app.lifeos.core.model.TaskStatus
 import app.lifeos.notifications.AlarmReminderScheduler
 import app.lifeos.notifications.AndroidNotificationAccess
 import app.lifeos.notifications.ReminderNotifier
@@ -69,6 +72,17 @@ class AppContainer private constructor(
         background = appScope,
     )
 
+    val projects = ProjectsDependencies(
+        projects = projectRepository,
+        planning = planningRepository,
+        ledger = ledgerRepository,
+        links = linkRepository,
+        clock = clock,
+        ids = ids,
+        toggleTask = { task -> if (task.status == TaskStatus.DONE) planning.reopenTask(task.id) else planning.completeTask(task.id) },
+        background = appScope,
+    )
+
     val home = HomeDependencies(
         settings = settingsRepository,
         clock = clock,
@@ -77,6 +91,10 @@ class AppContainer private constructor(
             object : HomeSectionSource {
                 override val id = HomeSectionId.PLANNING
                 override val attention = planningRepository.observeTasks().map { tasks -> AgendaBuilder.attention(tasks, clock.today()) }
+            },
+            object : HomeSectionSource {
+                override val id = HomeSectionId.PROJECTS
+                override val attention = projectAttention(projects) { clock.today() }
             },
         ),
     )

@@ -290,6 +290,12 @@ abstract class LinkDao {
 
     @Query("SELECT * FROM node WHERE (:allTypes OR type IN (:types)) ORDER BY updated_at DESC")
     abstract suspend fun nodesOfTypes(allTypes: Boolean, types: List<String>): List<NodeEntity>
+
+    @Query("SELECT * FROM node WHERE (:allTypes OR type IN (:types)) ORDER BY updated_at DESC")
+    abstract fun observeNodesOfTypes(allTypes: Boolean, types: List<String>): Flow<List<NodeEntity>>
+
+    @Query("SELECT * FROM link ORDER BY created_at")
+    abstract fun observeAll(): Flow<List<LinkEntity>>
 }
 
 data class NeighborRow(

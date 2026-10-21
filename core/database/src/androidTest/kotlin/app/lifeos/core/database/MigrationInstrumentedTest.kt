@@ -104,24 +104,33 @@ class MigrationInstrumentedTest {
         } catch (e: SQLiteException) {
             assertTrue("${e.message} – ${diagnostics(db)}", e.message.orEmpty().contains("LIFEOS_TASK_DATE"))
         }
+        // 30. Februar: auf Android-SQLite 3.39 normalisiert date() ohne Modifikator nicht – Trigger nutzen '+0 days'.
+        try {
+            db.execSQL("UPDATE task SET due_date = '2026-02-30' WHERE node_id = '00000000-0000-4000-8000-000000000011'")
+            fail("Trigger hätte greifen müssen – " + diagnostics(db))
+        } catch (e: SQLiteException) {
+            assertTrue("${e.message} – ${diagnostics(db)}", e.message.orEmpty().contains("LIFEOS_TASK_DATE"))
+        }
         try {
             db.execSQL("UPDATE task SET status = 'MAYBE' WHERE node_id = '00000000-0000-4000-8000-000000000011'")
             fail("Trigger hätte greifen müssen – " + diagnostics(db))
         } catch (e: SQLiteException) {
             assertTrue("${e.message} – ${diagnostics(db)}", e.message.orEmpty().contains("LIFEOS_TASK_STATUS"))
         }
-        // Projekt löschen → Aufgabe bleibt, ohne Projekt
+        // Projekt löschen → Aufgabe bleibt, ohne Projekt. (Room schaltet Fremdschlüssel in der App selbst
+        // ein; die von MigrationTestHelper geöffnete Verbindung braucht das explizit.)
+        db.execSQL("PRAGMA foreign_keys = ON")
         db.execSQL("DELETE FROM node WHERE id = '00000000-0000-4000-8000-000000000010'")
         db.query("SELECT project_id FROM task").use { c ->
             assertTrue(c.moveToFirst())
-            assertTrue(c.isNull(0))
+            assertTrue("project_id muss nach Projektlöschung NULL sein", c.isNull(0))
         }
         db.close()
     }
 
     /** Hilft bei Abweichungen zwischen Android-SQLite und Referenz-SQLite (Version, date()-Verhalten). */
     private fun diagnostics(db: androidx.sqlite.db.SupportSQLiteDatabase): String =
-        db.query("SELECT sqlite_version(), date('2026-02-30'), date('2026-13-01'), (SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='task')").use { c ->
+        db.query("SELECT sqlite_version(), date('2026-02-30', '+0 days'), date('2026-13-01'), (SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='task')").use { c ->
             c.moveToFirst()
             "sqlite=${c.getString(0)} date(02-30)=${c.getString(1)} date(13-01)=${c.getString(2)} taskTrigger=${c.getInt(3)}"
         }

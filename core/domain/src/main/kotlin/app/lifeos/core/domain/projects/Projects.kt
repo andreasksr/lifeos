@@ -261,3 +261,52 @@ object ProjectSnapshotBuilder {
     fun linkedTransactionIds(neighbors: List<app.lifeos.core.domain.ports.LinkedNode>): List<NodeId> =
         neighbors.filter { it.node.type == NodeType.TRANSACTION }.map { it.node.id }
 }
+
+/** Kompakte Projektübersicht für Listen und Home – alles aus echten, verknüpften Daten berechnet. */
+data class ProjectCard(
+    val project: Project,
+    val progress: ProjectProgress,
+    val costs: ProjectCosts,
+    val openTasks: Int,
+    val doneTasks: Int,
+    val nextTask: Task?,
+    val nextMilestone: Milestone?,
+)
+
+object ProjectOverview {
+
+    /** Buchungen, die per `PART_OF` mit dem Projekt verknüpft sind (Richtung egal, ohne Duplikate). */
+    fun linkedIds(projectId: NodeId, links: List<NodeLink>): Set<NodeId> =
+        links.filter { it.relation == LinkRelation.PART_OF && (it.to == projectId || it.from == projectId) }
+            .map { if (it.to == projectId) it.from else it.to }
+            .toSet()
+
+    private val statusOrder = listOf(ProjectStatus.ACTIVE, ProjectStatus.PLANNED, ProjectStatus.PAUSED, ProjectStatus.DONE, ProjectStatus.CANCELLED)
+
+    fun build(
+        projects: List<Project>,
+        tasks: List<Task>,
+        milestones: List<Milestone>,
+        links: List<NodeLink>,
+        transactions: List<LedgerTransaction>,
+    ): List<ProjectCard> {
+        val txById = transactions.associateBy { it.id }
+        return projects.map { p ->
+            val own = tasks.filter { it.projectId == p.id }
+            val txs = linkedIds(p.id, links).mapNotNull { txById[it] }
+            ProjectCard(
+                project = p,
+                progress = ProgressCalculator.compute(p, tasks, milestones),
+                costs = ProjectCostCalculator.compute(txs, p.budgetMinor),
+                openTasks = own.count { it.status == TaskStatus.OPEN },
+                doneTasks = own.count { it.status == TaskStatus.DONE },
+                nextTask = own.filter { it.status == TaskStatus.OPEN }
+                    .sortedWith(compareBy<Task> { it.dueDate ?: LocalDate.MAX }.thenByDescending { it.priority })
+                    .firstOrNull(),
+                nextMilestone = milestones.filter { it.projectId == p.id && it.doneAt == null }
+                    .sortedWith(compareBy<Milestone> { it.dueDate ?: LocalDate.MAX }.thenBy { it.sortOrder })
+                    .firstOrNull(),
+            )
+        }.sortedWith(compareBy<ProjectCard> { statusOrder.indexOf(it.project.status) }.thenBy { it.project.name.lowercase() })
+    }
+}

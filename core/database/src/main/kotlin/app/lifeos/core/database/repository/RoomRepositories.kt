@@ -176,6 +176,14 @@ class RoomLinkRepository(private val db: LifeOsDatabase) : LinkRepository {
             .map { it.toSummary() }
             .toList()
     }
+
+    override fun observeAllLinks(): Flow<List<NodeLink>> =
+        db.linkDao().observeAll().map { rows -> rows.map { it.toDomain() } }.distinctUntilChanged()
+
+    override fun observeNodes(types: Set<NodeType>): Flow<List<NodeSummary>> =
+        db.linkDao().observeNodesOfTypes(types.isEmpty(), types.map { it.name })
+            .map { rows -> rows.map { it.toSummary() } }
+            .distinctUntilChanged()
 }
 
 class RoomSettingsRepository(private val db: LifeOsDatabase) : SettingsRepository {

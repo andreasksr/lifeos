@@ -80,6 +80,12 @@ interface LinkRepository {
 
     /** Volltextähnliche Suche über Titel aller Nodes (case-insensitive, enthält). */
     suspend fun search(query: String, types: Set<NodeType>, limit: Int): List<NodeSummary>
+
+    /** Alle Verknüpfungen – für Übersichten, die viele Objekte gleichzeitig zusammenfassen (z. B. Projektkosten). */
+    fun observeAllLinks(): Flow<List<NodeLink>>
+
+    /** Alle Nodes bestimmter Typen (für Auswahllisten: Projekte, Fahrzeuge, …), zuletzt geändert zuerst. */
+    fun observeNodes(types: Set<NodeType>): Flow<List<NodeSummary>>
 }
 
 /** Ein über einen Link erreichbarer Node, inkl. Richtung und Bedeutung der Verbindung. */

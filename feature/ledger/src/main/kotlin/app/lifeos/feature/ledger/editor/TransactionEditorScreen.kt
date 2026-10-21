@@ -65,6 +65,8 @@ import app.lifeos.feature.ledger.presentation.EditorField
 fun TransactionEditorRoute(viewModel: TransactionEditorViewModel, onClose: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val links by viewModel.links.collectAsStateWithLifecycle(initialValue = emptyList())
+    val targets by viewModel.assignTargets.collectAsStateWithLifecycle(initialValue = emptyList())
+    val pendingTargets by viewModel.pendingTargets.collectAsStateWithLifecycle()
     val signal = LocalLifeSignal.current
     val haptics = rememberLifeHaptics()
     LaunchedEffect(state.outcome) {
@@ -220,9 +222,24 @@ fun TransactionEditorRoute(viewModel: TransactionEditorViewModel, onClose: () ->
                 modifier = inset,
             )
 
-            if (links.isNotEmpty()) {
-                Section("Verknüpft mit", null, inset) {
-                    links.forEach { l ->
+            if (targets.isNotEmpty() || links.isNotEmpty()) {
+                Section("Zuordnen · Projekt, Fahrzeug, Inventar", null, inset) {
+                    Text("Die Buchung bleibt eine einzige Buchung – sie erscheint zusätzlich beim gewählten Eintrag.", style = Continuum.type.small)
+                    val linkedIds = links.map { it.node.id }.toSet()
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        targets.forEach { t ->
+                            val selected = t.id in linkedIds || t.id in pendingTargets
+                            LifeChoiceChip(
+                                t.title, selected, { viewModel.toggleTarget(t, t.id in linkedIds) },
+                                glyph = when (t.type) {
+                                    app.lifeos.core.model.NodeType.PROJECT -> Glyph.PROJECT
+                                    app.lifeos.core.model.NodeType.VEHICLE -> Glyph.CAR
+                                    else -> Glyph.BOX
+                                },
+                            )
+                        }
+                    }
+                    links.filter { l -> targets.none { it.id == l.node.id } }.forEach { l ->
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             LifeNode(shape = NodeShape.LINKED, tone = NodeTone.ACTIVE, size = 12.dp)
                             Text(l.node.title, style = Continuum.type.body, modifier = Modifier.weight(1f))

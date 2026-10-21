@@ -53,4 +53,6 @@ class LedgerDependencies(
     val bookOccurrence = BookOccurrence(repository, ids, clock)
     val skipOccurrence = SkipOccurrence(repository)
     val unskipOccurrence = UnskipOccurrence(repository)
+    val linkNodes = app.lifeos.core.domain.links.LinkNodes(links, ids, clock)
+    val unlinkNodes = app.lifeos.core.domain.projects.UnlinkNodes(links)
 }
