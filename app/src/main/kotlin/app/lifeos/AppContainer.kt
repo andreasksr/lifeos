@@ -43,6 +43,8 @@ import app.lifeos.feature.ledger.LedgerDependencies
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.debounce
 
 /**
  * Manuelle Dependency Injection (ADR-003). Einzige Stelle, die Datenbank, Sicherheit und Features
@@ -120,6 +122,16 @@ class AppContainer private constructor(
     )
 
     val appLock = AppLock()
+
+    /** Hält das Startbildschirm-Widget aktuell: bei jeder Änderung an Aufgaben, Terminen oder der App-Sperre. */
+    @OptIn(kotlinx.coroutines.FlowPreview::class)
+    fun startWidgetSync() {
+        appScope.launch(Dispatchers.IO) {
+            kotlinx.coroutines.flow.combine(planningRepository.observeTasks(), planningRepository.observeEvents(), settings.appLockEnabled) { _, _, _ -> Unit }
+                .debounce(800)
+                .collect { app.lifeos.widget.LifeOsWidget.refresh(context) }
+        }
+    }
 
     /** Schreibt eine passwortgeschützte Sicherung (Datenbank + Dokumente) nach [out]. Blockierend – im Hintergrund aufrufen. */
     fun exportBackup(out: java.io.OutputStream, passphrase: CharArray): BackupManager.Summary {

@@ -38,6 +38,7 @@ class LifeOsApplication : Application() {
                 // Alarme nach App-Start/Update sicher neu planen (z. B. nach Datenwiederherstellung).
                 runCatching { r.container.reminderScheduler.reschedule() }
                 runCatching { r.container.cleanUpFiles() }
+                r.container.startWidgetSync()
             }
             r
         }
