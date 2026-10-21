@@ -1,77 +1,62 @@
 # ROADMAP – LifeOS
 
-Status-Legende: ✅ erledigt und verifiziert · 🟡 implementiert, Verifikation offen · ⬜ offen
+Status: ✅ fertig und geprüft · 🟡 fertig, Prüfung eingeschränkt (siehe Hinweis) · ⬜ offen
 
-> **Stand (2026-10-21):** Phase 1 implementiert, Debug-APK erfolgreich gebaut (GitHub Actions),
-> 53 Unit-Tests und 17 Schematests grün, Room-Schema = Referenz. Offen: Test auf echtem Gerät und
-> instrumentierte Tests.
+> **Stand 2026-10-21 · Version 0.5.0** – alle fünf Prioritäten des Next-Generation-Auftrags sind als
+> nutzbare Kernversionen umgesetzt. Nachweise: `CHANGELOG.md`, `TEST_PLAN.md`.
 
----
+## Versionen dieses Updates
+| Version | Inhalt |
+|---|---|
+| 0.1.0 | Ausgangsstand (Haushaltskasse-Kern) – gesichert in Branch `backup/v0.1.0` |
+| 0.2.0 | P1 + P2: CONTINUUM v2, fünf Bereiche, Home-Kommandozentrale, Haushaltskasse vollständig |
+| 0.3.0 | P3: Aufgaben, Kalender, Erinnerungen, Projekte mit Kostenverknüpfung |
+| 0.4.0 | P4: Fahrzeuge, Inventar, Dokumententresor, Industriemeister |
+| 0.5.0 | P5: Suche, Datensicherung, App-Sperre, Widget, LifeMap |
 
-## Phase 0 – Architektur & Fundament ✅
-- ✅ Kritische Analyse, Risiken, Inkonsistenzen (`ARCHITECTURE.md`)
-- ✅ Projektdokumente (CLAUDE, PRODUCT_VISION, DESIGN_SYSTEM, DATA_MODEL, ROADMAP, TEST_PLAN, CHANGELOG)
-- ✅ Modulstruktur, Version Catalog, Gradle Wrapper 8.14.3
+## P1 – Design & Fundament ✅
+- ✅ Bestandsaufnahme (`INVENTORY.md`), Sicherungsstand `backup/v0.1.0`, Paketkennung unverändert
+- ✅ CONTINUUM v2: Palette laut Auftrag, Space Grotesk / Inter / JetBrains Mono, eigene Glyphen
+- ✅ Komponenten: LifeLine, LifeNode, LifePanel, LifeMetric, LifeTimeline, LifeNavigation, LifeProgress, LifeChart, LifeAction, LifeOverlay, Kalender, Zeitwahl
+- ✅ Bewegung: Einstiegs-Linie, Lichtimpuls beim Speichern, Diagramm-Morph, Haptik, alles abschaltbar
+- ✅ Fünf Hauptbereiche + zentrale Schnellerfassung; nur implementierte Ziele sichtbar
+- ✅ Home: Heute, Aufmerksamkeit, Finanzen, Planung, Projekte, Weiterbildung; ein-/ausblenden, sortieren, Dichte Minimal/Standard/Advanced
 
-## Phase 1 – Grundprojekt, Designsystem, Haushaltskasse (Kern) 🟡
-| # | Abnahmekriterium | Status |
-|---|---|---|
-| 1.1 | Geldbeträge exakt (Long, Überlaufschutz, deutsches Parsen/Formatieren ohne Rundung) | ✅ 13 Tests |
-| 1.2 | Buchung erfassen/bearbeiten/löschen mit vollständiger Validierung | ✅ Domäne · 🟡 UI |
-| 1.3 | Ausgabe, Einnahme, Umbuchung; Umbuchung beeinflusst keine Statistik | ✅ Domäne |
-| 1.4 | Splits: Σ = Betrag, Kategorie-Richtung passend | ✅ Domäne + Trigger |
-| 1.5 | Monatsübersicht: Gesamtsaldo, Einnahmen, Ausgaben, Ergebnis, Kategorien, Zeitleiste | ✅ Logik · 🟡 UI |
-| 1.6 | Monatsbudgets je Kategorie mit Gültigkeit ab Monat, Auslastung, Überschreitung | ✅ Logik · 🟡 UI |
-| 1.7 | Konten und Kategorien anlegen; Standardkategorien einmalig (keine Fake-Beträge) | ✅ Logik · 🟡 UI |
-| 1.8 | Datenmodell `node`/`link`: Ersatzteil-Szenario – 1 Buchung, 3 Sichten | ✅ Domäne + SQLite |
-| 1.9 | DB-Trigger erzwingen Invarianten auch bei Umgehung der Domäne | ✅ 17 SQLite-Tests |
-| 1.10 | Integritätsprüfer (Split-Summen, verwaiste Nodes, FK-Check) mit UI | ✅ SQL · 🟡 Room/UI |
-| 1.11 | SQLCipher-Verschlüsselung, Schlüssel per Android Keystore, Auto-Backup aus | 🟡 |
-| 1.12 | CONTINUUM: LifeLine, LifeNode, LifePanel, LifeMetric, LifeTimeline, LifeNavigation + Controls | 🟡 |
-| 1.13 | Animationen abschaltbar (Einstellung + System-Einstellung) | 🟡 |
-| 1.14 | Navigation zeigt nur implementierte Bereiche | 🟡 |
+## P2 – Finanzen ✅
+- ✅ Einnahme, Ausgabe, Umbuchung, Erstattung, Korrektur; bearbeiten, löschen mit Rückgängig, Suche/Filter
+- ✅ Schnellerfassung mit großer Betragsanzeige, eigener Zifferntastatur, zuletzt genutzte Kategorien
+- ✅ Gesamt- und Kategorienbudgets mit sichtbarer Überschreitung (nicht bei 100 % gekappt)
+- ✅ Wiederkehrende Zahlungen (monatlich/vierteljährlich/jährlich …) – nie automatisch gebucht
+- ✅ Analysen: 6-Monats-Verlauf, Kategorieverteilung, Fixkostenquote, Budgetentwicklung
 
-## Phase 1b – Build-Verifikation 🟡
-Abnahme:
-- ✅ `./gradlew test :app:assembleDebug` grün (GitHub Actions, 2026-10-21)
-- ⬜ `./gradlew :core:database:connectedAndroidTest :core:security:connectedAndroidTest` grün
-- ✅ Schema-JSON `core/database/schemas/…/1.json` erzeugt, eingecheckt, = Referenz-DDL
-- ⬜ APK auf echtem Gerät: Buchung erfassen → App beenden → neu starten → Buchung vorhanden
-- Screenshot-Tests (Roborazzi) für alle CONTINUUM-Komponenten, Motion an/aus
-- Versionsnummern im Version Catalog auf aktuellen Stand prüfen und gebündelt anheben
+## P3 – Alltag & Projekte ✅
+- ✅ Aufgaben (Priorität, Fälligkeit, Wiederholung, Projekt), Kalender Tag/Woche/Monat, Termine mit Wiederholung
+- ✅ Echte Benachrichtigungen (exakte Alarme, Neustart, Zeitumstellung, „Erledigt"/„Später"); erledigte Aufgaben erinnern nicht mehr
+- ✅ Projekte: Status, Zeitraum, Fortschritt nach Aufgaben/Meilensteinen/manuell, Projekt-LifeLine
+- ✅ Bestehende Buchung einem Projekt zuordnen – ohne Kopie, Änderungen überall sichtbar
 
-## Phase 2 – Haushaltskasse vollständig ⬜
-- Fixkosten, Abonnements, Verträge (`recurring_rule`, `contract`) mit Fälligkeiten und Kündigungsfristen
-- Mehrfachaufteilung im Formular (UI für Splits, `SplitAllocator` existiert bereits)
-- Sparziele mit Fortschritt als LifeLine
-- Suche/Filter in Buchungen; Jahres- und Langzeitstatistik (12-Monats-Linie)
-- Änderungsprotokoll `ledger_audit` (Prüfbarkeit: wer/was/wann geändert)
-- Kategorien/Konten bearbeiten, archivieren, sortieren
-- Eigene Schriften (OFL) einbinden
-- Abnahme: 10 000 Buchungen – Monatsansicht < 300 ms (Benchmark), alle Statistiken mit Tests
+## P4 – Persönliche Verwaltung ✅
+- ✅ Fahrzeuge: Stammdaten, Historie als LifeLine, geplante Termine (HU), Kosten aus verknüpften Buchungen, Dokumente
+- ✅ Inventar: Kauf, Seriennummer, Garantie mit Hinweis, Belege, Dokumente
+- ✅ Dokumente: PDF/Bild über Android-Dateiauswahl, verschlüsselt, keine Doppelablage, Vorschau, Zuordnung
+- ✅ Industriemeister: Start/Stopp + Nachtrag, Statistik je Fach/Woche/Monat ohne Doppelzählung, Fächer/Themen, Prüfungen mit Zielzeitraum (nicht bestätigt) bzw. bestätigtem Termin, Unterrichtstermine aus der Planung
+- ⬜ OCR: Feld `ocr_text` vorbereitet, **keine** Texterkennung eingebaut
 
-## Phase 3 – Sicherheit & Daten-Souveränität ⬜
-- Verschlüsseltes Backup (Passphrase → PBKDF2/Argon2id → AES-256-GCM), Wiederherstellung mit Prüfung
-- Export CSV/JSON (Buchungen, Kategorien) – unverschlüsselt nur nach Warnung
-- Belege als verschlüsselte Anhänge (Kamera/Datei)
-- App-Sperre (Biometrie) unabhängig vom DB-Schlüssel
-- Backup-Erinnerung (Benachrichtigung)
-- Abnahme: Backup auf Gerät A → Wiederherstellung auf Gerät B → Integritätsprüfung 0 Abweichungen
+## P5 – Premium-Funktionen
+- ✅ Zentrale Suche (Titel, Händler, Notiz, Betrag, Dateiname, Aufgabenbeschreibung) mit Sprung zum Eintrag
+- ✅ Verschlüsselte Datensicherung + Wiederherstellung auf anderem Gerät (Emulator-Test mit fremden Schlüsseln)
+- 🟡 App-Sperre (BiometricPrompt, Gerätesperre) – im Emulator nicht automatisiert geprüft (keine Biometrie)
+- 🟡 Widget (nächster Termin, fällige Aufgaben, Schnellerfassung) – gebaut, nicht auf einem Startbildschirm automatisiert geprüft
+- ✅ LifeMap: ausgewähltes Objekt + direkte Verbindungen (Links und feste Beziehungen), weiterwandern
 
-## Phase 4 – Projekte & Besitz ⬜
-- Projekte mit Aufgaben, Materialliste, Meilensteinen; Kosten = verknüpfte Buchungen (ohne Kopie)
-- Fahrzeuge/Werkzeuge/Geräte mit Kaufbeleg, Garantie, Wartungen, Reparaturen
-- Verknüpfungs-UI: aus einer Buchung „Fahrzeug/Projekt zuordnen"; LINKED-Knoten in Zeitleisten
-- Abnahme: Ersatzteil-Szenario in der echten UI, Summen in allen drei Sichten identisch
-
-## Phase 5 – Alltag & Archiv ⬜
-- Kalender, Aufgaben, Erinnerungen, Wiederholungen; Benachrichtigungen (WorkManager/AlarmManager)
-- Notizen, Dokumente, Fotos; Volltextsuche (FTS) über alle Nodes
-- „Heute"-Ansicht als Startbildschirm (eine LifeLine durch den Tag); erstes Widget
-
-## Phase 6 – Weiterbildung Industriemeister Mechatronik ⬜
-- Fächer/Themen, Lernzeiten, Prüfungstermine, Unterrichtsplanung, Fortschritt als LifeLine
-
-## Phase 7+ – Optionale Intelligenz ⬜
-- Belegerkennung (zuerst on-device, ML Kit), Kategorievorschläge
-- Optionale externe KI in `integration:ai`, explizite Einwilligung, Datenminimierung
+## Danach (nicht Teil dieses Updates)
+| Thema | Begründung |
+|---|---|
+| OCR on-device (ML Kit) für Dokumente | erst wenn zuverlässig offline lauffähig |
+| Verträge mit Kündigungsfristen (`contract`) | heute über wiederkehrende Zahlungen abgebildet |
+| Konten/Kategorien umbenennen & archivieren im UI | Datenmodell vorbereitet |
+| Erinnerungen für Fahrzeug-Termine und Prüfungen als Benachrichtigung | heute: Hinweis auf Home |
+| Lernaufgaben direkt im Fach (heute: Aufgaben in der Planung) | |
+| Mehrfachaufteilung im Buchungseditor (Splits) | Domäne vorhanden |
+| Roborazzi-Screenshot-Tests, Tablet-Layouts | heute: echte Emulator-Screenshots (Pixel 6) |
+| Release-Signatur mit eigenem Schlüssel, Play-Store | derzeit fester Entwicklungsschlüssel |

@@ -91,15 +91,19 @@ class EndToEndLifeTest {
         rule.onNodeWithText("STOPPEN").performClick()
         waitForText("STARTEN")
 
-        // Nachtrag über die gerade gemessene Zeit → wird abgewiesen (keine Doppelzählung)
+        // Nachtrag (Standard: 60 Min bis eben) → gespeichert
+        rule.onNodeWithText("Zeit nachtragen  →").performClick()
+        waitForText("NACHTRAGEN")
+        rule.onNodeWithText("NACHTRAGEN").performClick()
+        rule.waitUntil(15_000) { rule.onAllNodesWithText("NACHTRAGEN").fetchSemanticsNodes().isEmpty() }
+        // Derselbe Zeitraum noch einmal → wird abgewiesen (keine Doppelzählung)
         rule.onNodeWithText("Zeit nachtragen  →").performClick()
         waitForText("NACHTRAGEN")
         rule.onNodeWithText("NACHTRAGEN").performClick()
         waitForText("Überschneidet sich", substring = true)
         Shots.take("34_nachtrag_ueberschneidung")
-        rule.onAllNodesWithText("30 Min").onFirst().performClick()
-        rule.onNodeWithText("NACHTRAGEN").performClick()
-        rule.waitUntil(15_000) { rule.onAllNodesWithText("NACHTRAGEN").fetchSemanticsNodes().isEmpty() }
+        rule.onNodeWithContentDescription("Schließen").performClick()
+        rule.waitUntil(10_000) { rule.onAllNodesWithText("NACHTRAGEN").fetchSemanticsNodes().isEmpty() }
         rule.onNodeWithTag("lifeos-screen").performScrollToNode(hasText(" · nachgetragen", substring = true))
         Shots.take("35_weiterbildung")
     }

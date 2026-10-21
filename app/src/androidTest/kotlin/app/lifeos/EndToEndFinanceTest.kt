@@ -6,6 +6,8 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onAllNodesWithText
@@ -102,7 +104,8 @@ class EndToEndFinanceTest {
         Shots.take("07_loeschen_abfrage")
         rule.onNodeWithText("LÖSCHEN").performClick()
         waitForText("RÜCKGÄNGIG", timeout = 5_000)
-        rule.onNodeWithText("RÜCKGÄNGIG").performClick()
+        // Direkt per Semantik-Aktion: auf einem langsamen Emulator kann der Hinweis zwischen Ortung und Tipp wegfahren.
+        rule.onNodeWithText("RÜCKGÄNGIG").performSemanticsAction(SemanticsActions.OnClick)
         // Die Zeile kann unterhalb des sichtbaren Bereichs liegen (LazyColumn komponiert sie dann nicht):
         // bis zu 20 s lang wiederholt hinscrollen.
         rule.waitUntil(20_000) { runCatching { scrollTo(txLine) }.isSuccess && rule.onAllNodes(txLine).fetchSemanticsNodes().isNotEmpty() }

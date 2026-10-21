@@ -82,7 +82,7 @@ fun LifeToastHost(state: LifeSignalState, modifier: Modifier = Modifier) {
     val current = state.toast
     LaunchedEffect(current?.id) {
         val id = current?.id ?: return@LaunchedEffect
-        delay(if (current.actionLabel != null) 6_000 else 3_200)
+        delay(if (current.actionLabel != null) 8_000 else 3_200)
         state.dismissToast(id)
     }
     val motion = Continuum.motion
