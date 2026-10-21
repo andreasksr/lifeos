@@ -120,4 +120,18 @@ object LifeFormat {
         NodeType.CONTRACT -> "Vertrag"
         NodeType.NOTE -> "Notiz"
     }
+
+    /** „09:05" – unabhängig von der Gerätesprache. */
+    fun time(t: java.time.LocalTime): String = "${t.hour.pad(2)}:${t.minute.pad(2)}"
+
+    /** „1 Std 25 Min", „45 Min", „0 Min". */
+    fun duration(minutes: Long): String {
+        val h = minutes / 60
+        val m = minutes % 60
+        return when {
+            h > 0 && m > 0 -> "$h Std $m Min"
+            h > 0 -> "$h Std"
+            else -> "$m Min"
+        }
+    }
 }

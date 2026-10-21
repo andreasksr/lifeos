@@ -2,8 +2,8 @@ package app.lifeos
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -13,7 +13,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
@@ -50,6 +49,9 @@ class EndToEndFinanceTest {
         }
     }
 
+    /** Die Buchungszeile (klickbar) – nicht die gleichnamige Kategoriezeile. */
+    private val txLine = hasText("Lebensmittel") and hasClickAction() and hasText("Haushaltskasse", substring = true)
+
     @Test
     fun ausgabeAnlegenBearbeitenLoeschenUndRueckgaengig() {
         // Start: Home ist da (DB wird verschlüsselt geöffnet, Standardkategorien angelegt)
@@ -61,21 +63,22 @@ class EndToEndFinanceTest {
         waitFor(hasContentDescription("Komma"))
         typeAmount("12,5")
         rule.onNodeWithText("Lebensmittel").performClick()
-        rule.onNode(hasSetTextAction()).performTextInput("Wochenmarkt")
         Shots.take("02_schnellerfassung")
         rule.onNodeWithText("SPEICHERN").performClick()
-        waitForText("Ausgabe gespeichert", substring = true)
+        rule.waitForIdle()
+        Shots.take("02b_nach_speichern_klick")
+        waitForText("Ausgabe gespeichert", substring = true, timeout = 15_000)
         Shots.take("03_home_nach_speichern")
 
         // ── Finanzen ──
         rule.onNodeWithText("FINANZEN").performClick()
         waitFor(hasContentDescription("Kontostand", substring = true))
         Shots.take("04_finanzen")
-        scrollTo(hasText("Wochenmarkt"))
+        scrollTo(txLine)
         Shots.take("05_finanzen_buchungen")
 
         // ── Bearbeiten: 12,50 € → 8,00 € ──
-        rule.onAllNodesWithText("Wochenmarkt").onFirst().performClick()
+        rule.onAllNodes(txLine).onFirst().performClick()
         waitFor(hasContentDescription("Betrag", substring = true))
         rule.onNodeWithContentDescription("Betrag", substring = true).performClick()
         waitFor(hasContentDescription("Löschen"))
@@ -86,8 +89,8 @@ class EndToEndFinanceTest {
         waitForText("Ausgabe geändert", substring = true)
 
         // ── Löschen mit Sicherheitsabfrage, dann Rückgängig ──
-        scrollTo(hasText("Wochenmarkt"))
-        rule.onAllNodesWithText("Wochenmarkt").onFirst().performClick()
+        scrollTo(txLine)
+        rule.onAllNodes(txLine).onFirst().performClick()
         waitFor(hasContentDescription("Buchung löschen"))
         rule.onNodeWithContentDescription("Buchung löschen").performClick()
         waitForText("LÖSCHEN")
@@ -96,7 +99,7 @@ class EndToEndFinanceTest {
         waitForText("Buchung gelöscht")
         rule.onNodeWithText("RÜCKGÄNGIG").performClick()
         waitForText("Buchung wiederhergestellt")
-        scrollTo(hasText("Wochenmarkt"))
+        scrollTo(txLine)
         rule.onAllNodesWithText("8,00", substring = true).fetchSemanticsNodes().let {
             check(it.isNotEmpty()) { "Wiederhergestellte Buchung (8,00 €) nicht sichtbar" }
         }

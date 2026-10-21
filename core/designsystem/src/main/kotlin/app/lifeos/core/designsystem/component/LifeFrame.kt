@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -165,13 +166,14 @@ fun LifeFrame(
             }
             Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
                 LifeToastHost(signal, Modifier.fillMaxWidth())
-                Spacer(Modifier.height(if (navigation != null) ContinuumSpacing.navHeight + 56.dp else 24.dp))
+                Spacer(Modifier.navigationBarsPadding().height(if (navigation != null) ContinuumSpacing.navHeight + 8.dp else 24.dp))
             }
             if (capture != null && navigation != null) {
                 Box(
                     Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = ContinuumSpacing.l, bottom = ContinuumSpacing.navHeight - 8.dp),
+                        .navigationBarsPadding()
+                        .padding(end = ContinuumSpacing.l, bottom = ContinuumSpacing.navHeight + 12.dp),
                 ) { capture() }
             }
         }
@@ -306,19 +308,9 @@ fun LifeEmpty(
     Row(
         modifier
             .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .drawBehind {
-                drawLine(
-                    ContinuumColors.HairlineStrong,
-                    Offset(0f, size.height / 2), Offset(size.width * 0.22f, size.height / 2),
-                    strokeWidth = 1.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 4.dp.toPx())),
-                )
-            }
-            .padding(start = 0.dp),
+            .heightIn(min = 56.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Spacer(Modifier.width(24.dp))
         if (glyph != null) {
             LifeGlyph(glyph, tint = ContinuumColors.Faint, size = 20.dp)
             Spacer(Modifier.width(12.dp))

@@ -28,7 +28,6 @@ import app.lifeos.core.designsystem.component.LifeButton
 import app.lifeos.core.designsystem.component.LifeChoiceChip
 import app.lifeos.core.designsystem.component.LifeKeypad
 import app.lifeos.core.designsystem.component.LifeLine
-import app.lifeos.core.designsystem.component.LifeSegmented
 import app.lifeos.core.designsystem.component.LifeTextField
 import app.lifeos.core.designsystem.component.LineMeaning
 import app.lifeos.core.designsystem.component.LocalLifeSignal
@@ -165,7 +164,6 @@ fun ColumnScope.QuickExpenseCapture(vm: QuickCaptureViewModel, onDone: () -> Uni
     }
     LaunchedEffect(s.errors) { if (s.errors.isNotEmpty()) haptics.reject() }
 
-    LifeSegmented(listOf(TransactionKind.EXPENSE to "Ausgabe", TransactionKind.INCOME to "Einnahme"), s.kind, vm::kind)
     Row(
         Modifier
             .fillMaxWidth()
@@ -203,8 +201,11 @@ fun ColumnScope.QuickExpenseCapture(vm: QuickCaptureViewModel, onDone: () -> Uni
     LifeTextField(s.payee, vm::payee, "", placeholder = "Händler / Zweck (optional)")
     LifeKeypad(vm::digit, vm::comma, vm::backspace)
     s.errors[EditorField.GENERAL]?.let { Text(it, style = Continuum.type.small, color = ContinuumColors.Alert) }
-    Column {
-        Spacer(Modifier.heightIn(min = 4.dp))
-        LifeButton(if (s.saving) "Speichert …" else "Speichern", vm::save, enabled = !s.saving, glyph = Glyph.CHECK, fill = true)
-    }
+}
+
+/** Speichern-Leiste der Schnellerfassung – außerhalb des Scrollbereichs, immer mit dem Daumen erreichbar. */
+@Composable
+fun QuickCaptureSaveBar(vm: QuickCaptureViewModel) {
+    val s by vm.state.collectAsStateWithLifecycle()
+    LifeButton(if (s.saving) "Speichert …" else "Speichern", vm::save, enabled = !s.saving, glyph = Glyph.CHECK, fill = true)
 }

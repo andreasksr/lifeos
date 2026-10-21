@@ -43,6 +43,7 @@ import app.lifeos.feature.home.HomeRoute
 import app.lifeos.feature.home.HomeViewModel
 import app.lifeos.feature.ledger.LedgerRoutes
 import app.lifeos.feature.ledger.capture.QuickCaptureViewModel
+import app.lifeos.feature.ledger.capture.QuickCaptureSaveBar
 import app.lifeos.feature.ledger.capture.QuickExpenseCapture
 import app.lifeos.feature.ledger.ledgerGraph
 import app.lifeos.navigation.LifeDestination
@@ -66,8 +67,9 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean) {
         val captureVm: QuickCaptureViewModel = viewModel(factory = viewModelFactory { initializer { QuickCaptureViewModel(container.ledger) } })
 
         fun openCapture(type: CaptureType) {
+            val kind = if (type == CaptureType.INCOME) TransactionKind.INCOME else TransactionKind.EXPENSE
+            if (capture == null) captureVm.reset(kind) else captureVm.kind(kind)
             capture = type
-            captureVm.reset(if (type == CaptureType.INCOME) TransactionKind.INCOME else TransactionKind.EXPENSE)
         }
 
         LifeFrame(
@@ -148,6 +150,10 @@ private fun CaptureOverlay(
                 CaptureType.EXPENSE, CaptureType.INCOME -> QuickExpenseCapture(captureVm, onDone = onDismiss)
                 null -> Text("", style = Continuum.type.small)
             }
+        }
+        when (type) {
+            CaptureType.EXPENSE, CaptureType.INCOME -> QuickCaptureSaveBar(captureVm)
+            null -> Unit
         }
     }
 }
