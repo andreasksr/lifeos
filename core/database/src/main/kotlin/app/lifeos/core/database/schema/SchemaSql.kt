@@ -73,6 +73,19 @@ object SchemaSql {
 
     const val TABLE_RECURRING_BOOKING = """CREATE TABLE IF NOT EXISTS `recurring_booking` (`recurring_id` TEXT NOT NULL, `due_date` TEXT NOT NULL, `status` TEXT NOT NULL, `transaction_id` TEXT, PRIMARY KEY(`recurring_id`, `due_date`), FOREIGN KEY(`recurring_id`) REFERENCES `recurring_payment`(`node_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`transaction_id`) REFERENCES `ledger_transaction`(`node_id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
 
+    // ── ab v3 ──
+    const val TABLE_PROJECT = """CREATE TABLE IF NOT EXISTS `project` (`node_id` TEXT NOT NULL, `description` TEXT, `category` TEXT, `status` TEXT NOT NULL, `start_date` TEXT NOT NULL, `target_date` TEXT, `progress_mode` TEXT NOT NULL, `manual_progress` INTEGER, `budget_minor` INTEGER, `notes` TEXT, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_MILESTONE = """CREATE TABLE IF NOT EXISTS `milestone` (`node_id` TEXT NOT NULL, `project_id` TEXT NOT NULL, `due_date` TEXT, `done_at` INTEGER, `sort_order` INTEGER NOT NULL, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`project_id`) REFERENCES `project`(`node_id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_TASK = """CREATE TABLE IF NOT EXISTS `task` (`node_id` TEXT NOT NULL, `description` TEXT, `status` TEXT NOT NULL, `priority` TEXT NOT NULL, `due_date` TEXT, `due_time` TEXT, `repeat_unit` TEXT, `repeat_interval` INTEGER NOT NULL, `repeat_anchor` TEXT, `project_id` TEXT, `completed_at` INTEGER, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`project_id`) REFERENCES `project`(`node_id`) ON UPDATE NO ACTION ON DELETE SET NULL )"""
+
+    const val TABLE_TASK_COMPLETION = """CREATE TABLE IF NOT EXISTS `task_completion` (`id` TEXT NOT NULL, `task_id` TEXT NOT NULL, `completed_at` INTEGER NOT NULL, `due_date` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`task_id`) REFERENCES `task`(`node_id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_CALENDAR_EVENT = """CREATE TABLE IF NOT EXISTS `calendar_event` (`node_id` TEXT NOT NULL, `start_at` TEXT NOT NULL, `end_at` TEXT NOT NULL, `all_day` INTEGER NOT NULL, `location` TEXT, `note` TEXT, `repeat_unit` TEXT, `repeat_interval` INTEGER NOT NULL, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_REMINDER = """CREATE TABLE IF NOT EXISTS `reminder` (`id` TEXT NOT NULL, `node_id` TEXT NOT NULL, `minutes_before` INTEGER NOT NULL, `enabled` INTEGER NOT NULL, `last_fired_for` INTEGER, `snoozed_until` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
     const val TABLE_TOTAL_BUDGET = """CREATE TABLE IF NOT EXISTS `total_budget` (`id` TEXT NOT NULL, `valid_from` TEXT NOT NULL, `amount_minor` INTEGER NOT NULL, `currency` TEXT NOT NULL, PRIMARY KEY(`id`))"""
 
     const val INDEX_NODE_TYPE = """CREATE INDEX IF NOT EXISTS `index_node_type` ON `node` (`type`)"""
@@ -88,6 +101,12 @@ object SchemaSql {
     const val INDEX_RECURRING_ACCOUNT = """CREATE INDEX IF NOT EXISTS `index_recurring_payment_account_id` ON `recurring_payment` (`account_id`)"""
     const val INDEX_RECURRING_CATEGORY = """CREATE INDEX IF NOT EXISTS `index_recurring_payment_category_id` ON `recurring_payment` (`category_id`)"""
     const val INDEX_RECURRING_BOOKING_TX = """CREATE UNIQUE INDEX IF NOT EXISTS `index_recurring_booking_transaction_id` ON `recurring_booking` (`transaction_id`)"""
+    const val INDEX_MILESTONE_PROJECT = """CREATE INDEX IF NOT EXISTS `index_milestone_project_id` ON `milestone` (`project_id`)"""
+    const val INDEX_TASK_PROJECT = """CREATE INDEX IF NOT EXISTS `index_task_project_id` ON `task` (`project_id`)"""
+    const val INDEX_TASK_DUE = """CREATE INDEX IF NOT EXISTS `index_task_due_date` ON `task` (`due_date`)"""
+    const val INDEX_COMPLETION_TASK = """CREATE INDEX IF NOT EXISTS `index_task_completion_task_id` ON `task_completion` (`task_id`)"""
+    const val INDEX_EVENT_START = """CREATE INDEX IF NOT EXISTS `index_calendar_event_start_at` ON `calendar_event` (`start_at`)"""
+    const val INDEX_REMINDER_NODE = """CREATE INDEX IF NOT EXISTS `index_reminder_node_id` ON `reminder` (`node_id`)"""
     const val INDEX_TOTAL_BUDGET_MONTH = """CREATE UNIQUE INDEX IF NOT EXISTS `index_total_budget_valid_from` ON `total_budget` (`valid_from`)"""
 
     // ───────────────────────────── Trigger ─────────────────────────────
@@ -251,6 +270,95 @@ object SchemaSql {
             WHEN NEW.`valid_from` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]' THEN RAISE(ABORT, 'LIFEOS_BUDGET_MONTH')
         END; END"""
 
+    // ── ab v3 ──
+    const val TRIGGER_TASK_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_task_check_insert`
+        BEFORE INSERT ON `task`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'TASK' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`status` NOT IN ('OPEN', 'DONE') THEN RAISE(ABORT, 'LIFEOS_TASK_STATUS')
+            WHEN NEW.`priority` NOT IN ('LOW', 'NORMAL', 'HIGH') THEN RAISE(ABORT, 'LIFEOS_TASK_PRIORITY')
+            WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`repeat_unit` NOT IN ('DAY', 'WEEK', 'MONTH', 'YEAR') THEN RAISE(ABORT, 'LIFEOS_REPEAT')
+            WHEN NEW.`repeat_interval` < 1 OR NEW.`repeat_interval` > 365 THEN RAISE(ABORT, 'LIFEOS_REPEAT')
+            WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`due_date` IS NULL THEN RAISE(ABORT, 'LIFEOS_TASK_REPEAT_DUE')
+            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`) IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_TASK_DATE')
+            WHEN NEW.`due_time` IS NOT NULL AND NEW.`due_time` NOT GLOB '[0-2][0-9]:[0-5][0-9]' THEN RAISE(ABORT, 'LIFEOS_TASK_TIME')
+        END; END"""
+
+    const val TRIGGER_TASK_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_task_check_update`
+        BEFORE UPDATE ON `task`
+        BEGIN SELECT CASE
+            WHEN NEW.`status` NOT IN ('OPEN', 'DONE') THEN RAISE(ABORT, 'LIFEOS_TASK_STATUS')
+            WHEN NEW.`priority` NOT IN ('LOW', 'NORMAL', 'HIGH') THEN RAISE(ABORT, 'LIFEOS_TASK_PRIORITY')
+            WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`repeat_unit` NOT IN ('DAY', 'WEEK', 'MONTH', 'YEAR') THEN RAISE(ABORT, 'LIFEOS_REPEAT')
+            WHEN NEW.`repeat_interval` < 1 OR NEW.`repeat_interval` > 365 THEN RAISE(ABORT, 'LIFEOS_REPEAT')
+            WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`due_date` IS NULL THEN RAISE(ABORT, 'LIFEOS_TASK_REPEAT_DUE')
+            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`) IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_TASK_DATE')
+            WHEN NEW.`due_time` IS NOT NULL AND NEW.`due_time` NOT GLOB '[0-2][0-9]:[0-5][0-9]' THEN RAISE(ABORT, 'LIFEOS_TASK_TIME')
+        END; END"""
+
+    const val TRIGGER_PROJECT_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_project_check_insert`
+        BEFORE INSERT ON `project`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'PROJECT' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`status` NOT IN ('PLANNED', 'ACTIVE', 'PAUSED', 'DONE', 'CANCELLED') THEN RAISE(ABORT, 'LIFEOS_PROJECT_STATUS')
+            WHEN NEW.`progress_mode` NOT IN ('TASKS', 'MILESTONES', 'MANUAL') THEN RAISE(ABORT, 'LIFEOS_PROJECT_PROGRESS')
+            WHEN NEW.`progress_mode` = 'MANUAL' AND (NEW.`manual_progress` IS NULL OR NEW.`manual_progress` < 0 OR NEW.`manual_progress` > 1000) THEN RAISE(ABORT, 'LIFEOS_PROJECT_PROGRESS')
+            WHEN date(NEW.`start_date`) IS NOT NEW.`start_date` THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
+            WHEN NEW.`target_date` IS NOT NULL AND (date(NEW.`target_date`) IS NOT NEW.`target_date` OR NEW.`target_date` < NEW.`start_date`) THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
+            WHEN NEW.`budget_minor` IS NOT NULL AND NEW.`budget_minor` <= 0 THEN RAISE(ABORT, 'LIFEOS_PROJECT_BUDGET')
+        END; END"""
+
+    const val TRIGGER_PROJECT_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_project_check_update`
+        BEFORE UPDATE ON `project`
+        BEGIN SELECT CASE
+            WHEN NEW.`status` NOT IN ('PLANNED', 'ACTIVE', 'PAUSED', 'DONE', 'CANCELLED') THEN RAISE(ABORT, 'LIFEOS_PROJECT_STATUS')
+            WHEN NEW.`progress_mode` NOT IN ('TASKS', 'MILESTONES', 'MANUAL') THEN RAISE(ABORT, 'LIFEOS_PROJECT_PROGRESS')
+            WHEN NEW.`progress_mode` = 'MANUAL' AND (NEW.`manual_progress` IS NULL OR NEW.`manual_progress` < 0 OR NEW.`manual_progress` > 1000) THEN RAISE(ABORT, 'LIFEOS_PROJECT_PROGRESS')
+            WHEN date(NEW.`start_date`) IS NOT NEW.`start_date` THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
+            WHEN NEW.`target_date` IS NOT NULL AND (date(NEW.`target_date`) IS NOT NEW.`target_date` OR NEW.`target_date` < NEW.`start_date`) THEN RAISE(ABORT, 'LIFEOS_PROJECT_DATE')
+            WHEN NEW.`budget_minor` IS NOT NULL AND NEW.`budget_minor` <= 0 THEN RAISE(ABORT, 'LIFEOS_PROJECT_BUDGET')
+        END; END"""
+
+    const val TRIGGER_MILESTONE_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_milestone_check_insert`
+        BEFORE INSERT ON `milestone`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'MILESTONE' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`due_date` IS NOT NULL AND date(NEW.`due_date`) IS NOT NEW.`due_date` THEN RAISE(ABORT, 'LIFEOS_MILESTONE_DATE')
+        END; END"""
+
+    /** Meilensteine sind eigene Knoten: fällt die Meilenstein-Zeile weg (z. B. per Projekt-Kaskade), geht ihr Knoten mit. */
+    const val TRIGGER_MILESTONE_CLEANUP = """CREATE TRIGGER IF NOT EXISTS `trg_milestone_cleanup_node`
+        AFTER DELETE ON `milestone`
+        BEGIN DELETE FROM `node` WHERE `id` = OLD.`node_id`; END"""
+
+    const val TRIGGER_EVENT_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_calendar_event_check_insert`
+        BEFORE INSERT ON `calendar_event`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'EVENT' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`start_at` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]' THEN RAISE(ABORT, 'LIFEOS_EVENT_TIME')
+            WHEN NEW.`end_at` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]' THEN RAISE(ABORT, 'LIFEOS_EVENT_TIME')
+            WHEN NEW.`end_at` < NEW.`start_at` THEN RAISE(ABORT, 'LIFEOS_EVENT_END')
+            WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`repeat_unit` NOT IN ('DAY', 'WEEK', 'MONTH', 'YEAR') THEN RAISE(ABORT, 'LIFEOS_REPEAT')
+            WHEN NEW.`repeat_interval` < 1 OR NEW.`repeat_interval` > 365 THEN RAISE(ABORT, 'LIFEOS_REPEAT')
+        END; END"""
+
+    const val TRIGGER_EVENT_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_calendar_event_check_update`
+        BEFORE UPDATE ON `calendar_event`
+        BEGIN SELECT CASE
+            WHEN NEW.`start_at` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]' THEN RAISE(ABORT, 'LIFEOS_EVENT_TIME')
+            WHEN NEW.`end_at` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]' THEN RAISE(ABORT, 'LIFEOS_EVENT_TIME')
+            WHEN NEW.`end_at` < NEW.`start_at` THEN RAISE(ABORT, 'LIFEOS_EVENT_END')
+            WHEN NEW.`repeat_unit` IS NOT NULL AND NEW.`repeat_unit` NOT IN ('DAY', 'WEEK', 'MONTH', 'YEAR') THEN RAISE(ABORT, 'LIFEOS_REPEAT')
+            WHEN NEW.`repeat_interval` < 1 OR NEW.`repeat_interval` > 365 THEN RAISE(ABORT, 'LIFEOS_REPEAT')
+        END; END"""
+
+    const val TRIGGER_REMINDER_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_reminder_check_insert`
+        BEFORE INSERT ON `reminder`
+        BEGIN SELECT CASE
+            WHEN NEW.`minutes_before` < 0 OR NEW.`minutes_before` > 20160 THEN RAISE(ABORT, 'LIFEOS_REMINDER_OFFSET')
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) NOT IN ('TASK', 'EVENT', 'EXAM', 'VEHICLE_EVENT') THEN RAISE(ABORT, 'LIFEOS_REMINDER_TARGET')
+        END; END"""
+
     // ───────────────────────────── Prüfabfragen ─────────────────────────────
 
     /** Buchungen, deren Aufteilungen nicht exakt zum Betrag passen (oder Umbuchungen mit Splits). */
@@ -269,6 +377,10 @@ object SchemaSql {
            OR (n.`type` = 'ACCOUNT' AND NOT EXISTS (SELECT 1 FROM `account` x WHERE x.`node_id` = n.`id`))
            OR (n.`type` = 'CATEGORY' AND NOT EXISTS (SELECT 1 FROM `category` x WHERE x.`node_id` = n.`id`))
            OR (n.`type` = 'RECURRING' AND NOT EXISTS (SELECT 1 FROM `recurring_payment` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'TASK' AND NOT EXISTS (SELECT 1 FROM `task` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'EVENT' AND NOT EXISTS (SELECT 1 FROM `calendar_event` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'PROJECT' AND NOT EXISTS (SELECT 1 FROM `project` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'MILESTONE' AND NOT EXISTS (SELECT 1 FROM `milestone` x WHERE x.`node_id` = n.`id`))
         ORDER BY n.`id`"""
 
     const val QUERY_TRANSACTION_COUNT = """SELECT COUNT(*) FROM `ledger_transaction`"""
@@ -279,12 +391,14 @@ object SchemaSql {
         TABLE_NODE, TABLE_LINK, TABLE_ACCOUNT, TABLE_CATEGORY, TABLE_LEDGER_TRANSACTION,
         TABLE_TRANSACTION_SPLIT, TABLE_BUDGET, TABLE_APP_SETTING,
         TABLE_RECURRING_PAYMENT, TABLE_RECURRING_BOOKING, TABLE_TOTAL_BUDGET,
+        TABLE_PROJECT, TABLE_MILESTONE, TABLE_TASK, TABLE_TASK_COMPLETION, TABLE_CALENDAR_EVENT, TABLE_REMINDER,
     )
 
     val REFERENCE_INDICES: List<String> = listOf(
         INDEX_NODE_TYPE, INDEX_LINK_UNIQUE, INDEX_LINK_TO, INDEX_CATEGORY_PARENT, INDEX_TX_DATE,
         INDEX_TX_ACCOUNT, INDEX_TX_COUNTER, INDEX_SPLIT_TX, INDEX_SPLIT_CATEGORY, INDEX_BUDGET_UNIQUE,
         INDEX_RECURRING_ACCOUNT, INDEX_RECURRING_CATEGORY, INDEX_RECURRING_BOOKING_TX, INDEX_TOTAL_BUDGET_MONTH,
+        INDEX_MILESTONE_PROJECT, INDEX_TASK_PROJECT, INDEX_TASK_DUE, INDEX_COMPLETION_TASK, INDEX_EVENT_START, INDEX_REMINDER_NODE,
     )
 
     /** Werden in `onCreate` und in jeder Migration ausgeführt. Reihenfolge egal (idempotent). */
@@ -294,6 +408,8 @@ object SchemaSql {
         TRIGGER_SPLIT_INSERT, TRIGGER_SPLIT_UPDATE, TRIGGER_BUDGET_INSERT, TRIGGER_BUDGET_UPDATE,
         TRIGGER_RECURRING_INSERT, TRIGGER_RECURRING_UPDATE, TRIGGER_RECURRING_BOOKING_INSERT,
         TRIGGER_RECURRING_BOOKING_UPDATE, TRIGGER_TOTAL_BUDGET_INSERT, TRIGGER_TOTAL_BUDGET_UPDATE,
+        TRIGGER_TASK_INSERT, TRIGGER_TASK_UPDATE, TRIGGER_PROJECT_INSERT, TRIGGER_PROJECT_UPDATE,
+        TRIGGER_MILESTONE_INSERT, TRIGGER_MILESTONE_CLEANUP, TRIGGER_EVENT_INSERT, TRIGGER_EVENT_UPDATE, TRIGGER_REMINDER_INSERT,
     )
 
     /** Namen von Triggern früherer Versionen, die nicht mehr existieren sollen (werden gelöscht). */
@@ -304,5 +420,14 @@ object SchemaSql {
         TABLE_RECURRING_PAYMENT, INDEX_RECURRING_ACCOUNT, INDEX_RECURRING_CATEGORY,
         TABLE_RECURRING_BOOKING, INDEX_RECURRING_BOOKING_TX,
         TABLE_TOTAL_BUDGET, INDEX_TOTAL_BUDGET_MONTH,
+    )
+
+    /** v2 → v3: Planung (Aufgaben, Termine, Erinnerungen) und Projekte. */
+    val MIGRATION_2_3: List<String> = listOf(
+        TABLE_PROJECT, TABLE_MILESTONE, INDEX_MILESTONE_PROJECT,
+        TABLE_TASK, INDEX_TASK_PROJECT, INDEX_TASK_DUE,
+        TABLE_TASK_COMPLETION, INDEX_COMPLETION_TASK,
+        TABLE_CALENDAR_EVENT, INDEX_EVENT_START,
+        TABLE_REMINDER, INDEX_REMINDER_NODE,
     )
 }

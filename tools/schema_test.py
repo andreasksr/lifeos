@@ -359,11 +359,25 @@ class MigrationTest(unittest.TestCase):
             out[t] = (cols, fks, idx)
         return out
 
-    def migration_statements(self):
+    def migration_statements(self, name="MIGRATION_1_2"):
         text = SCHEMA_KT.read_text(encoding="utf-8")
-        block = re.search(r"val MIGRATION_1_2: List<String> = listOf\((.*?)\)", text, re.S).group(1)
+        block = re.search(r"val " + name + r": List<String> = listOf\((.*?)\)", text, re.S).group(1)
         names = [n.strip() for n in block.split(",") if n.strip()]
         return [SQL[n] for n in names]
+
+    def reference(self):
+        ref = sqlite3.connect(":memory:")
+        for stmt in ordered("TABLE_") + ordered("INDEX_"):
+            ref.execute(stmt)
+        return ref
+
+    def migrate(self, db, *names):
+        db.execute("BEGIN")
+        for n in names:
+            for stmt in self.migration_statements(n):
+                db.execute(stmt)
+        self.reinstall_triggers(db)
+        db.execute("COMMIT")
 
     def reinstall_triggers(self, db):
         for stmt in ordered("TRIGGER_"):
@@ -385,35 +399,95 @@ class MigrationTest(unittest.TestCase):
         before = {t: db.execute(f"SELECT * FROM {t} ORDER BY 1").fetchall()
                   for t in ["node", "account", "category", "ledger_transaction", "transaction_split", "budget"]}
 
-        db.execute("BEGIN")
-        for stmt in self.migration_statements():
-            db.execute(stmt)
-        self.reinstall_triggers(db)
-        db.execute("COMMIT")
+        self.migrate(db, "MIGRATION_1_2", "MIGRATION_2_3")
 
         for t, rows in before.items():
             self.assertEqual(rows, db.execute(f"SELECT * FROM {t} ORDER BY 1").fetchall(), t)
         self.assertEqual([], db.execute(SQL["QUERY_SPLIT_VIOLATIONS"]).fetchall())
         self.assertEqual([], db.execute("PRAGMA foreign_key_check").fetchall())
 
-        ref = sqlite3.connect(":memory:")
-        for stmt in ordered("TABLE_") + ordered("INDEX_"):
-            ref.execute(stmt)
-        self.assertEqual(self.describe(ref), self.describe(db))
+        self.assertEqual(self.describe(self.reference()), self.describe(db))
 
         # v2-Regeln greifen nach der Migration
         with self.assertRaises(sqlite3.DatabaseError):
             db.execute("INSERT INTO node VALUES (?, 'TRANSACTION', 'x', 0, 0, NULL, 0)", (uid(6),))
             db.execute("INSERT INTO ledger_transaction VALUES (?, 'REFUND', ?, ?, 5, 'EUR', '2026-10-18', NULL, NULL)", (uid(6), uid(1), uid(1)))
 
-    def test_room_v2_schema_matches_reference_if_present(self):
-        path = self.SCHEMA_DIR / "2.json"
+    def test_room_v2_schema_is_prefix_of_reference(self):
+        """2.json (von Room erzeugt) stimmt für alle v2-Tabellen exakt mit SchemaSql überein."""
+        ref = self.describe(self.reference())
+        v2 = self.describe(self.build(2))
+        for t, d in v2.items():
+            self.assertEqual(ref[t], d, t)
+
+    def test_v2_to_v3_keeps_data_and_enforces_planning_rules(self):
+        db = self.build(2)
+        self.reinstall_triggers_for_existing(db)
+        db.execute("INSERT INTO node VALUES (?, 'ACCOUNT', 'Giro', 0, 0, NULL, 0)", (uid(1),))
+        db.execute("INSERT INTO account VALUES (?, 'CHECKING', 'EUR', 1000, 0)", (uid(1),))
+        before = db.execute("SELECT * FROM node ORDER BY 1").fetchall()
+        self.migrate(db, "MIGRATION_2_3")
+        self.assertEqual(before, db.execute("SELECT * FROM node ORDER BY 1").fetchall())
+        self.assertEqual(self.describe(self.reference()), self.describe(db))
+        self.assertEqual([], db.execute(SQL["QUERY_SPLIT_VIOLATIONS"]).fetchall())
+
+        # Projekt + Aufgabe + Meilenstein + Termin + Erinnerung
+        db.execute("INSERT INTO node VALUES (?, 'PROJECT', 'Samurai', 0, 0, NULL, 0)", (uid(10),))
+        db.execute("INSERT INTO project VALUES (?, NULL, NULL, 'ACTIVE', '2026-10-01', '2027-03-01', 'TASKS', NULL, 200000, NULL)", (uid(10),))
+        db.execute("INSERT INTO node VALUES (?, 'TASK', 'Bremsen', 0, 0, NULL, 0)", (uid(11),))
+        db.execute("INSERT INTO task VALUES (?, NULL, 'OPEN', 'HIGH', '2026-10-25', '09:30', 'WEEK', 1, NULL, ?, NULL)", (uid(11), uid(10)))
+        db.execute("INSERT INTO node VALUES (?, 'MILESTONE', 'TÜV', 0, 0, NULL, 0)", (uid(12),))
+        db.execute("INSERT INTO milestone VALUES (?, ?, '2027-02-01', NULL, 0)", (uid(12), uid(10)))
+        db.execute("INSERT INTO node VALUES (?, 'EVENT', 'Unterricht', 0, 0, NULL, 0)", (uid(13),))
+        db.execute("INSERT INTO calendar_event VALUES (?, '2026-10-20T18:00', '2026-10-20T21:00', 0, NULL, NULL, 'WEEK', 1)", (uid(13),))
+        db.execute("INSERT INTO reminder VALUES (?, ?, 60, 1, NULL, NULL)", (uid(14), uid(13)))
+        db.execute("INSERT INTO task_completion VALUES (?, ?, 1, '2026-10-18')", (uid(15), uid(11)))
+
+        bad = [
+            ("INSERT INTO task VALUES (?, NULL, 'MAYBE', 'LOW', NULL, NULL, NULL, 1, NULL, NULL, NULL)", "TASK"),
+            ("INSERT INTO task VALUES (?, NULL, 'OPEN', 'LOW', NULL, NULL, 'WEEK', 1, NULL, NULL, NULL)", "TASK"),  # Wiederholung ohne Datum
+            ("INSERT INTO task VALUES (?, NULL, 'OPEN', 'LOW', '2026-02-30', NULL, NULL, 1, NULL, NULL, NULL)", "TASK"),
+            ("INSERT INTO task VALUES (?, NULL, 'OPEN', 'LOW', '2026-02-10', '9:3', NULL, 1, NULL, NULL, NULL)", "TASK"),
+            ("INSERT INTO project VALUES (?, NULL, NULL, 'ACTIVE', '2026-10-01', '2026-09-01', 'TASKS', NULL, NULL, NULL)", "PROJECT"),
+            ("INSERT INTO project VALUES (?, NULL, NULL, 'ACTIVE', '2026-10-01', NULL, 'MANUAL', NULL, NULL, NULL)", "PROJECT"),
+            ("INSERT INTO project VALUES (?, NULL, NULL, 'ACTIVE', '2026-10-01', NULL, 'TASKS', NULL, 0, NULL)", "PROJECT"),
+            ("INSERT INTO calendar_event VALUES (?, '2026-10-20T18:00', '2026-10-20T17:00', 0, NULL, NULL, NULL, 1)", "EVENT"),
+            ("INSERT INTO task VALUES (?, NULL, 'OPEN', 'LOW', NULL, NULL, NULL, 1, NULL, NULL, NULL)", "EVENT"),  # falscher Knotentyp
+        ]
+        for n, (sql, typ) in enumerate(bad):
+            nid = uid(100 + n)
+            db.execute("INSERT INTO node VALUES (?, ?, 'x', 0, 0, NULL, 0)", (nid, typ))
+            with self.assertRaises(sqlite3.DatabaseError, msg=sql):
+                db.execute(sql, (nid,))
+        with self.assertRaises(sqlite3.DatabaseError):
+            db.execute("INSERT INTO reminder VALUES (?, ?, 60, 1, NULL, NULL)", (uid(200), uid(10)))  # Projekte haben keine Erinnerung
+        with self.assertRaises(sqlite3.DatabaseError):
+            db.execute("UPDATE task SET status = 'X' WHERE node_id = ?", (uid(11),))
+
+        # Projekt löschen: Aufgabe bleibt, verliert Zuordnung; Meilenstein geht mit
+        db.execute("DELETE FROM node WHERE id = ?", (uid(10),))
+        self.assertEqual([(None,)], db.execute("SELECT project_id FROM task WHERE node_id = ?", (uid(11),)).fetchall())
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM milestone").fetchone()[0])
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM node WHERE type = 'MILESTONE'").fetchone()[0])  # kein verwaister Knoten
+        # Termin löschen: Erinnerung geht mit
+        db.execute("DELETE FROM node WHERE id = ?", (uid(13),))
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM reminder").fetchone()[0])
+        # Aufgabe löschen: Erledigungs-Historie geht mit
+        db.execute("DELETE FROM node WHERE id = ?", (uid(11),))
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM task_completion").fetchone()[0])
+
+    def reinstall_triggers_for_existing(self, db):
+        tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        for stmt in ordered("TRIGGER_"):
+            target = re.search(r"ON `(\w+)`", stmt).group(1)
+            if target in tables:
+                db.execute(stmt)
+
+    def test_room_v3_schema_matches_reference_if_present(self):
+        path = self.SCHEMA_DIR / "3.json"
         if not path.exists():
-            self.skipTest("2.json entsteht beim ersten Gradle-Build")
-        ref = sqlite3.connect(":memory:")
-        for stmt in ordered("TABLE_") + ordered("INDEX_"):
-            ref.execute(stmt)
-        self.assertEqual(self.describe(ref), self.describe(self.build(2)))
+            self.skipTest("3.json entsteht beim ersten Gradle-Build")
+        self.assertEqual(self.describe(self.reference()), self.describe(self.build(3)))
 
 
 if __name__ == "__main__":

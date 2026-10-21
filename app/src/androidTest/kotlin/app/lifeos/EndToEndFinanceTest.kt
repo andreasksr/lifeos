@@ -65,9 +65,9 @@ class EndToEndFinanceTest {
         rule.onNodeWithText("Lebensmittel").performClick()
         Shots.take("02_schnellerfassung")
         rule.onNodeWithText("SPEICHERN").performClick()
-        rule.waitForIdle()
-        Shots.take("02b_nach_speichern_klick")
-        waitForText("Ausgabe gespeichert", substring = true, timeout = 15_000)
+        // Prüft den dauerhaften Zustand (Home-Kennzahl), nicht den 3-Sekunden-Hinweis –
+        // auf einem langsamen Emulator ist der Hinweis evtl. schon wieder weg.
+        waitForText("Heute ausgegeben: 12,50", substring = true, timeout = 20_000)
         Shots.take("03_home_nach_speichern")
 
         // ── Finanzen ──
@@ -86,7 +86,7 @@ class EndToEndFinanceTest {
         typeAmount("8")
         Shots.take("06_buchung_bearbeiten")
         rule.onNodeWithText("SPEICHERN").performClick()
-        waitForText("Ausgabe geändert", substring = true)
+        waitForText("8,00", substring = true, timeout = 20_000)
 
         // ── Löschen mit Sicherheitsabfrage, dann Rückgängig ──
         scrollTo(txLine)
@@ -96,9 +96,9 @@ class EndToEndFinanceTest {
         waitForText("LÖSCHEN")
         Shots.take("07_loeschen_abfrage")
         rule.onNodeWithText("LÖSCHEN").performClick()
-        waitForText("Buchung gelöscht")
+        waitForText("RÜCKGÄNGIG", timeout = 5_000)
         rule.onNodeWithText("RÜCKGÄNGIG").performClick()
-        waitForText("Buchung wiederhergestellt")
+        waitFor(txLine, timeout = 20_000)
         scrollTo(txLine)
         rule.onAllNodesWithText("8,00", substring = true).fetchSemanticsNodes().let {
             check(it.isNotEmpty()) { "Wiederhergestellte Buchung (8,00 €) nicht sichtbar" }

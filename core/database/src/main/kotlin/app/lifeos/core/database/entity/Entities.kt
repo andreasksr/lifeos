@@ -221,3 +221,133 @@ data class OrphanNodeRow(
     @ColumnInfo(name = "node_id") val nodeId: String,
     @ColumnInfo(name = "type") val type: String,
 )
+
+// ───────────── ab v3: Planung & Projekte ─────────────
+
+@Entity(
+    tableName = "project",
+    foreignKeys = [
+        ForeignKey(entity = NodeEntity::class, parentColumns = ["id"], childColumns = ["node_id"], onDelete = ForeignKey.CASCADE),
+    ],
+)
+data class ProjectEntity(
+    @PrimaryKey @ColumnInfo(name = "node_id") val nodeId: String,
+    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "category") val category: String?,
+    @ColumnInfo(name = "status") val status: String,
+    @ColumnInfo(name = "start_date") val startDate: String,
+    @ColumnInfo(name = "target_date") val targetDate: String?,
+    @ColumnInfo(name = "progress_mode") val progressMode: String,
+    @ColumnInfo(name = "manual_progress") val manualProgress: Int?,
+    @ColumnInfo(name = "budget_minor") val budgetMinor: Long?,
+    @ColumnInfo(name = "notes") val notes: String?,
+)
+
+@Entity(
+    tableName = "milestone",
+    foreignKeys = [
+        ForeignKey(entity = NodeEntity::class, parentColumns = ["id"], childColumns = ["node_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = ProjectEntity::class, parentColumns = ["node_id"], childColumns = ["project_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("project_id")],
+)
+data class MilestoneEntity(
+    @PrimaryKey @ColumnInfo(name = "node_id") val nodeId: String,
+    @ColumnInfo(name = "project_id") val projectId: String,
+    @ColumnInfo(name = "due_date") val dueDate: String?,
+    @ColumnInfo(name = "done_at") val doneAt: Long?,
+    @ColumnInfo(name = "sort_order") val sortOrder: Int,
+)
+
+@Entity(
+    tableName = "task",
+    foreignKeys = [
+        ForeignKey(entity = NodeEntity::class, parentColumns = ["id"], childColumns = ["node_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = ProjectEntity::class, parentColumns = ["node_id"], childColumns = ["project_id"], onDelete = ForeignKey.SET_NULL),
+    ],
+    indices = [Index("project_id"), Index("due_date")],
+)
+data class TaskEntity(
+    @PrimaryKey @ColumnInfo(name = "node_id") val nodeId: String,
+    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "status") val status: String,
+    @ColumnInfo(name = "priority") val priority: String,
+    @ColumnInfo(name = "due_date") val dueDate: String?,
+    @ColumnInfo(name = "due_time") val dueTime: String?,
+    @ColumnInfo(name = "repeat_unit") val repeatUnit: String?,
+    @ColumnInfo(name = "repeat_interval") val repeatInterval: Int,
+    @ColumnInfo(name = "repeat_anchor") val repeatAnchor: String?,
+    @ColumnInfo(name = "project_id") val projectId: String?,
+    @ColumnInfo(name = "completed_at") val completedAt: Long?,
+)
+
+@Entity(
+    tableName = "task_completion",
+    foreignKeys = [
+        ForeignKey(entity = TaskEntity::class, parentColumns = ["node_id"], childColumns = ["task_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("task_id")],
+)
+data class TaskCompletionEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "task_id") val taskId: String,
+    @ColumnInfo(name = "completed_at") val completedAt: Long,
+    @ColumnInfo(name = "due_date") val dueDate: String?,
+)
+
+@Entity(
+    tableName = "calendar_event",
+    foreignKeys = [
+        ForeignKey(entity = NodeEntity::class, parentColumns = ["id"], childColumns = ["node_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("start_at")],
+)
+data class CalendarEventEntity(
+    @PrimaryKey @ColumnInfo(name = "node_id") val nodeId: String,
+    @ColumnInfo(name = "start_at") val startAt: String,
+    @ColumnInfo(name = "end_at") val endAt: String,
+    @ColumnInfo(name = "all_day") val allDay: Boolean,
+    @ColumnInfo(name = "location") val location: String?,
+    @ColumnInfo(name = "note") val note: String?,
+    @ColumnInfo(name = "repeat_unit") val repeatUnit: String?,
+    @ColumnInfo(name = "repeat_interval") val repeatInterval: Int,
+)
+
+@Entity(
+    tableName = "reminder",
+    foreignKeys = [
+        ForeignKey(entity = NodeEntity::class, parentColumns = ["id"], childColumns = ["node_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("node_id")],
+)
+data class ReminderEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "node_id") val nodeId: String,
+    @ColumnInfo(name = "minutes_before") val minutesBefore: Int,
+    @ColumnInfo(name = "enabled") val enabled: Boolean,
+    @ColumnInfo(name = "last_fired_for") val lastFiredFor: Long?,
+    @ColumnInfo(name = "snoozed_until") val snoozedUntil: Long?,
+)
+
+data class TaskRow(
+    @Embedded val task: TaskEntity,
+    @ColumnInfo(name = "title") val title: String,
+    @ColumnInfo(name = "is_sample") val isSample: Boolean,
+)
+
+data class EventRow(
+    @Embedded val event: CalendarEventEntity,
+    @ColumnInfo(name = "title") val title: String,
+    @ColumnInfo(name = "is_sample") val isSample: Boolean,
+)
+
+data class ProjectRow(
+    @Embedded val project: ProjectEntity,
+    @ColumnInfo(name = "title") val title: String,
+    @ColumnInfo(name = "is_sample") val isSample: Boolean,
+)
+
+data class MilestoneRow(
+    @Embedded val milestone: MilestoneEntity,
+    @ColumnInfo(name = "title") val title: String,
+)

@@ -111,6 +111,16 @@ class PlanningTest {
     }
 
     @Test
+    fun `nach ausloesen wird das naechste vorkommen eines wiederkehrenden termins geplant`() {
+        val e = CalendarEvent(id(1), "Unterricht", LocalDateTime.of(2026, 9, 1, 18, 0), LocalDateTime.of(2026, 9, 1, 21, 0), repeat = Repeat(RepeatUnit.WEEK))
+        val fired = Reminder(id(2), e.id, minutesBefore = 60, lastFiredFor = Instant.parse("2026-10-20T18:00:00Z"))
+        val later = Instant.parse("2026-10-20T17:05:00Z")
+        val alarm = ReminderPlanner.plan(listOf(fired), emptyList(), listOf(e), later, zone).single()
+        assertEquals(Instant.parse("2026-10-27T17:00:00Z"), alarm.triggerAt)
+        assertEquals(Instant.parse("2026-10-27T18:00:00Z"), alarm.firesFor)
+    }
+
+    @Test
     fun `agenda trennt aufgaben und termine und zeigt ueberfaelliges heute`() {
         val tasks = listOf(
             Task(id(1), "Rechnung zahlen", dueDate = today.minusDays(2)),

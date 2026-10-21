@@ -294,7 +294,14 @@ object ReminderPlanner {
                     Triple(due.atTime(time).atZone(zone).toInstant(), task.title, "Aufgabe fällig ${formatTime(due, task.dueTime)}")
                 }
                 event != null -> {
-                    val start = nextEventStart(event, now, r.minutesBefore, zone) ?: return@mapNotNull null
+                    var start = nextEventStart(event, now, r.minutesBefore, zone) ?: return@mapNotNull null
+                    val fired = r.lastFiredFor
+                    val repeat = event.repeat
+                    // Wiederkehrend und dieses Vorkommen schon erinnert → direkt das nächste planen.
+                    if (fired != null && repeat != null && !start.atZone(zone).toInstant().isAfter(fired)) {
+                        val firedDate = LocalDateTime.ofInstant(fired, zone).toLocalDate()
+                        start = repeat.nextAfter(event.start.toLocalDate(), firedDate).atTime(event.start.toLocalTime())
+                    }
                     Triple(start.atZone(zone).toInstant(), event.title, "Termin ${formatTime(start.toLocalDate(), if (event.allDay) null else start.toLocalTime())}" + (event.location?.let { " · $it" } ?: ""))
                 }
                 else -> return@mapNotNull null

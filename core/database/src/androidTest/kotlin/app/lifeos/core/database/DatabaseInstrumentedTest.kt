@@ -6,6 +6,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.lifeos.core.database.repository.RoomIntegrityChecker
 import app.lifeos.core.database.repository.RoomLedgerRepository
 import app.lifeos.core.database.repository.RoomLinkRepository
+import app.lifeos.core.database.repository.RoomPlanningRepository
+import app.lifeos.core.database.repository.RoomProjectRepository
+import app.lifeos.core.domain.planning.TaskCompletion
+import app.lifeos.core.model.CalendarEvent
+import app.lifeos.core.model.Milestone
+import app.lifeos.core.model.Priority
+import app.lifeos.core.model.ProgressMode
+import app.lifeos.core.model.Project
+import app.lifeos.core.model.Reminder
+import app.lifeos.core.model.Repeat
+import app.lifeos.core.model.RepeatUnit
+import app.lifeos.core.model.Task
 import app.lifeos.core.database.schema.SchemaSql
 import app.lifeos.core.model.Account
 import app.lifeos.core.model.AccountKind
@@ -31,11 +43,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
-/**
- * Status: geschrieben, in der Entwicklungsumgebung NICHT ausgeführt (kein Android-SDK verfügbar).
- * Ausführen mit: ./gradlew :core:database:connectedAndroidTest
- */
+/** Läuft in der CI auf dem Emulator (API 34): ./gradlew :core:database:connectedAndroidTest */
 @RunWith(AndroidJUnit4::class)
 class DatabaseInstrumentedTest {
 
@@ -66,7 +77,8 @@ class DatabaseInstrumentedTest {
     fun roomSchemaMatchesReferenceSql() {
         // Vergleicht Spalten jeder Tabelle mit der Referenz-DDL aus SchemaSql.
         val sqlite = db.openHelper.readableDatabase
-        val tables = listOf("node", "link", "account", "category", "ledger_transaction", "transaction_split", "budget", "app_setting")
+        val tables = listOf("node", "link", "account", "category", "ledger_transaction", "transaction_split", "budget", "app_setting",
+            "recurring_payment", "recurring_booking", "total_budget", "project", "milestone", "task", "task_completion", "calendar_event", "reminder")
         tables.forEach { table ->
             val reference = SchemaSql.REFERENCE_TABLES.single { it.contains("`$table` (") }
             sqlite.query("PRAGMA table_info(`$table`)").use { c ->
@@ -118,5 +130,61 @@ class DatabaseInstrumentedTest {
         assertEquals(1, links.observeLinksOf(giro.id).first().size)
         ledger.deleteTransaction(tx.id)
         assertEquals(0, links.observeLinksOf(giro.id).first().size)
+    }
+
+    @Test
+    fun planningAndProjectsRoundTripAndCascade() = runTest {
+        val planning = RoomPlanningRepository(db)
+        val projects = RoomProjectRepository(db)
+        val links = RoomLinkRepository(db)
+        val project = Project(NodeId.random(), "Suzuki Samurai", startDate = LocalDate.of(2026, 10, 1), budgetMinor = 200_000, progressMode = ProgressMode.MILESTONES)
+        projects.saveProject(project, now)
+        val milestone = Milestone(NodeId.random(), project.id, "TÜV", LocalDate.of(2027, 2, 1))
+        projects.saveMilestone(milestone, now)
+        val task = Task(
+            NodeId.random(), "Bremsen", priority = Priority.HIGH, dueDate = LocalDate.of(2026, 10, 25), dueTime = LocalTime.of(9, 30),
+            repeat = Repeat(RepeatUnit.MONTH, 3), repeatAnchor = LocalDate.of(2026, 10, 25), projectId = project.id,
+        )
+        planning.saveTask(task, now)
+        val event = CalendarEvent(NodeId.random(), "Unterricht", LocalDateTime.of(2026, 10, 20, 18, 0), LocalDateTime.of(2026, 10, 20, 21, 0), repeat = Repeat(RepeatUnit.WEEK))
+        planning.saveEvent(event, now)
+        val reminder = Reminder(NodeId.random(), event.id, 60)
+        planning.saveReminder(reminder)
+        planning.saveReminder(reminder.copy(snoozedUntil = now))
+        planning.recordCompletion(TaskCompletion(task.id, now, task.dueDate))
+
+        assertEquals(task, planning.task(task.id))
+        assertEquals(event, planning.event(event.id))
+        assertEquals(listOf(reminder.copy(snoozedUntil = now)), planning.reminders())
+        assertEquals(project, projects.project(project.id))
+        assertEquals(listOf(milestone), projects.milestones())
+        assertEquals(1, planning.observeCompletions().first().size)
+
+        // Buchung dem Projekt zuordnen, dann Projekt löschen: Buchung + Aufgabe bleiben, Rest räumt sich auf
+        val tx = expense(34_900)
+        ledger.saveTransaction(tx, now)
+        links.link(NodeLink(NodeId.random(), tx.id, project.id, LinkRelation.PART_OF), now)
+        projects.deleteProject(project.id)
+        assertNull(planning.task(task.id)!!.projectId)
+        assertTrue(projects.milestones().isEmpty())
+        assertEquals(tx, ledger.transaction(tx.id))
+        assertTrue(links.observeLinksOf(tx.id).first().isEmpty())
+        assertTrue(RoomIntegrityChecker(db).run().isHealthy)
+
+        // Termin löschen → Erinnerung weg; Aufgabe löschen → Historie weg
+        planning.deleteEvent(event.id)
+        assertTrue(planning.reminders().isEmpty())
+        planning.deleteTask(task.id)
+        assertTrue(planning.observeCompletions().first().isEmpty())
+    }
+
+    @Test
+    fun taskTriggerRejectsRepeatWithoutDueDate() = runTest {
+        try {
+            RoomPlanningRepository(db).saveTask(Task(NodeId.random(), "x", repeat = Repeat(RepeatUnit.WEEK)), now)
+            fail("Trigger hätte greifen müssen")
+        } catch (e: SQLiteException) {
+            assertTrue(e.message.orEmpty().contains("LIFEOS_TASK_REPEAT_DUE"))
+        }
     }
 }

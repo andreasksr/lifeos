@@ -23,19 +23,38 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(MIGRATION_1_2)
+    /** v2 → v3: Aufgaben, Erledigungs-Historie, Termine, Erinnerungen, Projekte, Meilensteine. Rein additiv. */
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            SchemaSql.MIGRATION_2_3.forEach(db::execSQL)
+            TriggerInstaller.reinstall(db)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
 }
 
-/** Löscht alle bekannten Trigger und legt die aktuellen Definitionen an. Idempotent. */
+/**
+ * Löscht alle bekannten Trigger und legt die aktuellen Definitionen an. Idempotent.
+ *
+ * Bei verketteten Migrationen (z. B. 1→2→3) existieren in Zwischenschritten noch nicht alle
+ * Tabellen. Trigger auf noch fehlende Tabellen werden dann übersprungen – spätestens die letzte
+ * Migration und jedes Öffnen der Datenbank installieren den vollständigen Satz.
+ */
 object TriggerInstaller {
     private val NAME = Regex("CREATE TRIGGER IF NOT EXISTS `(\\w+)`")
+    private val TARGET = Regex("\\bON `(\\w+)`")
 
     val names: List<String> = SchemaSql.TRIGGERS.map { sql ->
         requireNotNull(NAME.find(sql)) { "Trigger ohne Namen: $sql" }.groupValues[1]
     }
 
+    fun targetTable(sql: String): String = requireNotNull(TARGET.find(sql)) { "Trigger ohne Zieltabelle: $sql" }.groupValues[1]
+
     fun reinstall(db: SupportSQLiteDatabase) {
         (names + SchemaSql.RETIRED_TRIGGER_NAMES).forEach { db.execSQL("DROP TRIGGER IF EXISTS `$it`") }
-        SchemaSql.TRIGGERS.forEach(db::execSQL)
+        val tables = HashSet<String>()
+        db.query("SELECT name FROM sqlite_master WHERE type = 'table'").use { c -> while (c.moveToNext()) tables += c.getString(0) }
+        SchemaSql.TRIGGERS.filter { targetTable(it) in tables }.forEach(db::execSQL)
     }
 }

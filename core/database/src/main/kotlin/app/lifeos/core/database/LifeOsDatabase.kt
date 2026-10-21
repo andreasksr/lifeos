@@ -9,6 +9,14 @@ import app.lifeos.core.database.dao.IntegrityDao
 import app.lifeos.core.database.dao.LedgerDao
 import app.lifeos.core.database.dao.LinkDao
 import app.lifeos.core.database.dao.NodeDao
+import app.lifeos.core.database.dao.PlanningDao
+import app.lifeos.core.database.dao.ProjectDao
+import app.lifeos.core.database.entity.CalendarEventEntity
+import app.lifeos.core.database.entity.MilestoneEntity
+import app.lifeos.core.database.entity.ProjectEntity
+import app.lifeos.core.database.entity.ReminderEntity
+import app.lifeos.core.database.entity.TaskCompletionEntity
+import app.lifeos.core.database.entity.TaskEntity
 import app.lifeos.core.database.dao.SettingsDao
 import app.lifeos.core.database.entity.AccountEntity
 import app.lifeos.core.database.entity.BudgetEntity
@@ -38,6 +46,12 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         RecurringPaymentEntity::class,
         RecurringBookingEntity::class,
         TotalBudgetEntity::class,
+        ProjectEntity::class,
+        MilestoneEntity::class,
+        TaskEntity::class,
+        TaskCompletionEntity::class,
+        CalendarEventEntity::class,
+        ReminderEntity::class,
     ],
     version = LifeOsDatabase.VERSION,
     exportSchema = true,
@@ -48,9 +62,11 @@ abstract class LifeOsDatabase : RoomDatabase() {
     abstract fun linkDao(): LinkDao
     abstract fun settingsDao(): SettingsDao
     abstract fun integrityDao(): IntegrityDao
+    abstract fun planningDao(): PlanningDao
+    abstract fun projectDao(): ProjectDao
 
     companion object {
-        const val VERSION = 2
+        const val VERSION = 3
         const val FILE_NAME = "lifeos.db"
 
         /**

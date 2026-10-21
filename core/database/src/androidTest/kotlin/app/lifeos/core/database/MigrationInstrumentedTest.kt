@@ -61,10 +61,7 @@ class MigrationInstrumentedTest {
             assertTrue(c.moveToFirst())
             assertEquals("0", c.getString(0))
         }
-        db.query("SELECT COUNT(*) FROM sqlite_master WHERE type = 'trigger'").use { c ->
-            c.moveToFirst()
-            assertEquals(TriggerInstaller.names.size, c.getInt(0))
-        }
+        assertEquals(expectedTriggers(db), triggerCount(db))
         // Neue Regel (v2): Erstattung mit Einnahmekategorie wird abgewiesen
         try {
             db.execSQL("INSERT INTO node VALUES ('00000000-0000-4000-8000-000000000005', 'TRANSACTION', 'x', 0, 0, NULL, 0)")
@@ -77,5 +74,51 @@ class MigrationInstrumentedTest {
             assertTrue(e.message.orEmpty().contains("LIFEOS_TX_COUNTER_ACCOUNT"))
         }
         db.close()
+    }
+
+    /** Verkettet 1 → 2 → 3, wie es ein Nutzer mit v0.1.0 beim Update auf 0.3.0 erlebt. */
+    @Test
+    fun migrate1To3KeepsDataAndPlanningRulesWork() {
+        helper.createDatabase(name, 1).apply {
+            execSQL("INSERT INTO node VALUES ('00000000-0000-4000-8000-000000000001', 'ACCOUNT', 'Haushaltskasse', 0, 0, NULL, 0)")
+            execSQL("INSERT INTO account VALUES ('00000000-0000-4000-8000-000000000001', 'CHECKING', 'EUR', 1000, 0)")
+            close()
+        }
+        val db = helper.runMigrationsAndValidate(name, 3, true, Migrations.MIGRATION_1_2, Migrations.MIGRATION_2_3)
+        db.query("SELECT title FROM node WHERE type = 'ACCOUNT'").use { c ->
+            assertTrue(c.moveToFirst())
+            assertEquals("Haushaltskasse", c.getString(0))
+        }
+        assertEquals(TriggerInstaller.names.size, triggerCount(db))
+
+        db.execSQL("INSERT INTO node VALUES ('00000000-0000-4000-8000-000000000010', 'PROJECT', 'Samurai', 0, 0, NULL, 0)")
+        db.execSQL("INSERT INTO project VALUES ('00000000-0000-4000-8000-000000000010', NULL, NULL, 'ACTIVE', '2026-10-01', NULL, 'TASKS', NULL, NULL, NULL)")
+        db.execSQL("INSERT INTO node VALUES ('00000000-0000-4000-8000-000000000011', 'TASK', 'Bremsen', 0, 0, NULL, 0)")
+        db.execSQL(
+            "INSERT INTO task VALUES ('00000000-0000-4000-8000-000000000011', NULL, 'OPEN', 'HIGH', '2026-10-25', NULL, NULL, 1, NULL, " +
+                "'00000000-0000-4000-8000-000000000010', NULL)",
+        )
+        try {
+            db.execSQL("UPDATE task SET due_date = '2026-02-30' WHERE node_id = '00000000-0000-4000-8000-000000000011'")
+            fail("Trigger hätte greifen müssen")
+        } catch (e: SQLiteException) {
+            assertTrue(e.message.orEmpty().contains("LIFEOS_TASK_DATE"))
+        }
+        // Projekt löschen → Aufgabe bleibt, ohne Projekt
+        db.execSQL("DELETE FROM node WHERE id = '00000000-0000-4000-8000-000000000010'")
+        db.query("SELECT project_id FROM task").use { c ->
+            assertTrue(c.moveToFirst())
+            assertTrue(c.isNull(0))
+        }
+        db.close()
+    }
+
+    private fun triggerCount(db: androidx.sqlite.db.SupportSQLiteDatabase): Int =
+        db.query("SELECT COUNT(*) FROM sqlite_master WHERE type = 'trigger'").use { c -> c.moveToFirst(); c.getInt(0) }
+
+    private fun expectedTriggers(db: androidx.sqlite.db.SupportSQLiteDatabase): Int {
+        val tables = HashSet<String>()
+        db.query("SELECT name FROM sqlite_master WHERE type = 'table'").use { c -> while (c.moveToNext()) tables += c.getString(0) }
+        return app.lifeos.core.database.schema.SchemaSql.TRIGGERS.count { TriggerInstaller.targetTable(it) in tables }
     }
 }
