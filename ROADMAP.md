@@ -2,10 +2,9 @@
 
 Status-Legende: ✅ erledigt und verifiziert · 🟡 implementiert, Verifikation offen · ⬜ offen
 
-> **Ehrlicher Gesamtstand (2026-10-20):** Phase 0 erledigt. Phase 1 ist vollständig implementiert;
-> Domänenkern, Präsentationslogik und Datenbank-Trigger sind real getestet. **Ein Android-Gradle-Build
-> hat noch nie stattgefunden** – die Entwicklungsumgebung hatte keinen Zugriff auf Google Maven.
-> Nächster Schritt ist daher zwingend Phase 1b.
+> **Stand (2026-10-21):** Phase 1 implementiert, Debug-APK erfolgreich gebaut (GitHub Actions),
+> 53 Unit-Tests und 17 Schematests grün, Room-Schema = Referenz. Offen: Test auf echtem Gerät und
+> instrumentierte Tests.
 
 ---
 
