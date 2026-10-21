@@ -107,3 +107,31 @@ Haushaltskasse, Fahrzeughistorie und Projekt zeigen dieselbe Buchung. Summiert w
 - **ADR-005** Enums als TEXT gespeichert (lesbar, robust gegen Umsortierung); Mapping in `:core:database`.
 - **ADR-006** Buchungsdatum als ISO-`TEXT` (`yyyy-MM-dd`) – sortierbar, zeitzonenneutral, menschenlesbar in Exporten.
 - **ADR-007** Jede Einnahme/Ausgabe hat ≥ 1 Split; Umbuchungen haben keine Splits.
+
+## 5. Stand 0.5.0 – Module und ergänzende Entscheidungen (2026-10-21)
+
+```
+:app                Shell, Navigation, DI, Benachrichtigungen, Dokumenttresor-Anbindung, Sicherung,
+                    App-Sperre, Widget (Glance), Suche, LifeMap
+:feature:ledger · :feature:home · :feature:planning · :feature:projects · :feature:life
+:core:designsystem  CONTINUUM v2
+:core:domain        + planning, projects, life (Fahrzeuge, Inventar, Dokumente, Lernen), search, map
+:core:model
+:core:database      Schema v4, Migrationen 1→4, DatabaseSnapshot (Sicherung)
+:core:security      Keystore-Schlüssel + vault/ (FileVault, BackupCipher – reines JVM, getestet)
+```
+
+- **ADR-008** Feste Beziehungen als Spalten (Aufgabe→Projekt, Eintrag→Fahrzeug, Thema→Fach), freie
+  Beziehungen als `link`. Die LifeMap liest beides, zeigt aber immer nur EIN Objekt mit direkten Nachbarn.
+- **ADR-009** Dokumente inhaltsadressiert (`sha256`, UNIQUE) in einem AES-256-GCM-Tresor außerhalb der DB;
+  Schlüssel aus dem DB-Geheimnis abgeleitet. Dieselbe Datei existiert nie doppelt.
+- **ADR-010** Sicherung = Klartext-Abzug (`sqlcipher_export`) + Dokumente als ZIP, vollständig mit
+  PBKDF2 (210 000) → AES-256-GCM in 1-MiB-Segmenten verschlüsselt (Abschneiden/Vertauschen erkennbar).
+  Wiederherstellung prüft vollständig vor jeder Änderung, verschlüsselt mit dem Schlüssel des Zielgeräts neu,
+  behält den alten Stand als `*.pre-restore` bis zum erfolgreichen Start (automatischer Rückbau).
+- **ADR-011** Erinnerungen: genau ein exakter Alarm für die nächste fällige Erinnerung, Neuplanung bei
+  Start, Neustart, Update und Zeitänderung. Erledigte Aufgaben werden nie erinnert.
+- **ADR-012** App-Sperre schützt die Oberfläche (BiometricPrompt/Gerätesperre); die Datenverschlüsselung
+  hängt bewusst nicht an der Biometrie (R-1).
+- **ADR-013** Prüfungs-Zielzeiträume sind Daten ohne Datum (`target_month` + Bezeichnung); erst
+  `confirmed_date` erzeugt einen exakten Countdown und Hinweise.
