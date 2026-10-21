@@ -55,7 +55,12 @@ object TransactionValidator {
                 if (tx.splits.isNotEmpty()) errors += LedgerError.SplitsOnTransfer
             }
 
-            TransactionKind.EXPENSE, TransactionKind.INCOME -> {
+            TransactionKind.CORRECTION_IN, TransactionKind.CORRECTION_OUT -> {
+                if (tx.counterAccountId != null) errors += LedgerError.CounterAccountOnNonTransfer
+                if (tx.splits.isNotEmpty()) errors += LedgerError.SplitsOnTransfer
+            }
+
+            TransactionKind.EXPENSE, TransactionKind.INCOME, TransactionKind.REFUND -> {
                 if (tx.counterAccountId != null) errors += LedgerError.CounterAccountOnNonTransfer
                 if (tx.splits.isEmpty()) {
                     errors += LedgerError.MissingSplits

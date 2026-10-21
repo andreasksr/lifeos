@@ -14,6 +14,11 @@ import app.lifeos.core.model.NodeId
 import app.lifeos.core.model.NodeLink
 import app.lifeos.core.model.NodeSummary
 import app.lifeos.core.model.NodeType
+import app.lifeos.core.model.RecurringBooking
+import app.lifeos.core.model.RecurringPayment
+import app.lifeos.core.model.RecurringStatus
+import app.lifeos.core.model.TotalBudget
+import app.lifeos.core.domain.ports.LinkedNode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -42,6 +47,9 @@ class FakeLedgerRepository : LedgerRepository {
     val budgets = MutableStateFlow<List<Budget>>(emptyList())
     val transactions = MutableStateFlow<List<LedgerTransaction>>(emptyList())
     val nodes = linkedMapOf<NodeId, NodeSummary>()
+    val totalBudgets = MutableStateFlow<List<TotalBudget>>(emptyList())
+    val recurring = MutableStateFlow<List<RecurringPayment>>(emptyList())
+    val bookings = MutableStateFlow<List<RecurringBooking>>(emptyList())
 
     override fun observeAccounts(): Flow<List<Account>> = accounts
     override fun observeCategories(): Flow<List<Category>> = categories
@@ -50,7 +58,10 @@ class FakeLedgerRepository : LedgerRepository {
         list.filter { !it.bookingDate.isBefore(from) && !it.bookingDate.isAfter(to) }
             .sortedByDescending { it.bookingDate }
     }
-    override fun observeAllTransactions(): Flow<List<LedgerTransaction>> = transactions
+    override fun observeAllTransactions(): Flow<List<LedgerTransaction>> = transactions.map { list ->
+        val byTx = bookings.value.filter { it.transactionId != null }.associateBy { it.transactionId }
+        list.map { tx -> byTx[tx.id]?.let { tx.copy(recurringId = it.recurringId) } ?: tx }
+    }
 
     override suspend fun accounts() = accounts.value
     override suspend fun categories() = categories.value
@@ -63,8 +74,13 @@ class FakeLedgerRepository : LedgerRepository {
 
     override suspend fun deleteTransaction(id: NodeId) {
         transactions.value = transactions.value.filterNot { it.id == id }
+        bookings.value = bookings.value.filterNot { it.transactionId == id } // Kaskade wie in der DB
         nodes.remove(id)
+        onNodeDeleted(id)
     }
+
+    /** Wird vom FakeLinkRepository gesetzt, um die Link-Kaskade nachzubilden. */
+    var onNodeDeleted: (NodeId) -> Unit = {}
 
     override suspend fun saveAccount(account: Account, now: Instant) {
         accounts.value = accounts.value.filterNot { it.id == account.id } + account
@@ -83,10 +99,53 @@ class FakeLedgerRepository : LedgerRepository {
     override suspend fun deleteBudget(id: NodeId) {
         budgets.value = budgets.value.filterNot { it.id == id }
     }
+
+    override fun observeTotalBudgets(): Flow<List<TotalBudget>> = totalBudgets
+    override suspend fun saveTotalBudget(budget: TotalBudget) {
+        totalBudgets.value = totalBudgets.value.filterNot { it.id == budget.id } + budget
+    }
+    override suspend fun deleteTotalBudget(id: NodeId) {
+        totalBudgets.value = totalBudgets.value.filterNot { it.id == id }
+    }
+
+    override fun observeRecurring(): Flow<List<RecurringPayment>> = recurring
+    override fun observeRecurringBookings(): Flow<List<RecurringBooking>> = bookings
+    override suspend fun recurring(id: NodeId) = recurring.value.firstOrNull { it.id == id }
+    override suspend fun saveRecurring(payment: RecurringPayment, now: Instant) {
+        recurring.value = recurring.value.filterNot { it.id == payment.id } + payment
+        nodes[payment.id] = NodeSummary(payment.id, NodeType.RECURRING, payment.name, false, !payment.active)
+    }
+    override suspend fun deleteRecurring(id: NodeId) {
+        recurring.value = recurring.value.filterNot { it.id == id }
+        bookings.value = bookings.value.filterNot { it.recurringId == id }
+        nodes.remove(id)
+    }
+    override suspend fun bookRecurring(tx: LedgerTransaction, recurringId: NodeId, dueDate: LocalDate, now: Instant) {
+        check(bookings.value.none { it.recurringId == recurringId && it.dueDate == dueDate }) { "PK-Verletzung" }
+        saveTransaction(tx, now)
+        bookings.value = bookings.value + RecurringBooking(recurringId, dueDate, RecurringStatus.BOOKED, tx.id)
+    }
+    override suspend fun skipRecurring(recurringId: NodeId, dueDate: LocalDate) {
+        check(bookings.value.none { it.recurringId == recurringId && it.dueDate == dueDate }) { "PK-Verletzung" }
+        bookings.value = bookings.value + RecurringBooking(recurringId, dueDate, RecurringStatus.SKIPPED, null)
+    }
+    override suspend fun clearRecurringBooking(recurringId: NodeId, dueDate: LocalDate) {
+        bookings.value = bookings.value.filterNot { it.recurringId == recurringId && it.dueDate == dueDate }
+    }
+    override suspend fun recurringBookingOf(transactionId: NodeId) =
+        bookings.value.firstOrNull { it.transactionId == transactionId }
+    override suspend fun restoreRecurringBooking(booking: RecurringBooking) {
+        bookings.value = bookings.value + booking
+    }
 }
 
 class FakeLinkRepository(private val nodes: MutableMap<NodeId, NodeSummary>) : LinkRepository {
     val links = MutableStateFlow<List<NodeLink>>(emptyList())
+
+    /** Bildet `ON DELETE CASCADE` der link-Tabelle nach. */
+    fun cascade(id: NodeId) {
+        links.value = links.value.filterNot { it.from == id || it.to == id }
+    }
 
     override suspend fun link(link: NodeLink, now: Instant) {
         links.value = links.value + link
@@ -103,6 +162,18 @@ class FakeLinkRepository(private val nodes: MutableMap<NodeId, NodeSummary>) : L
 
     override suspend fun linkExists(from: NodeId, to: NodeId, relation: LinkRelation) =
         links.value.any { it.from == from && it.to == to && it.relation == relation }
+
+    override suspend fun linksOf(nodeId: NodeId) = links.value.filter { it.from == nodeId || it.to == nodeId }
+
+    override fun observeNeighbors(nodeId: NodeId) = links.map { list ->
+        list.filter { it.from == nodeId || it.to == nodeId }.mapNotNull { l ->
+            val other = if (l.from == nodeId) l.to else l.from
+            nodes[other]?.let { LinkedNode(l, it, outgoing = l.from == nodeId) }
+        }
+    }
+
+    override suspend fun search(query: String, types: Set<NodeType>, limit: Int) =
+        nodes.values.filter { (types.isEmpty() || it.type in types) && it.title.contains(query, ignoreCase = true) }.take(limit)
 }
 
 class FakeSettingsRepository : SettingsRepository {

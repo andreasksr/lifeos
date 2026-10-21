@@ -19,6 +19,11 @@ import app.lifeos.core.model.NodeId
 import app.lifeos.core.model.NodeLink
 import app.lifeos.core.model.NodeSummary
 import app.lifeos.core.model.NodeType
+import app.lifeos.core.model.RecurringBooking
+import app.lifeos.core.model.RecurringPayment
+import app.lifeos.core.model.RecurringStatus
+import app.lifeos.core.model.TotalBudget
+import app.lifeos.core.domain.ports.LinkedNode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -75,6 +80,58 @@ class RoomLedgerRepository(private val db: LifeOsDatabase) : LedgerRepository {
     override suspend fun deleteBudget(id: NodeId) {
         dao.deleteBudget(id.value)
     }
+
+    override fun observeTotalBudgets(): Flow<List<TotalBudget>> =
+        dao.observeTotalBudgets().map { rows -> rows.map { it.toDomain() } }.distinctUntilChanged()
+
+    override suspend fun saveTotalBudget(budget: TotalBudget) = dao.saveTotalBudget(budget.toEntity())
+
+    override suspend fun deleteTotalBudget(id: NodeId) {
+        dao.deleteTotalBudget(id.value)
+    }
+
+    override fun observeRecurring(): Flow<List<RecurringPayment>> =
+        dao.observeRecurring().map { rows -> rows.map { it.toDomain() } }.distinctUntilChanged()
+
+    override fun observeRecurringBookings(): Flow<List<RecurringBooking>> =
+        dao.observeRecurringBookings().map { rows -> rows.map { it.toDomain() } }.distinctUntilChanged()
+
+    override suspend fun recurring(id: NodeId): RecurringPayment? = dao.recurring(id.value)?.toDomain()
+
+    override suspend fun saveRecurring(payment: RecurringPayment, now: Instant) {
+        dao.saveRecurring(
+            nodeEntity(payment.id, NodeType.RECURRING, payment.name, now, archived = !payment.active),
+            payment.toEntity(),
+        )
+    }
+
+    override suspend fun deleteRecurring(id: NodeId) {
+        db.nodeDao().delete(id.value) // Kaskade: recurring_payment → recurring_booking; Buchungen bleiben
+    }
+
+    override suspend fun bookRecurring(tx: LedgerTransaction, recurringId: NodeId, dueDate: LocalDate, now: Instant) {
+        dao.bookRecurring(
+            node = nodeEntity(tx.id, NodeType.TRANSACTION, tx.nodeTitle(), now, archived = false, isSample = tx.isSample),
+            tx = tx.toEntity(),
+            splits = tx.splitEntities(),
+            booking = RecurringBooking(recurringId, dueDate, RecurringStatus.BOOKED, tx.id).toEntity(),
+        )
+    }
+
+    override suspend fun skipRecurring(recurringId: NodeId, dueDate: LocalDate) {
+        dao.insertRecurringBooking(RecurringBooking(recurringId, dueDate, RecurringStatus.SKIPPED, null).toEntity())
+    }
+
+    override suspend fun clearRecurringBooking(recurringId: NodeId, dueDate: LocalDate) {
+        dao.deleteRecurringBooking(recurringId.value, dueDate.toString())
+    }
+
+    override suspend fun recurringBookingOf(transactionId: NodeId): RecurringBooking? =
+        dao.recurringBookingOf(transactionId.value)?.toDomain()
+
+    override suspend fun restoreRecurringBooking(booking: RecurringBooking) {
+        dao.insertRecurringBooking(booking.toEntity())
+    }
 }
 
 class RoomLinkRepository(private val db: LifeOsDatabase) : LinkRepository {
@@ -95,6 +152,30 @@ class RoomLinkRepository(private val db: LifeOsDatabase) : LinkRepository {
 
     override suspend fun linkExists(from: NodeId, to: NodeId, relation: LinkRelation): Boolean =
         db.linkDao().exists(from.value, to.value, relation.name)
+
+    override suspend fun linksOf(nodeId: NodeId): List<NodeLink> = db.linkDao().linksOf(nodeId.value).map { it.toDomain() }
+
+    override fun observeNeighbors(nodeId: NodeId): Flow<List<LinkedNode>> =
+        db.linkDao().observeNeighbors(nodeId.value).map { rows ->
+            rows.map { r ->
+                LinkedNode(
+                    link = NodeLink(NodeId(r.linkId), NodeId(r.from), NodeId(r.to), LinkRelation.valueOf(r.relation)),
+                    node = r.node.toSummary(),
+                    outgoing = r.from == nodeId.value,
+                )
+            }
+        }.distinctUntilChanged()
+
+    override suspend fun search(query: String, types: Set<NodeType>, limit: Int): List<NodeSummary> {
+        val needle = query.trim().lowercase()
+        if (needle.isEmpty()) return emptyList()
+        return db.linkDao().nodesOfTypes(types.isEmpty(), types.map { it.name })
+            .asSequence()
+            .filter { it.title.lowercase().contains(needle) }
+            .take(limit)
+            .map { it.toSummary() }
+            .toList()
+    }
 }
 
 class RoomSettingsRepository(private val db: LifeOsDatabase) : SettingsRepository {

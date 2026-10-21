@@ -131,6 +131,62 @@ data class SettingEntity(
     @ColumnInfo(name = "value") val value: String,
 )
 
+// ───────────── ab Schema v2 ─────────────
+
+@Entity(
+    tableName = "recurring_payment",
+    foreignKeys = [
+        ForeignKey(entity = NodeEntity::class, parentColumns = ["id"], childColumns = ["node_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = AccountEntity::class, parentColumns = ["node_id"], childColumns = ["account_id"], onDelete = ForeignKey.RESTRICT),
+        ForeignKey(entity = CategoryEntity::class, parentColumns = ["node_id"], childColumns = ["category_id"], onDelete = ForeignKey.RESTRICT),
+    ],
+    indices = [Index("account_id"), Index("category_id")],
+)
+data class RecurringPaymentEntity(
+    @PrimaryKey @ColumnInfo(name = "node_id") val nodeId: String,
+    @ColumnInfo(name = "kind") val kind: String,
+    @ColumnInfo(name = "account_id") val accountId: String,
+    @ColumnInfo(name = "category_id") val categoryId: String,
+    @ColumnInfo(name = "amount_minor") val amountMinor: Long,
+    @ColumnInfo(name = "currency") val currency: String,
+    @ColumnInfo(name = "interval_months") val intervalMonths: Int,
+    @ColumnInfo(name = "anchor_date") val anchorDate: String,
+    @ColumnInfo(name = "end_date") val endDate: String?,
+    @ColumnInfo(name = "payee") val payee: String?,
+    @ColumnInfo(name = "note") val note: String?,
+    @ColumnInfo(name = "active") val active: Boolean,
+    @ColumnInfo(name = "is_fixed_cost") val isFixedCost: Boolean,
+)
+
+@Entity(
+    tableName = "recurring_booking",
+    primaryKeys = ["recurring_id", "due_date"],
+    foreignKeys = [
+        ForeignKey(entity = RecurringPaymentEntity::class, parentColumns = ["node_id"], childColumns = ["recurring_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = TransactionEntity::class, parentColumns = ["node_id"], childColumns = ["transaction_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index(value = ["transaction_id"], unique = true)],
+)
+data class RecurringBookingEntity(
+    @ColumnInfo(name = "recurring_id") val recurringId: String,
+    @ColumnInfo(name = "due_date") val dueDate: String,
+    @ColumnInfo(name = "status") val status: String,
+    @ColumnInfo(name = "transaction_id") val transactionId: String?,
+)
+
+@Entity(tableName = "total_budget", indices = [Index(value = ["valid_from"], unique = true)])
+data class TotalBudgetEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "valid_from") val validFrom: String,
+    @ColumnInfo(name = "amount_minor") val amountMinor: Long,
+    @ColumnInfo(name = "currency") val currency: String,
+)
+
+data class RecurringRow(
+    @Embedded val payment: RecurringPaymentEntity,
+    @ColumnInfo(name = "title") val title: String,
+)
+
 // ───────────── Abfrageergebnisse ─────────────
 
 data class AccountRow(
@@ -148,6 +204,7 @@ data class CategoryRow(
 data class TransactionWithSplits(
     @Embedded val transaction: TransactionEntity,
     @ColumnInfo(name = "is_sample") val isSample: Boolean,
+    @ColumnInfo(name = "recurring_id") val recurringId: String?,
     @Relation(parentColumn = "node_id", entityColumn = "transaction_id")
     val splits: List<SplitEntity>,
 )

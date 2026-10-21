@@ -42,6 +42,14 @@ enum class NodeType {
     NOTE,
     COURSE,
     TOPIC,
+
+    // ab Schema v2
+    RECURRING,
+
+    // ab Schema v3/v4
+    MILESTONE,
+    VEHICLE_EVENT,
+    EXAM,
 }
 
 /** Bedeutung einer gerichteten Verknüpfung `from → to`. */

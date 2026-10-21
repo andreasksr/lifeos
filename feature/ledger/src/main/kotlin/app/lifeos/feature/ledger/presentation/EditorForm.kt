@@ -94,14 +94,14 @@ object EditorFormLogic {
                 if (form.counterAccountId == null) errors[EditorField.COUNTER_ACCOUNT] = "Bitte das Zielkonto wählen."
                 else if (form.counterAccountId == form.accountId) errors[EditorField.COUNTER_ACCOUNT] = "Ziel- und Quellkonto müssen verschieden sein."
             }
-            else -> if (form.lockedSplits == null && form.categoryId == null) {
+            else -> if (form.kind.requiresSplits && form.lockedSplits == null && form.categoryId == null) {
                 errors[EditorField.CATEGORY] = "Bitte eine Kategorie wählen."
             }
         }
         if (errors.isNotEmpty() || amount == null || form.accountId == null) return FormResult.Invalid(errors)
 
         val splits = when {
-            form.kind == TransactionKind.TRANSFER -> emptyList()
+            !form.kind.requiresSplits -> emptyList()
             form.lockedSplits != null -> form.lockedSplits
             else -> listOf(SplitDraft(form.categoryId!!, amount))
         }
@@ -134,7 +134,7 @@ object EditorFormLogic {
         LedgerError.AmountNotPositive -> EditorField.AMOUNT to "Bitte einen Betrag größer als 0 eingeben."
         LedgerError.AmountOutOfRange -> EditorField.AMOUNT to "Der Betrag ist zu groß."
         LedgerError.MissingSplits -> EditorField.CATEGORY to "Bitte eine Kategorie wählen."
-        LedgerError.SplitsOnTransfer -> EditorField.CATEGORY to "Umbuchungen haben keine Kategorie."
+        LedgerError.SplitsOnTransfer -> EditorField.CATEGORY to "Umbuchungen und Korrekturen haben keine Kategorie."
         LedgerError.SplitAmountNotPositive,
         is LedgerError.SplitSumMismatch -> EditorField.AMOUNT to "Die Aufteilung passt nicht zum Betrag."
         LedgerError.TransferNeedsCounterAccount -> EditorField.COUNTER_ACCOUNT to "Bitte das Zielkonto wählen."
@@ -148,6 +148,14 @@ object EditorFormLogic {
         LedgerError.TextTooLong -> EditorField.NOTE to "Text ist zu lang (max. 500 Zeichen)."
         LedgerError.NameRequired -> EditorField.GENERAL to "Bitte einen Namen eingeben."
         LedgerError.TransactionNotFound -> EditorField.GENERAL to "Die Buchung wurde inzwischen gelöscht."
+        LedgerError.InvalidInterval -> EditorField.GENERAL to "Bitte ein gültiges Intervall wählen."
+        LedgerError.EndBeforeStart -> EditorField.DATE to "Das Enddatum liegt vor der ersten Fälligkeit."
+        LedgerError.OccurrenceAlreadyHandled -> EditorField.GENERAL to "Diese Fälligkeit wurde bereits gebucht oder übersprungen."
+        LedgerError.OccurrenceNotDue -> EditorField.DATE to "An diesem Datum ist die Zahlung nicht fällig."
+        LedgerError.NothingToCorrect -> EditorField.AMOUNT to "Der Kontostand stimmt bereits – keine Korrektur nötig."
+        LedgerError.RecurringNotFound -> EditorField.GENERAL to "Die wiederkehrende Zahlung existiert nicht mehr."
+        LedgerError.AccountNotFound -> EditorField.ACCOUNT to "Dieses Konto existiert nicht mehr."
+        LedgerError.CategoryNotFound -> EditorField.CATEGORY to "Diese Kategorie existiert nicht mehr."
     }
 
     fun domainMessages(errors: List<LedgerError>): Map<EditorField, String> =

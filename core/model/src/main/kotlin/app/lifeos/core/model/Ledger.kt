@@ -27,19 +27,40 @@ data class Category(
     val archived: Boolean = false,
 )
 
+/**
+ * Art einer Buchung. Gespeichert als TEXT – neue Werte nur anhängen.
+ *
+ * | Art            | Saldo     | Statistik                          | Splits                 |
+ * |----------------|-----------|------------------------------------|------------------------|
+ * | EXPENSE        | −         | Ausgabe                            | ≥1, Ausgabenkategorien |
+ * | INCOME         | +         | Einnahme                           | ≥1, Einnahmekategorien |
+ * | TRANSFER       | −/+       | keine                              | keine                  |
+ * | REFUND         | +         | **mindert** Ausgaben der Kategorie | ≥1, Ausgabenkategorien |
+ * | CORRECTION_IN  | +         | keine (Kontostandskorrektur)       | keine                  |
+ * | CORRECTION_OUT | −         | keine (Kontostandskorrektur)       | keine                  |
+ */
 enum class TransactionKind {
     EXPENSE,
     INCOME,
+    TRANSFER,
+    REFUND,
+    CORRECTION_IN,
+    CORRECTION_OUT;
 
-    /** Umbuchung zwischen zwei eigenen Konten – weder Einnahme noch Ausgabe. */
-    TRANSFER;
-
+    /** Richtung der Kategorien in den Splits; `null` = Buchung hat keine Splits. */
     val categoryDirection: CategoryDirection?
         get() = when (this) {
-            EXPENSE -> CategoryDirection.EXPENSE
+            EXPENSE, REFUND -> CategoryDirection.EXPENSE
             INCOME -> CategoryDirection.INCOME
-            TRANSFER -> null
+            TRANSFER, CORRECTION_IN, CORRECTION_OUT -> null
         }
+
+    val requiresSplits: Boolean get() = categoryDirection != null
+
+    /** Erhöht den Saldo des (Quell-)Kontos. */
+    val isInflow: Boolean get() = this == INCOME || this == REFUND || this == CORRECTION_IN
+
+    val isCorrection: Boolean get() = this == CORRECTION_IN || this == CORRECTION_OUT
 }
 
 /** Aufteilung einer Buchung auf eine Kategorie. Betrag immer > 0. */
@@ -65,6 +86,11 @@ data class LedgerTransaction(
     val note: String?,
     val splits: List<Split>,
     val isSample: Boolean = false,
+    /**
+     * Gesetzt, wenn die Buchung eine Fälligkeit einer wiederkehrenden Zahlung ausführt.
+     * Abgeleitet aus `recurring_booking` – wird nicht über diese Klasse geschrieben.
+     */
+    val recurringId: NodeId? = null,
 )
 
 /**
@@ -77,4 +103,56 @@ data class Budget(
     val validFrom: YearMonth,
     val amountMinor: Long,
     val currency: CurrencyCode,
+)
+
+/** Gesamtbudget für alle Ausgaben eines Monats; gilt ab [validFrom] bis zur nächsten Änderung. */
+data class TotalBudget(
+    val id: NodeId,
+    val validFrom: YearMonth,
+    val amountMinor: Long,
+    val currency: CurrencyCode,
+)
+
+/**
+ * Wiederkehrende Einnahme oder Ausgabe (Miete, Versicherung, Abo …).
+ * Sie ist ein **Plan**: Fälligkeiten werden berechnet, aber nie automatisch gebucht.
+ * Erst „Ausführen" erzeugt eine echte Buchung (siehe [RecurringBooking]).
+ */
+data class RecurringPayment(
+    val id: NodeId,
+    val name: String,
+    val kind: TransactionKind,
+    val accountId: NodeId,
+    val categoryId: NodeId,
+    val amount: Money,
+    /** 1 = monatlich, 3 = vierteljährlich, 6 = halbjährlich, 12 = jährlich. */
+    val intervalMonths: Int,
+    /** Erste Fälligkeit; Folgetermine = anchor + k · intervalMonths (Monatsende wird geklemmt). */
+    val anchorDate: LocalDate,
+    val endDate: LocalDate? = null,
+    val payee: String? = null,
+    val note: String? = null,
+    val active: Boolean = true,
+    /** Zählt als Fixkosten (Fixkostenquote). */
+    val isFixedCost: Boolean = true,
+) {
+    init {
+        require(kind == TransactionKind.EXPENSE || kind == TransactionKind.INCOME) {
+            "Wiederkehrende Zahlungen sind Einnahmen oder Ausgaben"
+        }
+    }
+
+    companion object {
+        val ALLOWED_INTERVALS = listOf(1, 2, 3, 6, 12)
+    }
+}
+
+enum class RecurringStatus { BOOKED, SKIPPED }
+
+/** Was mit einer konkreten Fälligkeit passiert ist. Pro (Plan, Fälligkeitsdatum) höchstens einmal. */
+data class RecurringBooking(
+    val recurringId: NodeId,
+    val dueDate: LocalDate,
+    val status: RecurringStatus,
+    val transactionId: NodeId?,
 )

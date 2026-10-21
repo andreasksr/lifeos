@@ -21,6 +21,16 @@ sealed interface LedgerError {
     data object TextTooLong : LedgerError
     data object NameRequired : LedgerError
     data object TransactionNotFound : LedgerError
+
+    // ab v0.2.0
+    data object InvalidInterval : LedgerError
+    data object EndBeforeStart : LedgerError
+    data object OccurrenceAlreadyHandled : LedgerError
+    data object OccurrenceNotDue : LedgerError
+    data object NothingToCorrect : LedgerError
+    data object RecurringNotFound : LedgerError
+    data object AccountNotFound : LedgerError
+    data object CategoryNotFound : LedgerError
 }
 
 sealed interface LedgerResult<out T> {

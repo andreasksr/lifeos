@@ -15,11 +15,14 @@ import app.lifeos.core.database.entity.BudgetEntity
 import app.lifeos.core.database.entity.CategoryEntity
 import app.lifeos.core.database.entity.LinkEntity
 import app.lifeos.core.database.entity.NodeEntity
+import app.lifeos.core.database.entity.RecurringBookingEntity
+import app.lifeos.core.database.entity.RecurringPaymentEntity
+import app.lifeos.core.database.entity.TotalBudgetEntity
 import app.lifeos.core.database.entity.SettingEntity
 import app.lifeos.core.database.entity.SplitEntity
 import app.lifeos.core.database.entity.TransactionEntity
 import app.lifeos.core.database.schema.Migrations
-import app.lifeos.core.database.schema.SchemaSql
+import app.lifeos.core.database.schema.TriggerInstaller
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 @Database(
@@ -32,6 +35,9 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         SplitEntity::class,
         BudgetEntity::class,
         SettingEntity::class,
+        RecurringPaymentEntity::class,
+        RecurringBookingEntity::class,
+        TotalBudgetEntity::class,
     ],
     version = LifeOsDatabase.VERSION,
     exportSchema = true,
@@ -44,7 +50,7 @@ abstract class LifeOsDatabase : RoomDatabase() {
     abstract fun integrityDao(): IntegrityDao
 
     companion object {
-        const val VERSION = 1
+        const val VERSION = 2
         const val FILE_NAME = "lifeos.db"
 
         /**
@@ -69,13 +75,22 @@ abstract class LifeOsDatabase : RoomDatabase() {
     }
 }
 
-/** Legt Trigger an. `onOpen` repariert idempotent, falls ein Trigger fehlen sollte. */
+/**
+ * Installiert die Trigger bei Neuanlage und bei jedem Öffnen neu (löschen + anlegen). So ist
+ * garantiert, dass immer exakt die Definitionen aus `SchemaSql` aktiv sind – auch nach Updates.
+ */
 internal object SchemaCallback : RoomDatabase.Callback() {
     override fun onCreate(db: SupportSQLiteDatabase) {
-        SchemaSql.TRIGGERS.forEach(db::execSQL)
+        TriggerInstaller.reinstall(db)
     }
 
     override fun onOpen(db: SupportSQLiteDatabase) {
-        SchemaSql.TRIGGERS.forEach(db::execSQL)
+        db.beginTransaction()
+        try {
+            TriggerInstaller.reinstall(db)
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
     }
 }

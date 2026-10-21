@@ -17,6 +17,10 @@ import app.lifeos.core.database.entity.CategoryRow
 import app.lifeos.core.database.entity.LinkEntity
 import app.lifeos.core.database.entity.NodeEntity
 import app.lifeos.core.database.entity.OrphanNodeRow
+import app.lifeos.core.database.entity.RecurringBookingEntity
+import app.lifeos.core.database.entity.RecurringPaymentEntity
+import app.lifeos.core.database.entity.RecurringRow
+import app.lifeos.core.database.entity.TotalBudgetEntity
 import app.lifeos.core.database.entity.SettingEntity
 import app.lifeos.core.database.entity.SplitEntity
 import app.lifeos.core.database.entity.SplitViolationRow
@@ -94,16 +98,18 @@ abstract class LedgerDao(private val db: LifeOsDatabase) {
 
     @Transaction
     @Query(
-        """SELECT t.*, n.is_sample AS is_sample
+        """SELECT t.*, n.is_sample AS is_sample, rb.recurring_id AS recurring_id
            FROM ledger_transaction t JOIN node n ON n.id = t.node_id
+           LEFT JOIN recurring_booking rb ON rb.transaction_id = t.node_id
            ORDER BY t.booking_date DESC, n.created_at DESC""",
     )
     abstract fun observeAllTransactions(): Flow<List<TransactionWithSplits>>
 
     @Transaction
     @Query(
-        """SELECT t.*, n.is_sample AS is_sample
+        """SELECT t.*, n.is_sample AS is_sample, rb.recurring_id AS recurring_id
            FROM ledger_transaction t JOIN node n ON n.id = t.node_id
+           LEFT JOIN recurring_booking rb ON rb.transaction_id = t.node_id
            WHERE t.booking_date BETWEEN :from AND :to
            ORDER BY t.booking_date DESC, n.created_at DESC""",
     )
@@ -111,8 +117,9 @@ abstract class LedgerDao(private val db: LifeOsDatabase) {
 
     @Transaction
     @Query(
-        """SELECT t.*, n.is_sample AS is_sample
+        """SELECT t.*, n.is_sample AS is_sample, rb.recurring_id AS recurring_id
            FROM ledger_transaction t JOIN node n ON n.id = t.node_id
+           LEFT JOIN recurring_booking rb ON rb.transaction_id = t.node_id
            WHERE t.node_id = :id""",
     )
     abstract suspend fun transaction(id: String): TransactionWithSplits?
@@ -191,6 +198,68 @@ abstract class LedgerDao(private val db: LifeOsDatabase) {
     open suspend fun saveBudget(budget: BudgetEntity) {
         if (updateBudget(budget) == 0) insertBudget(budget)
     }
+
+    // ───── v2: Gesamtbudget ─────
+    @Query("SELECT * FROM total_budget ORDER BY valid_from")
+    abstract fun observeTotalBudgets(): Flow<List<TotalBudgetEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertTotalBudget(budget: TotalBudgetEntity)
+
+    @Update
+    abstract suspend fun updateTotalBudget(budget: TotalBudgetEntity): Int
+
+    @Query("DELETE FROM total_budget WHERE id = :id")
+    abstract suspend fun deleteTotalBudget(id: String): Int
+
+    @Transaction
+    open suspend fun saveTotalBudget(budget: TotalBudgetEntity) {
+        if (updateTotalBudget(budget) == 0) insertTotalBudget(budget)
+    }
+
+    // ───── v2: Wiederkehrende Zahlungen ─────
+    @Query("SELECT r.*, n.title AS title FROM recurring_payment r JOIN node n ON n.id = r.node_id ORDER BY n.title")
+    abstract fun observeRecurring(): Flow<List<RecurringRow>>
+
+    @Query("SELECT r.*, n.title AS title FROM recurring_payment r JOIN node n ON n.id = r.node_id WHERE r.node_id = :id")
+    abstract suspend fun recurring(id: String): RecurringRow?
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertRecurring(payment: RecurringPaymentEntity)
+
+    @Update
+    abstract suspend fun updateRecurring(payment: RecurringPaymentEntity): Int
+
+    @Query("SELECT * FROM recurring_booking ORDER BY due_date")
+    abstract fun observeRecurringBookings(): Flow<List<RecurringBookingEntity>>
+
+    @Query("SELECT * FROM recurring_booking WHERE transaction_id = :transactionId")
+    abstract suspend fun recurringBookingOf(transactionId: String): RecurringBookingEntity?
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertRecurringBooking(booking: RecurringBookingEntity)
+
+    @Query("DELETE FROM recurring_booking WHERE recurring_id = :recurringId AND due_date = :dueDate")
+    abstract suspend fun deleteRecurringBooking(recurringId: String, dueDate: String): Int
+
+    @Transaction
+    open suspend fun saveRecurring(node: NodeEntity, payment: RecurringPaymentEntity) {
+        val isNew = nodes.get(node.id) == null
+        nodes.save(node)
+        if (isNew) insertRecurring(payment) else updateRecurring(payment)
+    }
+
+    /** Buchung + Fälligkeitsvermerk in EINER Transaktion – nie das eine ohne das andere. */
+    @Transaction
+    open suspend fun bookRecurring(
+        node: NodeEntity,
+        tx: TransactionEntity,
+        splits: List<SplitEntity>,
+        booking: RecurringBookingEntity,
+    ) {
+        saveTransaction(node, tx, splits)
+        insertRecurringBooking(booking)
+    }
 }
 
 @Dao
@@ -206,7 +275,30 @@ abstract class LinkDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM link WHERE from_node_id = :from AND to_node_id = :to AND relation = :relation)")
     abstract suspend fun exists(from: String, to: String, relation: String): Boolean
+
+    @Query("SELECT * FROM link WHERE from_node_id = :nodeId OR to_node_id = :nodeId ORDER BY created_at")
+    abstract suspend fun linksOf(nodeId: String): List<LinkEntity>
+
+    @Query(
+        """SELECT l.id AS link_id, l.from_node_id AS link_from, l.to_node_id AS link_to, l.relation AS link_relation, n.*
+           FROM link l JOIN node n
+             ON n.id = CASE WHEN l.from_node_id = :nodeId THEN l.to_node_id ELSE l.from_node_id END
+           WHERE l.from_node_id = :nodeId OR l.to_node_id = :nodeId
+           ORDER BY n.type, n.title""",
+    )
+    abstract fun observeNeighbors(nodeId: String): Flow<List<NeighborRow>>
+
+    @Query("SELECT * FROM node WHERE (:allTypes OR type IN (:types)) ORDER BY updated_at DESC")
+    abstract suspend fun nodesOfTypes(allTypes: Boolean, types: List<String>): List<NodeEntity>
 }
+
+data class NeighborRow(
+    @androidx.room.ColumnInfo(name = "link_id") val linkId: String,
+    @androidx.room.ColumnInfo(name = "link_from") val from: String,
+    @androidx.room.ColumnInfo(name = "link_to") val to: String,
+    @androidx.room.ColumnInfo(name = "link_relation") val relation: String,
+    @androidx.room.Embedded val node: NodeEntity,
+)
 
 @Dao
 abstract class SettingsDao {

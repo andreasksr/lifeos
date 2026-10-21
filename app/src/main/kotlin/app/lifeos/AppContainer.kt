@@ -29,9 +29,10 @@ class AppContainer private constructor(
 
     val settings = AppSettings(settingsRepository)
     val integrityChecker: IntegrityChecker = RoomIntegrityChecker(database)
-    val linkNodes = LinkNodes(RoomLinkRepository(database), ids, clock)
+    private val linkRepository = RoomLinkRepository(database)
+    val linkNodes = LinkNodes(linkRepository, ids, clock)
     val ensureLedgerDefaults = EnsureLedgerDefaults(ledgerRepository, settingsRepository, ids, clock)
-    val ledger = LedgerDependencies(ledgerRepository, clock, ids)
+    val ledger = LedgerDependencies(ledgerRepository, linkRepository, clock, ids)
 
     companion object {
         /** Muss außerhalb des Main-Threads aufgerufen werden (Keystore-Zugriff). */

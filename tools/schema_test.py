@@ -247,11 +247,173 @@ class SchemaTest(unittest.TestCase):
         self.assertEqual(4, self.db.execute(SQL["QUERY_TRANSACTION_COUNT"]).fetchone()[0])
         self.assertEqual([], self.db.execute("PRAGMA foreign_key_check").fetchall())
 
+    # ───── Tests: v2 – Erstattung, Korrektur ─────
+    def test_refund_uses_expense_categories(self):
+        t = self.tx(100, "REFUND", 500)
+        self.assertAbort("LIFEOS_SPLIT_DIRECTION", self.split, 200, t, self.salary, 500)
+        self.split(201, t, self.food, 500)
+        self.assertEqual([], self.db.execute(SQL["QUERY_SPLIT_VIOLATIONS"]).fetchall())
+
+    def test_corrections_have_no_splits_and_no_counter_account(self):
+        t = self.tx(100, "CORRECTION_OUT", 500)
+        self.assertAbort("LIFEOS_SPLIT_ON_TRANSFER", self.split, 200, t, self.food, 500)
+        self.assertAbort("LIFEOS_TX_COUNTER_ACCOUNT", self.tx, 101, "CORRECTION_IN", 5, counter=self.spar)
+        self.assertAbort("LIFEOS_TX_KIND", self.tx, 102, "GIFT", 5)
+        self.assertEqual([], self.db.execute(SQL["QUERY_SPLIT_VIOLATIONS"]).fetchall())
+
+    def test_refund_without_splits_is_found_by_integrity_check(self):
+        t = self.tx(100, "REFUND", 500)
+        self.assertEqual([(t, "REFUND", 500, 0, 0)], self.db.execute(SQL["QUERY_SPLIT_VIOLATIONS"]).fetchall())
+
+    # ───── Tests: v2 – wiederkehrende Zahlungen ─────
+    def recurring(self, n, kind="EXPENSE", category=None, amount=95000, interval=1, anchor="2026-10-01", end=None, currency="EUR"):
+        nid = self.node(n, "RECURRING", "Miete")
+        self.db.execute(
+            "INSERT INTO recurring_payment (node_id, kind, account_id, category_id, amount_minor, currency,"
+            " interval_months, anchor_date, end_date, active, is_fixed_cost) VALUES (?,?,?,?,?,?,?,?,?,1,1)",
+            (nid, kind, self.giro, category or self.food, amount, currency, interval, anchor, end),
+        )
+        return nid
+
+    def test_recurring_rules(self):
+        self.recurring(300)
+        self.assertAbort("LIFEOS_RECURRING_AMOUNT", self.recurring, 301, amount=0)
+        self.assertAbort("LIFEOS_RECURRING_KIND", self.recurring, 302, kind="TRANSFER")
+        self.assertAbort("LIFEOS_RECURRING_INTERVAL", self.recurring, 303, interval=5)
+        self.assertAbort("LIFEOS_RECURRING_DATE", self.recurring, 304, anchor="2026-02-30")
+        self.assertAbort("LIFEOS_RECURRING_DATE", self.recurring, 305, end="2026-09-01")
+        self.assertAbort("LIFEOS_RECURRING_DIRECTION", self.recurring, 306, category=self.salary)
+        self.assertAbort("LIFEOS_RECURRING_CURRENCY", self.recurring, 307, currency="USD")
+        wrong = self.node(308, "PROJECT")
+        self.assertAbort("LIFEOS_NODE_TYPE", self.db.execute,
+                         "INSERT INTO recurring_payment VALUES (?, 'EXPENSE', ?, ?, 1, 'EUR', 1, '2026-10-01', NULL, NULL, NULL, 1, 1)",
+                         (wrong, self.giro, self.food))
+
+    def test_occurrence_can_only_be_booked_once(self):
+        r = self.recurring(300)
+        t1 = self.tx(100, "EXPENSE", 95000)
+        t2 = self.tx(101, "EXPENSE", 95000)
+        ins = "INSERT INTO recurring_booking (recurring_id, due_date, status, transaction_id) VALUES (?,?,?,?)"
+        self.db.execute(ins, (r, "2026-10-01", "BOOKED", t1))
+        with self.assertRaises(sqlite3.IntegrityError):  # gleiche Fälligkeit zweimal
+            self.db.execute(ins, (r, "2026-10-01", "BOOKED", t2))
+        with self.assertRaises(sqlite3.IntegrityError):  # gleiche Buchung für zwei Fälligkeiten
+            self.db.execute(ins, (r, "2026-11-01", "BOOKED", t1))
+        self.assertAbort("LIFEOS_BOOKING_TX", self.db.execute, ins, (r, "2026-12-01", "BOOKED", None))
+        self.assertAbort("LIFEOS_BOOKING_TX", self.db.execute, ins, (r, "2026-12-01", "SKIPPED", t2))
+        self.assertAbort("LIFEOS_BOOKING_STATUS", self.db.execute, ins, (r, "2026-12-01", "MAYBE", None))
+        self.assertAbort("LIFEOS_BOOKING_IMMUTABLE", self.db.execute,
+                         "UPDATE recurring_booking SET due_date = '2026-10-02'")
+
+    def test_deleting_booked_transaction_reopens_occurrence_and_plan_delete_keeps_transactions(self):
+        r = self.recurring(300)
+        t = self.tx(100, "EXPENSE", 95000)
+        self.split(200, t, self.food, 95000)
+        self.db.execute("INSERT INTO recurring_booking VALUES (?, '2026-10-01', 'BOOKED', ?)", (r, t))
+        self.db.execute("DELETE FROM node WHERE id = ?", (t,))
+        self.assertEqual(0, self.count("recurring_booking"))  # Fälligkeit wieder offen
+        t2 = self.tx(101, "EXPENSE", 95000)
+        self.split(201, t2, self.food, 95000)
+        self.db.execute("INSERT INTO recurring_booking VALUES (?, '2026-10-01', 'BOOKED', ?)", (r, t2))
+        self.db.execute("DELETE FROM node WHERE id = ?", (r,))  # Plan löschen
+        self.assertEqual(0, self.count("recurring_booking"))
+        self.assertEqual(1, self.count("ledger_transaction"))  # Buchung bleibt
+
+    def test_total_budget(self):
+        ins = "INSERT INTO total_budget VALUES (?,?,?, 'EUR')"
+        self.db.execute(ins, (uid(400), "2026-10", 200000))
+        self.assertAbort("LIFEOS_BUDGET_AMOUNT", self.db.execute, ins, (uid(401), "2026-11", 0))
+        self.assertAbort("LIFEOS_BUDGET_MONTH", self.db.execute, ins, (uid(402), "2026/11", 1))
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute(ins, (uid(403), "2026-10", 1))
+
     def test_triggers_are_idempotent(self):
         for stmt in ordered("TRIGGER_"):
             self.db.execute(stmt)  # zweites Mal – wie bei jeder Migration
         names = {r[0] for r in self.db.execute("SELECT name FROM sqlite_master WHERE type='trigger'")}
         self.assertEqual(len(ordered("TRIGGER_")), len(names))
+
+
+class MigrationTest(unittest.TestCase):
+    """v1 (exakt aus Rooms 1.json) + Daten → MIGRATION_1_2 + Trigger-Neuinstallation → Daten intakt, Schema = Referenz."""
+
+    SCHEMA_DIR = ROOT / "core/database/schemas/app.lifeos.core.database.LifeOsDatabase"
+
+    def build(self, version):
+        import json
+        j = json.loads((self.SCHEMA_DIR / f"{version}.json").read_text())
+        db = sqlite3.connect(":memory:", isolation_level=None)
+        db.execute("PRAGMA foreign_keys = ON")
+        for e in j["database"]["entities"]:
+            db.execute(e["createSql"].replace("${TABLE_NAME}", e["tableName"]))
+            for i in e.get("indices", []):
+                db.execute(i["createSql"].replace("${TABLE_NAME}", e["tableName"]))
+        return db
+
+    def describe(self, db):
+        out = {}
+        for (t,) in db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite%' AND name <> 'room_master_table'"):
+            cols = db.execute(f"PRAGMA table_info(`{t}`)").fetchall()
+            fks = sorted(r[2:] for r in db.execute(f"PRAGMA foreign_key_list(`{t}`)").fetchall())
+            idx = sorted(r[1:3] for r in db.execute(f"PRAGMA index_list(`{t}`)").fetchall())
+            out[t] = (cols, fks, idx)
+        return out
+
+    def migration_statements(self):
+        text = SCHEMA_KT.read_text(encoding="utf-8")
+        block = re.search(r"val MIGRATION_1_2: List<String> = listOf\((.*?)\)", text, re.S).group(1)
+        names = [n.strip() for n in block.split(",") if n.strip()]
+        return [SQL[n] for n in names]
+
+    def reinstall_triggers(self, db):
+        for stmt in ordered("TRIGGER_"):
+            name = re.search(r"CREATE TRIGGER IF NOT EXISTS `(\w+)`", stmt).group(1)
+            db.execute(f"DROP TRIGGER IF EXISTS `{name}`")
+            db.execute(stmt)
+
+    def test_v1_to_v2_keeps_data_and_matches_reference(self):
+        db = self.build(1)
+        # v1-Daten anlegen
+        db.execute("INSERT INTO node VALUES (?, 'ACCOUNT', 'Giro', 0, 0, NULL, 0)", (uid(1),))
+        db.execute("INSERT INTO account VALUES (?, 'CHECKING', 'EUR', 1000, 0)", (uid(1),))
+        db.execute("INSERT INTO node VALUES (?, 'CATEGORY', 'Lebensmittel', 0, 0, NULL, 0)", (uid(2),))
+        db.execute("INSERT INTO category VALUES (?, NULL, 'EXPENSE', 0)", (uid(2),))
+        db.execute("INSERT INTO node VALUES (?, 'TRANSACTION', 'Markt', 0, 0, NULL, 0)", (uid(3),))
+        db.execute("INSERT INTO ledger_transaction VALUES (?, 'EXPENSE', ?, NULL, 4299, 'EUR', '2026-10-18', 'Markt', NULL)", (uid(3), uid(1)))
+        db.execute("INSERT INTO transaction_split VALUES (?, ?, ?, 4299, NULL, 0)", (uid(4), uid(3), uid(2)))
+        db.execute("INSERT INTO budget VALUES (?, ?, '2026-10', 40000, 'EUR')", (uid(5), uid(2)))
+        before = {t: db.execute(f"SELECT * FROM {t} ORDER BY 1").fetchall()
+                  for t in ["node", "account", "category", "ledger_transaction", "transaction_split", "budget"]}
+
+        db.execute("BEGIN")
+        for stmt in self.migration_statements():
+            db.execute(stmt)
+        self.reinstall_triggers(db)
+        db.execute("COMMIT")
+
+        for t, rows in before.items():
+            self.assertEqual(rows, db.execute(f"SELECT * FROM {t} ORDER BY 1").fetchall(), t)
+        self.assertEqual([], db.execute(SQL["QUERY_SPLIT_VIOLATIONS"]).fetchall())
+        self.assertEqual([], db.execute("PRAGMA foreign_key_check").fetchall())
+
+        ref = sqlite3.connect(":memory:")
+        for stmt in ordered("TABLE_") + ordered("INDEX_"):
+            ref.execute(stmt)
+        self.assertEqual(self.describe(ref), self.describe(db))
+
+        # v2-Regeln greifen nach der Migration
+        with self.assertRaises(sqlite3.DatabaseError):
+            db.execute("INSERT INTO node VALUES (?, 'TRANSACTION', 'x', 0, 0, NULL, 0)", (uid(6),))
+            db.execute("INSERT INTO ledger_transaction VALUES (?, 'REFUND', ?, ?, 5, 'EUR', '2026-10-18', NULL, NULL)", (uid(6), uid(1), uid(1)))
+
+    def test_room_v2_schema_matches_reference_if_present(self):
+        path = self.SCHEMA_DIR / "2.json"
+        if not path.exists():
+            self.skipTest("2.json entsteht beim ersten Gradle-Build")
+        ref = sqlite3.connect(":memory:")
+        for stmt in ordered("TABLE_") + ordered("INDEX_"):
+            ref.execute(stmt)
+        self.assertEqual(self.describe(ref), self.describe(self.build(2)))
 
 
 if __name__ == "__main__":

@@ -103,9 +103,10 @@ class LedgerUseCasesTest {
     fun `loeschen`() = runBlocking {
         val record = RecordTransaction(repo, ids, clock)
         val txId = (record(TransactionDraft.single(TransactionKind.EXPENSE, account, food, 1_000, LocalDate.of(2026, 10, 1))) as LedgerResult.Success).value
-        assertEquals(LedgerResult.Success(Unit), DeleteTransaction(repo)(txId))
+        val links = app.lifeos.core.domain.testing.FakeLinkRepository(repo.nodes)
+        assertTrue(DeleteTransaction(repo, links)(txId) is LedgerResult.Success)
         assertTrue(repo.transactions.value.isEmpty())
-        assertTrue(DeleteTransaction(repo)(txId) is LedgerResult.Invalid)
+        assertTrue(DeleteTransaction(repo, links)(txId) is LedgerResult.Invalid)
     }
 
     @Test
@@ -133,7 +134,7 @@ class LedgerUseCasesTest {
 
     @Test
     fun `monatsansicht reagiert auf neue buchungen`() = runBlocking {
-        val observe = ObserveLedgerMonth(repo)
+        val observe = ObserveLedgerMonth(repo, clock)
         val month = YearMonth.of(2026, 10)
         assertEquals(0L, observe(month).first().summary.expenseMinor)
         RecordTransaction(repo, ids, clock)(

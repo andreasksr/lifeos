@@ -93,13 +93,52 @@ class RecordTransaction(
     }
 }
 
-class DeleteTransaction(private val repository: LedgerRepository) {
-    suspend operator fun invoke(id: NodeId): LedgerResult<Unit> {
-        if (repository.transaction(id) == null) {
-            return LedgerResult.Invalid(listOf(LedgerError.TransactionNotFound))
-        }
+/** Alles, was zum vollständigen Wiederherstellen einer gelöschten Buchung nötig ist. */
+data class DeletedTransaction(
+    val transaction: LedgerTransaction,
+    val links: List<app.lifeos.core.model.NodeLink>,
+    val recurringBooking: app.lifeos.core.model.RecurringBooking?,
+)
+
+/**
+ * Löscht eine Buchung und liefert einen Schnappschuss für „Rückgängig" (Schutz vor
+ * versehentlichem Datenverlust, Auftrag 4.2).
+ */
+class DeleteTransaction(
+    private val repository: LedgerRepository,
+    private val links: app.lifeos.core.domain.ports.LinkRepository,
+) {
+    suspend operator fun invoke(id: NodeId): LedgerResult<DeletedTransaction> {
+        val tx = repository.transaction(id)
+            ?: return LedgerResult.Invalid(listOf(LedgerError.TransactionNotFound))
+        val snapshot = DeletedTransaction(tx, links.linksOf(id), repository.recurringBookingOf(id))
         repository.deleteTransaction(id)
-        return LedgerResult.Success(Unit)
+        return LedgerResult.Success(snapshot)
+    }
+}
+
+/** Stellt eine gelöschte Buchung samt Verknüpfungen und Plan-Zuordnung wieder her (gleiche ID). */
+class RestoreTransaction(
+    private val repository: LedgerRepository,
+    private val links: app.lifeos.core.domain.ports.LinkRepository,
+    private val clock: LifeClock,
+) {
+    suspend operator fun invoke(deleted: DeletedTransaction): LedgerResult<NodeId> {
+        val accounts = repository.accounts().associateBy { it.id }
+        val categories = repository.categories().associateBy { it.id }
+        // Archivierte Konten dürfen beim Wiederherstellen nicht blockieren.
+        val relaxed = accounts.mapValues { it.value.copy(archived = false) }
+        val errors = TransactionValidator.validate(deleted.transaction, relaxed, categories)
+        if (errors.isNotEmpty()) return LedgerResult.Invalid(errors)
+        val now = clock.now()
+        repository.saveTransaction(deleted.transaction, now)
+        deleted.recurringBooking?.let { repository.restoreRecurringBooking(it) }
+        deleted.links.forEach { l ->
+            if (links.node(l.from) != null && links.node(l.to) != null && !links.linkExists(l.from, l.to, l.relation)) {
+                links.link(l, now)
+            }
+        }
+        return LedgerResult.Success(deleted.transaction.id)
     }
 }
 

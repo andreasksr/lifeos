@@ -108,7 +108,9 @@ class EditorFormLogicTest {
             LedgerError.ArchivedAccount(id(1)), LedgerError.UnknownCategory(id(1)),
             LedgerError.CategoryDirectionMismatch(id(1)), LedgerError.CurrencyMismatch,
             LedgerError.AmountOutOfRange, LedgerError.TextTooLong, LedgerError.NameRequired,
-            LedgerError.TransactionNotFound,
+            LedgerError.TransactionNotFound, LedgerError.InvalidInterval, LedgerError.EndBeforeStart,
+            LedgerError.OccurrenceAlreadyHandled, LedgerError.OccurrenceNotDue, LedgerError.NothingToCorrect,
+            LedgerError.RecurringNotFound, LedgerError.AccountNotFound, LedgerError.CategoryNotFound,
         )
         all.forEach { assertTrue(EditorFormLogic.domainMessage(it).second.isNotBlank()) }
     }

@@ -7,6 +7,9 @@ import app.lifeos.core.database.entity.CategoryEntity
 import app.lifeos.core.database.entity.CategoryRow
 import app.lifeos.core.database.entity.LinkEntity
 import app.lifeos.core.database.entity.NodeEntity
+import app.lifeos.core.database.entity.RecurringBookingEntity
+import app.lifeos.core.database.entity.RecurringRow
+import app.lifeos.core.database.entity.TotalBudgetEntity
 import app.lifeos.core.database.entity.SplitEntity
 import app.lifeos.core.database.entity.TransactionEntity
 import app.lifeos.core.database.entity.TransactionWithSplits
@@ -23,6 +26,10 @@ import app.lifeos.core.model.NodeId
 import app.lifeos.core.model.NodeLink
 import app.lifeos.core.model.NodeSummary
 import app.lifeos.core.model.NodeType
+import app.lifeos.core.model.RecurringBooking
+import app.lifeos.core.model.RecurringPayment
+import app.lifeos.core.model.RecurringStatus
+import app.lifeos.core.model.TotalBudget
 import app.lifeos.core.model.Split
 import app.lifeos.core.model.TransactionKind
 import java.time.Instant
@@ -64,6 +71,7 @@ internal fun TransactionWithSplits.toDomain() = LedgerTransaction(
         Split(NodeId(it.id), NodeId(it.categoryId), it.amountMinor, it.memo)
     },
     isSample = isSample,
+    recurringId = recurringId?.let(::NodeId),
 )
 
 internal fun BudgetEntity.toDomain() = Budget(
@@ -151,4 +159,58 @@ internal fun LedgerTransaction.nodeTitle(): String =
         TransactionKind.EXPENSE -> "Ausgabe"
         TransactionKind.INCOME -> "Einnahme"
         TransactionKind.TRANSFER -> "Umbuchung"
+        TransactionKind.REFUND -> "Erstattung"
+        TransactionKind.CORRECTION_IN, TransactionKind.CORRECTION_OUT -> "Kontostand-Korrektur"
     }
+
+// ───── v2 ─────
+
+internal fun TotalBudgetEntity.toDomain() = TotalBudget(NodeId(id), YearMonth.parse(validFrom), amountMinor, CurrencyCode(currency))
+
+internal fun TotalBudget.toEntity() = TotalBudgetEntity(id.value, validFrom.toString(), amountMinor, currency.value)
+
+internal fun RecurringRow.toDomain() = RecurringPayment(
+    id = NodeId(payment.nodeId),
+    name = title,
+    kind = TransactionKind.valueOf(payment.kind),
+    accountId = NodeId(payment.accountId),
+    categoryId = NodeId(payment.categoryId),
+    amount = Money(payment.amountMinor, CurrencyCode(payment.currency)),
+    intervalMonths = payment.intervalMonths,
+    anchorDate = LocalDate.parse(payment.anchorDate),
+    endDate = payment.endDate?.let(LocalDate::parse),
+    payee = payment.payee,
+    note = payment.note,
+    active = payment.active,
+    isFixedCost = payment.isFixedCost,
+)
+
+internal fun RecurringPayment.toEntity() = app.lifeos.core.database.entity.RecurringPaymentEntity(
+    nodeId = id.value,
+    kind = kind.name,
+    accountId = accountId.value,
+    categoryId = categoryId.value,
+    amountMinor = amount.minor,
+    currency = amount.currency.value,
+    intervalMonths = intervalMonths,
+    anchorDate = anchorDate.toString(),
+    endDate = endDate?.toString(),
+    payee = payee,
+    note = note,
+    active = active,
+    isFixedCost = isFixedCost,
+)
+
+internal fun RecurringBookingEntity.toDomain() = RecurringBooking(
+    recurringId = NodeId(recurringId),
+    dueDate = LocalDate.parse(dueDate),
+    status = RecurringStatus.valueOf(status),
+    transactionId = transactionId?.let(::NodeId),
+)
+
+internal fun RecurringBooking.toEntity() = RecurringBookingEntity(
+    recurringId = recurringId.value,
+    dueDate = dueDate.toString(),
+    status = status.name,
+    transactionId = transactionId?.value,
+)

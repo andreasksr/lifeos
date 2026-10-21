@@ -342,6 +342,7 @@ private fun TimelineEntryRow(entry: TimelineEntry, segment: SpineSegment, onClic
         FlowDirection.IN -> Triple(NodeTone.INFLOW, MoneyText.format(tx.amount, showPlus = true), ContinuumColors.Cyan)
         FlowDirection.OUT -> Triple(NodeTone.OUTFLOW, MoneyText.format(-tx.amount), ContinuumColors.Ice)
         FlowDirection.MOVE -> Triple(NodeTone.NEUTRAL, "⇄ " + MoneyText.format(tx.amount), ContinuumColors.IceMuted)
+        FlowDirection.CORRECTION -> Triple(NodeTone.NEUTRAL, MoneyText.format(if (tx.kind.isInflow) tx.amount else -tx.amount, showPlus = true), ContinuumColors.IceMuted)
     }
     val subtitle = when (entry.direction) {
         FlowDirection.MOVE -> "${entry.accountName} → ${entry.counterAccountName}"

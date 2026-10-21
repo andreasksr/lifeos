@@ -16,12 +16,13 @@ import app.lifeos.core.domain.ports.LedgerRepository
  */
 class LedgerDependencies(
     val repository: LedgerRepository,
+    val links: app.lifeos.core.domain.ports.LinkRepository,
     val clock: LifeClock,
     ids: IdGenerator,
 ) {
-    val observeMonth = ObserveLedgerMonth(repository)
+    val observeMonth = ObserveLedgerMonth(repository, clock)
     val record = RecordTransaction(repository, ids, clock)
-    val delete = DeleteTransaction(repository)
+    val delete = DeleteTransaction(repository, links)
     val setBudget = SetBudget(repository, ids)
     val createAccount = CreateAccount(repository, ids, clock)
     val createCategory = CreateCategory(repository, ids, clock)
