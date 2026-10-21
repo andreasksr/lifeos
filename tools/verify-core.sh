@@ -29,11 +29,15 @@ echo "▸ kompiliere :core:domain"
 # Präsentationslogik der Haushaltskasse ist bewusst Android-frei und daher hier mitprüfbar.
 echo "▸ kompiliere :feature:ledger (presentation, Android-frei)"
 "$KOTLINC" -jvm-target 17 -Werror -cp "$OUT/model.jar:$OUT/domain.jar:$COROUTINES" -d "$OUT/feature-ledger.jar" \
-  $(find "$ROOT/feature/ledger/src/main/kotlin/app/lifeos/feature/ledger/presentation" "$ROOT/feature/planning/src/main/kotlin/app/lifeos/feature/planning/presentation" -name '*.kt')
+  $(find "$ROOT/feature/ledger/src/main/kotlin/app/lifeos/feature/ledger/presentation" "$ROOT/feature/planning/src/main/kotlin/app/lifeos/feature/planning/presentation" -name '*.kt') \
+  "$ROOT/feature/life/src/main/kotlin/app/lifeos/feature/life/LifeText.kt"
 
-TEST_SOURCES=$(find "$ROOT/core/model/src/test" "$ROOT/core/domain/src/test" "$ROOT/feature/ledger/src/test" "$ROOT/feature/planning/src/test" -name '*.kt')
+echo "▸ kompiliere :core:security (vault, Android-frei)"
+"$KOTLINC" -jvm-target 17 -Werror -d "$OUT/security-vault.jar" $(find "$ROOT/core/security/src/main/kotlin/app/lifeos/core/security/vault" -name '*.kt')
+
+TEST_SOURCES=$(find "$ROOT/core/model/src/test" "$ROOT/core/security/src/test" "$ROOT/core/domain/src/test" "$ROOT/feature/ledger/src/test" "$ROOT/feature/planning/src/test" "$ROOT/feature/life/src/test" -name '*.kt')
 echo "▸ kompiliere Tests"
-"$KOTLINC" -jvm-target 17 -cp "$OUT/model.jar:$OUT/domain.jar:$OUT/feature-ledger.jar:$COROUTINES:$JUNIT_JAR" \
+"$KOTLINC" -jvm-target 17 -cp "$OUT/model.jar:$OUT/domain.jar:$OUT/feature-ledger.jar:$OUT/security-vault.jar:$COROUTINES:$JUNIT_JAR" \
   -d "$OUT/tests.jar" $TEST_SOURCES
 
 CLASSES=$(for f in $(echo "$TEST_SOURCES" | grep 'Test\.kt$'); do
@@ -42,5 +46,5 @@ CLASSES=$(for f in $(echo "$TEST_SOURCES" | grep 'Test\.kt$'); do
 done)
 
 echo "▸ führe JUnit aus"
-java -cp "$OUT/model.jar:$OUT/domain.jar:$OUT/feature-ledger.jar:$OUT/tests.jar:$STDLIB:$COROUTINES:$JUNIT_JAR:$HAMCREST_JAR" \
+java -cp "$OUT/model.jar:$OUT/domain.jar:$OUT/feature-ledger.jar:$OUT/security-vault.jar:$OUT/tests.jar:$STDLIB:$COROUTINES:$JUNIT_JAR:$HAMCREST_JAR" \
   org.junit.runner.JUnitCore $CLASSES

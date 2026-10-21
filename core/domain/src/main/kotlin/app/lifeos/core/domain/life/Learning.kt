@@ -60,7 +60,12 @@ class StopStudy(private val repo: LearningRepository, private val clock: LifeClo
         val running = repo.sessions().firstOrNull { it.running } ?: return LifeResult.Invalid(listOf(LifeError.NoRunningSession))
         val now = clock.now().truncatedTo(ChronoUnit.SECONDS)
         val end = minOf(now, running.start.plus(MAX_SESSION))
-        val s = running.copy(end = maxOf(end, running.start), note = note?.trim()?.takeIf { it.isNotEmpty() } ?: running.note)
+        if (!end.isAfter(running.start)) {
+            // Sofort wieder gestoppt: nichts Messbares – Sitzung verwerfen statt eine Dauer zu erfinden.
+            repo.deleteSession(running.id)
+            return LifeResult.Invalid(listOf(LifeError.SessionTooShort))
+        }
+        val s = running.copy(end = end, note = note?.trim()?.takeIf { it.isNotEmpty() } ?: running.note)
         repo.saveSession(s)
         return LifeResult.Success(s)
     }

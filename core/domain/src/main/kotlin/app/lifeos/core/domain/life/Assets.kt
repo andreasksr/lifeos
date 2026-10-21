@@ -122,6 +122,9 @@ interface DocumentStore {
 
 data class ImportResult(val documentId: NodeId, val duplicate: Boolean)
 
+/** Datei überschreitet die Größengrenze des Dokumentenspeichers. */
+class DocumentTooLargeException(val limitBytes: Long) : Exception("Datei größer als ${limitBytes / (1024 * 1024)} MB")
+
 /**
  * Importiert eine Datei. Ist dieselbe Datei (gleicher Inhalt) schon vorhanden, wird KEIN zweiter Datensatz
  * und keine zweite Kopie angelegt – das bestehende Dokument wird zurückgegeben.

@@ -140,6 +140,11 @@ class LifeDomainTest {
         val stopped = (StopStudy(repo, c)() as LifeResult.Success).value
         assertEquals(now.plusSeconds(12 * 3600), stopped.end)
         assertEquals(LifeResult.Invalid(listOf(LifeError.NoRunningSession)), StopStudy(repo, c)())
+        // Start und Stopp in derselben Sekunde: verworfen, keine erfundene Dauer
+        StartStudy(repo, ids, c)(null)
+        assertEquals(LifeResult.Invalid(listOf(LifeError.SessionTooShort)), StopStudy(repo, c)())
+        assertTrue(repo.sessions.value.none { it.running })
+        assertEquals(1, repo.sessions.value.size)
     }
 
     @Test

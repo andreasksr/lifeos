@@ -42,37 +42,6 @@ import app.lifeos.core.domain.ports.IntegrityReport
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
-/** Ein Modul im Bereich „Mein Leben". */
-data class LifeModule(val title: String, val subtitle: String, val glyph: Glyph, val open: () -> Unit)
-
-/** „Mein Leben" – Einstieg in persönliche Verwaltung. Zeigt nur implementierte Module. */
-@Composable
-fun LifeHubScreen(onOpenSystem: () -> Unit, modules: List<LifeModule> = emptyList()) {
-    LazyColumn(Modifier.fillMaxSize().testTag("lifeos-screen"), contentPadding = PaddingValues(bottom = 150.dp)) {
-        item { LifeTopBar(overline = "Mein Leben", title = "Verwaltung", subtitle = "Besitz, Unterlagen, Weiterbildung und System", large = true) }
-        if (modules.isNotEmpty()) {
-            item { SpineSection("Module", index = 0, shape = NodeShape.HEX, tone = NodeTone.ACTIVE, fullBleed = true) {} }
-            modules.forEachIndexed { i, m ->
-                item(key = m.title) { ModuleRow(m) }
-            }
-        }
-        item { SpineSection("System", index = 1, shape = NodeShape.RING, fullBleed = true) {} }
-        item { ModuleRow(LifeModule("System & Sicherheit", "Bewegung, Datenintegrität, Verschlüsselung", Glyph.SHIELD, onOpenSystem)) }
-    }
-}
-
-@Composable
-private fun ModuleRow(m: LifeModule) {
-    LifeTimelineRow(nodeShape = NodeShape.HEX, nodeTone = NodeTone.NEUTRAL, onClick = m.open, onClickLabel = "${m.title} öffnen") {
-        LifeGlyph(m.glyph, tint = ContinuumColors.Cyan)
-        Column(Modifier.weight(1f)) {
-            Text(m.title, style = Continuum.type.body)
-            Text(m.subtitle, style = Continuum.type.small)
-        }
-        LifeGlyph(Glyph.CHEVRON_RIGHT, tint = ContinuumColors.Faint, size = 16.dp)
-    }
-}
-
 /** System: Bewegung, Datenintegrität, Sicherheit. Jede Schaltfläche hier hat eine echte Funktion. */
 @Composable
 fun SystemScreen(container: AppContainer, systemAnimationsOff: Boolean, onBack: () -> Unit) {

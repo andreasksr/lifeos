@@ -71,7 +71,7 @@ class EndToEndFinanceTest {
         Shots.take("03_home_nach_speichern")
 
         // ── Finanzen ──
-        rule.onNodeWithText("FINANZEN").performClick()
+        rule.onNode(navTab("FINANZEN")).performClick()
         waitFor(hasContentDescription("Kontostand", substring = true))
         Shots.take("04_finanzen")
         scrollTo(txLine)
@@ -106,10 +106,10 @@ class EndToEndFinanceTest {
         }
 
         // ── Weitere Ansichten für die Dokumentation ──
-        rule.onNodeWithText("MEIN LEBEN").performClick()
+        rule.onNode(navTab("MEIN LEBEN")).performClick()
         waitForText("System & Sicherheit")
         Shots.take("08_mein_leben")
-        rule.onNodeWithText("HOME").performClick()
+        rule.onNode(navTab("HOME")).performClick()
         waitForText("HEUTE")
         Shots.take("09_home_mit_daten")
     }

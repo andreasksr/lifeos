@@ -31,7 +31,15 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
+    /** v3 → v4: Fahrzeuge, Inventar, Dokumente, Weiterbildung. Rein additiv – bestehende Daten bleiben unberührt. */
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            SchemaSql.MIGRATION_3_4.forEach(db::execSQL)
+            TriggerInstaller.reinstall(db)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
 }
 
 /**

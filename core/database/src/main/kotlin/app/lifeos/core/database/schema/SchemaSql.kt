@@ -1,7 +1,7 @@
 package app.lifeos.core.database.schema
 
 /**
- * Kanonisches SQL des LifeOS-Schemas (aktuell v2).
+ * Kanonisches SQL des LifeOS-Schemas (aktuell v4).
  *
  * - `TABLE_*` / `INDEX_*`: Referenz-DDL. Room erzeugt die Tabellen selbst aus den Entities; diese
  *   Texte dokumentieren das erwartete Ergebnis und werden von `tools/schema_test.py` (SQLite) sowie
@@ -91,6 +91,23 @@ object SchemaSql {
 
     const val TABLE_TOTAL_BUDGET = """CREATE TABLE IF NOT EXISTS `total_budget` (`id` TEXT NOT NULL, `valid_from` TEXT NOT NULL, `amount_minor` INTEGER NOT NULL, `currency` TEXT NOT NULL, PRIMARY KEY(`id`))"""
 
+    // ── ab v4 ──
+    const val TABLE_VEHICLE = """CREATE TABLE IF NOT EXISTS `vehicle` (`node_id` TEXT NOT NULL, `make` TEXT NOT NULL, `model` TEXT NOT NULL, `build_year` INTEGER, `plate` TEXT, `vin` TEXT, `odometer_km` INTEGER, `purchase_date` TEXT, `purchase_price_minor` INTEGER, `note` TEXT, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_VEHICLE_EVENT = """CREATE TABLE IF NOT EXISTS `vehicle_event` (`node_id` TEXT NOT NULL, `vehicle_id` TEXT NOT NULL, `kind` TEXT NOT NULL, `event_date` TEXT NOT NULL, `odometer_km` INTEGER, `done` INTEGER NOT NULL, `note` TEXT, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`vehicle_id`) REFERENCES `vehicle`(`node_id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_ASSET = """CREATE TABLE IF NOT EXISTS `asset` (`node_id` TEXT NOT NULL, `kind` TEXT NOT NULL, `manufacturer` TEXT, `model` TEXT, `serial_number` TEXT, `purchase_date` TEXT, `price_minor` INTEGER, `warranty_until` TEXT, `location` TEXT, `note` TEXT, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_DOCUMENT = """CREATE TABLE IF NOT EXISTS `document` (`node_id` TEXT NOT NULL, `file_name` TEXT NOT NULL, `mime_type` TEXT NOT NULL, `size_bytes` INTEGER NOT NULL, `sha256` TEXT NOT NULL, `imported_at` INTEGER NOT NULL, `doc_date` TEXT, `note` TEXT, `ocr_text` TEXT, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_SUBJECT = """CREATE TABLE IF NOT EXISTS `subject` (`node_id` TEXT NOT NULL, `part` TEXT NOT NULL, `sort_order` INTEGER NOT NULL, `note` TEXT, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_TOPIC = """CREATE TABLE IF NOT EXISTS `topic` (`node_id` TEXT NOT NULL, `subject_id` TEXT NOT NULL, `status` TEXT NOT NULL, `sort_order` INTEGER NOT NULL, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`subject_id`) REFERENCES `subject`(`node_id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
+    const val TABLE_STUDY_SESSION = """CREATE TABLE IF NOT EXISTS `study_session` (`id` TEXT NOT NULL, `subject_id` TEXT, `start_at` INTEGER NOT NULL, `end_at` INTEGER, `source` TEXT NOT NULL, `note` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`subject_id`) REFERENCES `subject`(`node_id`) ON UPDATE NO ACTION ON DELETE SET NULL )"""
+
+    const val TABLE_EXAM = """CREATE TABLE IF NOT EXISTS `exam` (`node_id` TEXT NOT NULL, `part` TEXT NOT NULL, `target_month` TEXT, `target_label` TEXT, `confirmed_date` TEXT, `location` TEXT, `note` TEXT, PRIMARY KEY(`node_id`), FOREIGN KEY(`node_id`) REFERENCES `node`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"""
+
     const val INDEX_NODE_TYPE = """CREATE INDEX IF NOT EXISTS `index_node_type` ON `node` (`type`)"""
     const val INDEX_LINK_UNIQUE = """CREATE UNIQUE INDEX IF NOT EXISTS `index_link_from_node_id_to_node_id_relation` ON `link` (`from_node_id`, `to_node_id`, `relation`)"""
     const val INDEX_LINK_TO = """CREATE INDEX IF NOT EXISTS `index_link_to_node_id` ON `link` (`to_node_id`)"""
@@ -111,6 +128,11 @@ object SchemaSql {
     const val INDEX_EVENT_START = """CREATE INDEX IF NOT EXISTS `index_calendar_event_start_at` ON `calendar_event` (`start_at`)"""
     const val INDEX_REMINDER_NODE = """CREATE INDEX IF NOT EXISTS `index_reminder_node_id` ON `reminder` (`node_id`)"""
     const val INDEX_TOTAL_BUDGET_MONTH = """CREATE UNIQUE INDEX IF NOT EXISTS `index_total_budget_valid_from` ON `total_budget` (`valid_from`)"""
+    const val INDEX_VEHICLE_EVENT_VEHICLE = """CREATE INDEX IF NOT EXISTS `index_vehicle_event_vehicle_id` ON `vehicle_event` (`vehicle_id`)"""
+    const val INDEX_DOCUMENT_SHA = """CREATE UNIQUE INDEX IF NOT EXISTS `index_document_sha256` ON `document` (`sha256`)"""
+    const val INDEX_TOPIC_SUBJECT = """CREATE INDEX IF NOT EXISTS `index_topic_subject_id` ON `topic` (`subject_id`)"""
+    const val INDEX_SESSION_SUBJECT = """CREATE INDEX IF NOT EXISTS `index_study_session_subject_id` ON `study_session` (`subject_id`)"""
+    const val INDEX_SESSION_START = """CREATE INDEX IF NOT EXISTS `index_study_session_start_at` ON `study_session` (`start_at`)"""
 
     // ───────────────────────────── Trigger ─────────────────────────────
 
@@ -362,6 +384,156 @@ object SchemaSql {
             WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) NOT IN ('TASK', 'EVENT', 'EXAM', 'VEHICLE_EVENT') THEN RAISE(ABORT, 'LIFEOS_REMINDER_TARGET')
         END; END"""
 
+    // ── ab v4 ──
+    const val TRIGGER_VEHICLE_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_vehicle_check_insert`
+        BEFORE INSERT ON `vehicle`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'VEHICLE' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`build_year` IS NOT NULL AND (NEW.`build_year` < 1886 OR NEW.`build_year` > 2100) THEN RAISE(ABORT, 'LIFEOS_VEHICLE_YEAR')
+            WHEN NEW.`odometer_km` IS NOT NULL AND (NEW.`odometer_km` < 0 OR NEW.`odometer_km` > 5000000) THEN RAISE(ABORT, 'LIFEOS_VEHICLE_ODOMETER')
+            WHEN NEW.`purchase_date` IS NOT NULL AND date(NEW.`purchase_date`, '+0 days') IS NOT NEW.`purchase_date` THEN RAISE(ABORT, 'LIFEOS_VEHICLE_DATE')
+            WHEN NEW.`purchase_price_minor` IS NOT NULL AND NEW.`purchase_price_minor` < 0 THEN RAISE(ABORT, 'LIFEOS_VEHICLE_PRICE')
+        END; END"""
+
+    const val TRIGGER_VEHICLE_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_vehicle_check_update`
+        BEFORE UPDATE ON `vehicle`
+        BEGIN SELECT CASE
+            WHEN NEW.`build_year` IS NOT NULL AND (NEW.`build_year` < 1886 OR NEW.`build_year` > 2100) THEN RAISE(ABORT, 'LIFEOS_VEHICLE_YEAR')
+            WHEN NEW.`odometer_km` IS NOT NULL AND (NEW.`odometer_km` < 0 OR NEW.`odometer_km` > 5000000) THEN RAISE(ABORT, 'LIFEOS_VEHICLE_ODOMETER')
+            WHEN NEW.`purchase_date` IS NOT NULL AND date(NEW.`purchase_date`, '+0 days') IS NOT NEW.`purchase_date` THEN RAISE(ABORT, 'LIFEOS_VEHICLE_DATE')
+            WHEN NEW.`purchase_price_minor` IS NOT NULL AND NEW.`purchase_price_minor` < 0 THEN RAISE(ABORT, 'LIFEOS_VEHICLE_PRICE')
+        END; END"""
+
+    const val TRIGGER_VEHICLE_EVENT_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_vehicle_event_check_insert`
+        BEFORE INSERT ON `vehicle_event`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'VEHICLE_EVENT' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`kind` NOT IN ('PURCHASE', 'MAINTENANCE', 'REPAIR', 'PARTS', 'INSPECTION', 'TIRES', 'OTHER') THEN RAISE(ABORT, 'LIFEOS_VEHICLE_EVENT_KIND')
+            WHEN date(NEW.`event_date`, '+0 days') IS NOT NEW.`event_date` THEN RAISE(ABORT, 'LIFEOS_VEHICLE_EVENT_DATE')
+            WHEN NEW.`done` NOT IN (0, 1) THEN RAISE(ABORT, 'LIFEOS_VEHICLE_EVENT_DONE')
+            WHEN NEW.`odometer_km` IS NOT NULL AND (NEW.`odometer_km` < 0 OR NEW.`odometer_km` > 5000000) THEN RAISE(ABORT, 'LIFEOS_VEHICLE_ODOMETER')
+        END; END"""
+
+    const val TRIGGER_VEHICLE_EVENT_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_vehicle_event_check_update`
+        BEFORE UPDATE ON `vehicle_event`
+        BEGIN SELECT CASE
+            WHEN NEW.`kind` NOT IN ('PURCHASE', 'MAINTENANCE', 'REPAIR', 'PARTS', 'INSPECTION', 'TIRES', 'OTHER') THEN RAISE(ABORT, 'LIFEOS_VEHICLE_EVENT_KIND')
+            WHEN date(NEW.`event_date`, '+0 days') IS NOT NEW.`event_date` THEN RAISE(ABORT, 'LIFEOS_VEHICLE_EVENT_DATE')
+            WHEN NEW.`done` NOT IN (0, 1) THEN RAISE(ABORT, 'LIFEOS_VEHICLE_EVENT_DONE')
+            WHEN NEW.`odometer_km` IS NOT NULL AND (NEW.`odometer_km` < 0 OR NEW.`odometer_km` > 5000000) THEN RAISE(ABORT, 'LIFEOS_VEHICLE_ODOMETER')
+        END; END"""
+
+    const val TRIGGER_ASSET_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_asset_check_insert`
+        BEFORE INSERT ON `asset`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'ASSET' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`kind` NOT IN ('TOOL', 'ELECTRONICS', 'MACHINE', 'HOUSEHOLD', 'OTHER') THEN RAISE(ABORT, 'LIFEOS_ASSET_KIND')
+            WHEN NEW.`purchase_date` IS NOT NULL AND date(NEW.`purchase_date`, '+0 days') IS NOT NEW.`purchase_date` THEN RAISE(ABORT, 'LIFEOS_ASSET_DATE')
+            WHEN NEW.`warranty_until` IS NOT NULL AND date(NEW.`warranty_until`, '+0 days') IS NOT NEW.`warranty_until` THEN RAISE(ABORT, 'LIFEOS_ASSET_DATE')
+            WHEN NEW.`purchase_date` IS NOT NULL AND NEW.`warranty_until` IS NOT NULL AND NEW.`warranty_until` < NEW.`purchase_date` THEN RAISE(ABORT, 'LIFEOS_ASSET_WARRANTY')
+            WHEN NEW.`price_minor` IS NOT NULL AND NEW.`price_minor` < 0 THEN RAISE(ABORT, 'LIFEOS_ASSET_PRICE')
+        END; END"""
+
+    const val TRIGGER_ASSET_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_asset_check_update`
+        BEFORE UPDATE ON `asset`
+        BEGIN SELECT CASE
+            WHEN NEW.`kind` NOT IN ('TOOL', 'ELECTRONICS', 'MACHINE', 'HOUSEHOLD', 'OTHER') THEN RAISE(ABORT, 'LIFEOS_ASSET_KIND')
+            WHEN NEW.`purchase_date` IS NOT NULL AND date(NEW.`purchase_date`, '+0 days') IS NOT NEW.`purchase_date` THEN RAISE(ABORT, 'LIFEOS_ASSET_DATE')
+            WHEN NEW.`warranty_until` IS NOT NULL AND date(NEW.`warranty_until`, '+0 days') IS NOT NEW.`warranty_until` THEN RAISE(ABORT, 'LIFEOS_ASSET_DATE')
+            WHEN NEW.`purchase_date` IS NOT NULL AND NEW.`warranty_until` IS NOT NULL AND NEW.`warranty_until` < NEW.`purchase_date` THEN RAISE(ABORT, 'LIFEOS_ASSET_WARRANTY')
+            WHEN NEW.`price_minor` IS NOT NULL AND NEW.`price_minor` < 0 THEN RAISE(ABORT, 'LIFEOS_ASSET_PRICE')
+        END; END"""
+
+    const val TRIGGER_DOCUMENT_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_document_check_insert`
+        BEFORE INSERT ON `document`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'DOCUMENT' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN length(NEW.`sha256`) <> 64 OR NEW.`sha256` GLOB '*[^0-9a-f]*' THEN RAISE(ABORT, 'LIFEOS_DOCUMENT_HASH')
+            WHEN NEW.`size_bytes` < 0 THEN RAISE(ABORT, 'LIFEOS_DOCUMENT_SIZE')
+            WHEN trim(NEW.`mime_type`) = '' OR trim(NEW.`file_name`) = '' THEN RAISE(ABORT, 'LIFEOS_DOCUMENT_META')
+            WHEN NEW.`doc_date` IS NOT NULL AND date(NEW.`doc_date`, '+0 days') IS NOT NEW.`doc_date` THEN RAISE(ABORT, 'LIFEOS_DOCUMENT_DATE')
+        END; END"""
+
+    const val TRIGGER_DOCUMENT_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_document_check_update`
+        BEFORE UPDATE ON `document`
+        BEGIN SELECT CASE
+            WHEN length(NEW.`sha256`) <> 64 OR NEW.`sha256` GLOB '*[^0-9a-f]*' THEN RAISE(ABORT, 'LIFEOS_DOCUMENT_HASH')
+            WHEN NEW.`size_bytes` < 0 THEN RAISE(ABORT, 'LIFEOS_DOCUMENT_SIZE')
+            WHEN trim(NEW.`mime_type`) = '' OR trim(NEW.`file_name`) = '' THEN RAISE(ABORT, 'LIFEOS_DOCUMENT_META')
+            WHEN NEW.`doc_date` IS NOT NULL AND date(NEW.`doc_date`, '+0 days') IS NOT NEW.`doc_date` THEN RAISE(ABORT, 'LIFEOS_DOCUMENT_DATE')
+        END; END"""
+
+    const val TRIGGER_SUBJECT_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_subject_check_insert`
+        BEFORE INSERT ON `subject`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'COURSE' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`part` NOT IN ('BQ', 'HQ', 'OTHER') THEN RAISE(ABORT, 'LIFEOS_EXAM_PART')
+        END; END"""
+
+    const val TRIGGER_SUBJECT_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_subject_check_update`
+        BEFORE UPDATE ON `subject`
+        BEGIN SELECT CASE
+            WHEN NEW.`part` NOT IN ('BQ', 'HQ', 'OTHER') THEN RAISE(ABORT, 'LIFEOS_EXAM_PART')
+        END; END"""
+
+    const val TRIGGER_TOPIC_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_topic_check_insert`
+        BEFORE INSERT ON `topic`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'TOPIC' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`status` NOT IN ('OPEN', 'IN_PROGRESS', 'DONE') THEN RAISE(ABORT, 'LIFEOS_TOPIC_STATUS')
+        END; END"""
+
+    const val TRIGGER_TOPIC_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_topic_check_update`
+        BEFORE UPDATE ON `topic`
+        BEGIN SELECT CASE
+            WHEN NEW.`status` NOT IN ('OPEN', 'IN_PROGRESS', 'DONE') THEN RAISE(ABORT, 'LIFEOS_TOPIC_STATUS')
+        END; END"""
+
+    const val TRIGGER_EXAM_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_exam_check_insert`
+        BEFORE INSERT ON `exam`
+        BEGIN SELECT CASE
+            WHEN (SELECT `type` FROM `node` WHERE `id` = NEW.`node_id`) <> 'EXAM' THEN RAISE(ABORT, 'LIFEOS_NODE_TYPE')
+            WHEN NEW.`part` NOT IN ('BQ', 'HQ', 'OTHER') THEN RAISE(ABORT, 'LIFEOS_EXAM_PART')
+            WHEN NEW.`target_month` IS NOT NULL AND (NEW.`target_month` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]' OR substr(NEW.`target_month`, 6, 2) NOT BETWEEN '01' AND '12') THEN RAISE(ABORT, 'LIFEOS_EXAM_TARGET')
+            WHEN NEW.`confirmed_date` IS NOT NULL AND date(NEW.`confirmed_date`, '+0 days') IS NOT NEW.`confirmed_date` THEN RAISE(ABORT, 'LIFEOS_EXAM_DATE')
+        END; END"""
+
+    const val TRIGGER_EXAM_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_exam_check_update`
+        BEFORE UPDATE ON `exam`
+        BEGIN SELECT CASE
+            WHEN NEW.`part` NOT IN ('BQ', 'HQ', 'OTHER') THEN RAISE(ABORT, 'LIFEOS_EXAM_PART')
+            WHEN NEW.`target_month` IS NOT NULL AND (NEW.`target_month` NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]' OR substr(NEW.`target_month`, 6, 2) NOT BETWEEN '01' AND '12') THEN RAISE(ABORT, 'LIFEOS_EXAM_TARGET')
+            WHEN NEW.`confirmed_date` IS NOT NULL AND date(NEW.`confirmed_date`, '+0 days') IS NOT NEW.`confirmed_date` THEN RAISE(ABORT, 'LIFEOS_EXAM_DATE')
+        END; END"""
+
+    /** Höchstens EINE laufende Lernsitzung; Ende nach Start; max. 12 h – verhindert doppelt gezählte Zeit. */
+    const val TRIGGER_SESSION_INSERT = """CREATE TRIGGER IF NOT EXISTS `trg_study_session_check_insert`
+        BEFORE INSERT ON `study_session`
+        BEGIN SELECT CASE
+            WHEN NEW.`source` NOT IN ('TIMER', 'MANUAL') THEN RAISE(ABORT, 'LIFEOS_SESSION_SOURCE')
+            WHEN NEW.`end_at` IS NULL AND EXISTS (SELECT 1 FROM `study_session` WHERE `end_at` IS NULL) THEN RAISE(ABORT, 'LIFEOS_SESSION_RUNNING')
+            WHEN NEW.`end_at` IS NOT NULL AND NEW.`end_at` <= NEW.`start_at` THEN RAISE(ABORT, 'LIFEOS_SESSION_END')
+            WHEN NEW.`end_at` IS NOT NULL AND NEW.`end_at` - NEW.`start_at` > 43200000 THEN RAISE(ABORT, 'LIFEOS_SESSION_LENGTH')
+        END; END"""
+
+    const val TRIGGER_SESSION_UPDATE = """CREATE TRIGGER IF NOT EXISTS `trg_study_session_check_update`
+        BEFORE UPDATE ON `study_session`
+        BEGIN SELECT CASE
+            WHEN NEW.`source` NOT IN ('TIMER', 'MANUAL') THEN RAISE(ABORT, 'LIFEOS_SESSION_SOURCE')
+            WHEN NEW.`end_at` IS NULL AND EXISTS (SELECT 1 FROM `study_session` WHERE `end_at` IS NULL AND `id` <> NEW.`id`) THEN RAISE(ABORT, 'LIFEOS_SESSION_RUNNING')
+            WHEN NEW.`end_at` IS NOT NULL AND NEW.`end_at` <= NEW.`start_at` THEN RAISE(ABORT, 'LIFEOS_SESSION_END')
+            WHEN NEW.`end_at` IS NOT NULL AND NEW.`end_at` - NEW.`start_at` > 43200000 THEN RAISE(ABORT, 'LIFEOS_SESSION_LENGTH')
+        END; END"""
+
+    /** Kind-Knoten (Fahrzeugereignis, Lernthema) gehen mit, wenn ihre Zeile per Kaskade wegfällt. */
+    const val TRIGGER_VEHICLE_EVENT_CLEANUP = """CREATE TRIGGER IF NOT EXISTS `trg_vehicle_event_cleanup_node`
+        AFTER DELETE ON `vehicle_event`
+        BEGIN DELETE FROM `node` WHERE `id` = OLD.`node_id`; END"""
+
+    const val TRIGGER_TOPIC_CLEANUP = """CREATE TRIGGER IF NOT EXISTS `trg_topic_cleanup_node`
+        AFTER DELETE ON `topic`
+        BEGIN DELETE FROM `node` WHERE `id` = OLD.`node_id`; END"""
+
     // ───────────────────────────── Prüfabfragen ─────────────────────────────
 
     /** Buchungen, deren Aufteilungen nicht exakt zum Betrag passen (oder Umbuchungen mit Splits). */
@@ -384,6 +556,13 @@ object SchemaSql {
            OR (n.`type` = 'EVENT' AND NOT EXISTS (SELECT 1 FROM `calendar_event` x WHERE x.`node_id` = n.`id`))
            OR (n.`type` = 'PROJECT' AND NOT EXISTS (SELECT 1 FROM `project` x WHERE x.`node_id` = n.`id`))
            OR (n.`type` = 'MILESTONE' AND NOT EXISTS (SELECT 1 FROM `milestone` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'VEHICLE' AND NOT EXISTS (SELECT 1 FROM `vehicle` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'VEHICLE_EVENT' AND NOT EXISTS (SELECT 1 FROM `vehicle_event` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'ASSET' AND NOT EXISTS (SELECT 1 FROM `asset` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'DOCUMENT' AND NOT EXISTS (SELECT 1 FROM `document` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'COURSE' AND NOT EXISTS (SELECT 1 FROM `subject` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'TOPIC' AND NOT EXISTS (SELECT 1 FROM `topic` x WHERE x.`node_id` = n.`id`))
+           OR (n.`type` = 'EXAM' AND NOT EXISTS (SELECT 1 FROM `exam` x WHERE x.`node_id` = n.`id`))
         ORDER BY n.`id`"""
 
     const val QUERY_TRANSACTION_COUNT = """SELECT COUNT(*) FROM `ledger_transaction`"""
@@ -395,6 +574,7 @@ object SchemaSql {
         TABLE_TRANSACTION_SPLIT, TABLE_BUDGET, TABLE_APP_SETTING,
         TABLE_RECURRING_PAYMENT, TABLE_RECURRING_BOOKING, TABLE_TOTAL_BUDGET,
         TABLE_PROJECT, TABLE_MILESTONE, TABLE_TASK, TABLE_TASK_COMPLETION, TABLE_CALENDAR_EVENT, TABLE_REMINDER,
+        TABLE_VEHICLE, TABLE_VEHICLE_EVENT, TABLE_ASSET, TABLE_DOCUMENT, TABLE_SUBJECT, TABLE_TOPIC, TABLE_STUDY_SESSION, TABLE_EXAM,
     )
 
     val REFERENCE_INDICES: List<String> = listOf(
@@ -402,6 +582,7 @@ object SchemaSql {
         INDEX_TX_ACCOUNT, INDEX_TX_COUNTER, INDEX_SPLIT_TX, INDEX_SPLIT_CATEGORY, INDEX_BUDGET_UNIQUE,
         INDEX_RECURRING_ACCOUNT, INDEX_RECURRING_CATEGORY, INDEX_RECURRING_BOOKING_TX, INDEX_TOTAL_BUDGET_MONTH,
         INDEX_MILESTONE_PROJECT, INDEX_TASK_PROJECT, INDEX_TASK_DUE, INDEX_COMPLETION_TASK, INDEX_EVENT_START, INDEX_REMINDER_NODE,
+        INDEX_VEHICLE_EVENT_VEHICLE, INDEX_DOCUMENT_SHA, INDEX_TOPIC_SUBJECT, INDEX_SESSION_SUBJECT, INDEX_SESSION_START,
     )
 
     /** Werden in `onCreate` und in jeder Migration ausgeführt. Reihenfolge egal (idempotent). */
@@ -413,6 +594,11 @@ object SchemaSql {
         TRIGGER_RECURRING_BOOKING_UPDATE, TRIGGER_TOTAL_BUDGET_INSERT, TRIGGER_TOTAL_BUDGET_UPDATE,
         TRIGGER_TASK_INSERT, TRIGGER_TASK_UPDATE, TRIGGER_PROJECT_INSERT, TRIGGER_PROJECT_UPDATE,
         TRIGGER_MILESTONE_INSERT, TRIGGER_MILESTONE_CLEANUP, TRIGGER_EVENT_INSERT, TRIGGER_EVENT_UPDATE, TRIGGER_REMINDER_INSERT,
+        TRIGGER_VEHICLE_INSERT, TRIGGER_VEHICLE_UPDATE, TRIGGER_VEHICLE_EVENT_INSERT, TRIGGER_VEHICLE_EVENT_UPDATE,
+        TRIGGER_ASSET_INSERT, TRIGGER_ASSET_UPDATE, TRIGGER_DOCUMENT_INSERT, TRIGGER_DOCUMENT_UPDATE,
+        TRIGGER_SUBJECT_INSERT, TRIGGER_SUBJECT_UPDATE, TRIGGER_TOPIC_INSERT, TRIGGER_TOPIC_UPDATE,
+        TRIGGER_EXAM_INSERT, TRIGGER_EXAM_UPDATE, TRIGGER_SESSION_INSERT, TRIGGER_SESSION_UPDATE,
+        TRIGGER_VEHICLE_EVENT_CLEANUP, TRIGGER_TOPIC_CLEANUP,
     )
 
     /** Namen von Triggern früherer Versionen, die nicht mehr existieren sollen (werden gelöscht). */
@@ -432,5 +618,15 @@ object SchemaSql {
         TABLE_TASK_COMPLETION, INDEX_COMPLETION_TASK,
         TABLE_CALENDAR_EVENT, INDEX_EVENT_START,
         TABLE_REMINDER, INDEX_REMINDER_NODE,
+    )
+
+    /** v3 → v4: Fahrzeuge, Inventar, Dokumente, Weiterbildung (Fächer, Themen, Lernzeit, Prüfungen). Rein additiv. */
+    val MIGRATION_3_4: List<String> = listOf(
+        TABLE_VEHICLE, TABLE_VEHICLE_EVENT, INDEX_VEHICLE_EVENT_VEHICLE,
+        TABLE_ASSET,
+        TABLE_DOCUMENT, INDEX_DOCUMENT_SHA,
+        TABLE_SUBJECT, TABLE_TOPIC, INDEX_TOPIC_SUBJECT,
+        TABLE_STUDY_SESSION, INDEX_SESSION_SUBJECT, INDEX_SESSION_START,
+        TABLE_EXAM,
     )
 }

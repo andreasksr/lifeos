@@ -44,7 +44,7 @@ class EndToEndProjectTest {
         val name = "Samurai " + (System.currentTimeMillis() % 10_000)
 
         // ── Projekt anlegen ──
-        rule.onNodeWithText("PROJEKTE").performClick()
+        rule.onNode(navTab("PROJEKTE")).performClick()
         rule.waitUntil(10_000) { rule.onAllNodes(hasContentDescription("Neues Projekt")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithContentDescription("Neues Projekt").performClick()
         rule.waitUntil(10_000) { rule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isNotEmpty() }
@@ -56,7 +56,7 @@ class EndToEndProjectTest {
 
         // ── Ausgabe erfassen (Haushaltskasse) ──
         rule.onNodeWithContentDescription("Zurück").performClick()
-        rule.onNodeWithText("HOME").performClick()
+        rule.onNode(navTab("HOME")).performClick()
         waitForText("HEUTE")
         rule.onNodeWithContentDescription("Schnellerfassung").performClick()
         rule.waitUntil(10_000) { rule.onAllNodes(hasContentDescription("Komma")).fetchSemanticsNodes().isNotEmpty() }
@@ -67,7 +67,7 @@ class EndToEndProjectTest {
         waitForText("89,90", substring = true, timeout = 20_000)
 
         // ── Zuordnen ──
-        rule.onNodeWithText("PROJEKTE").performClick()
+        rule.onNode(navTab("PROJEKTE")).performClick()
         waitForText(name)
         rule.onNodeWithText(name).performClick()
         waitForText("Buchung zuordnen")

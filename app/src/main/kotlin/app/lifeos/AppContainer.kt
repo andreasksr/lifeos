@@ -27,6 +27,16 @@ import app.lifeos.notifications.AlarmReminderScheduler
 import app.lifeos.notifications.AndroidNotificationAccess
 import app.lifeos.notifications.ReminderNotifier
 import kotlinx.coroutines.flow.map
+import app.lifeos.core.database.repository.RoomAssetRepository
+import app.lifeos.core.database.repository.RoomDocumentRepository
+import app.lifeos.core.database.repository.RoomLearningRepository
+import app.lifeos.core.database.repository.RoomVehicleRepository
+import app.lifeos.core.security.vault.FileVault
+import app.lifeos.documents.AndroidDocumentAccess
+import app.lifeos.documents.VaultDocumentStore
+import app.lifeos.documents.vaultDir
+import app.lifeos.feature.life.LifeDependencies
+import app.lifeos.feature.life.hub.lifeAttention
 import app.lifeos.feature.ledger.LedgerDependencies
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +51,7 @@ class AppContainer private constructor(
     val database: LifeOsDatabase,
     val clock: LifeClock,
     val ids: IdGenerator,
+    documentKey: ByteArray,
 ) {
     /** Lebt so lange wie die App – für Aktionen, die einen Bildschirm überdauern (z. B. Rückgängig). */
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -83,6 +94,36 @@ class AppContainer private constructor(
         background = appScope,
     )
 
+    // ── Mein Leben: Fahrzeuge, Inventar, Dokumente, Weiterbildung ──
+    val vault = FileVault(vaultDir(context), documentKey).also { documentKey.fill(0) }
+    val documentStore = VaultDocumentStore(vault)
+    val documentAccess = AndroidDocumentAccess(context, vault)
+    val vehicleRepository = RoomVehicleRepository(database)
+    val assetRepository = RoomAssetRepository(database)
+    val documentRepository = RoomDocumentRepository(database)
+    val learningRepository = RoomLearningRepository(database)
+    val life = LifeDependencies(
+        vehicles = vehicleRepository,
+        assets = assetRepository,
+        documents = documentRepository,
+        store = documentStore,
+        documentAccess = documentAccess,
+        learning = learningRepository,
+        planning = planningRepository,
+        ledger = ledgerRepository,
+        links = linkRepository,
+        clock = clock,
+        ids = ids,
+        background = appScope,
+    )
+
+    /** Entfernt Tresor-Dateien ohne Datensatz (z. B. nach abgebrochenem Import) und alte Freigabe-Kopien. */
+    suspend fun cleanUpFiles() {
+        AndroidDocumentAccess.clearShared(context)
+        val referenced = documentRepository.referencedHashes()
+        vault.retainOnly(referenced)
+    }
+
     val home = HomeDependencies(
         settings = settingsRepository,
         clock = clock,
@@ -96,6 +137,10 @@ class AppContainer private constructor(
                 override val id = HomeSectionId.PROJECTS
                 override val attention = projectAttention(projects) { clock.today() }
             },
+            object : HomeSectionSource {
+                override val id = HomeSectionId.LEARNING
+                override val attention = lifeAttention(life)
+            },
         ),
     )
 
@@ -106,8 +151,9 @@ class AppContainer private constructor(
             return when (val key = DatabaseKeyManager(context).obtainPassphrase(databaseExists = dbFile.exists())) {
                 is DatabaseKeyManager.KeyState.Ready -> {
                     val db = LifeOsDatabase.open(context, key.passphrase)
+                    val documentKey = FileVault.deriveKey(key.passphrase)
                     key.passphrase.fill(0)
-                    StartResult.Ready(AppContainer(context.applicationContext, db, LifeClock.System, IdGenerator.Random))
+                    StartResult.Ready(AppContainer(context.applicationContext, db, LifeClock.System, IdGenerator.Random, documentKey))
                 }
                 is DatabaseKeyManager.KeyState.Unrecoverable -> StartResult.KeyLost(key.reason)
             }
@@ -119,6 +165,7 @@ class AppContainer private constructor(
          */
         fun wipeLocalData(context: Context) {
             context.deleteDatabase(LifeOsDatabase.FILE_NAME)
+            vaultDir(context).deleteRecursively()
             context.noBackupFilesDir.listFiles()?.filter { it.name.startsWith("lifeos.db.key") }?.forEach { it.delete() }
         }
     }

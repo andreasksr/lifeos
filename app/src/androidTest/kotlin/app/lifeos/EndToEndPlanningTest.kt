@@ -65,7 +65,7 @@ class EndToEndPlanningTest {
         Shots.take("11_home_mit_aufgabe")
 
         // ── Planung: Aufgabe sichtbar, Knoten hakt ab ──
-        rule.onNodeWithText("PLANUNG").performClick()
+        rule.onNode(navTab("PLANUNG")).performClick()
         waitForText("Ölwechsel Samurai")
         Shots.take("12_planung_tag")
         rule.onNode(clickLabel("„Ölwechsel Samurai“ erledigen")).performClick()

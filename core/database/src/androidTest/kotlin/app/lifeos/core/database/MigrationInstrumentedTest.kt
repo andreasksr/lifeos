@@ -89,7 +89,7 @@ class MigrationInstrumentedTest {
             assertTrue(c.moveToFirst())
             assertEquals("Haushaltskasse", c.getString(0))
         }
-        assertEquals(TriggerInstaller.names.size, triggerCount(db))
+        assertEquals(expectedTriggers(db), triggerCount(db))
 
         db.execSQL("INSERT INTO node VALUES ('00000000-0000-4000-8000-000000000010', 'PROJECT', 'Samurai', 0, 0, NULL, 0)")
         db.execSQL("INSERT INTO project VALUES ('00000000-0000-4000-8000-000000000010', NULL, NULL, 'ACTIVE', '2026-10-01', NULL, 'TASKS', NULL, NULL, NULL)")
@@ -124,6 +124,52 @@ class MigrationInstrumentedTest {
         db.query("SELECT project_id FROM task").use { c ->
             assertTrue(c.moveToFirst())
             assertTrue("project_id muss nach Projektlöschung NULL sein", c.isNull(0))
+        }
+        db.close()
+    }
+
+    /** Vollständige Kette 1 → 2 → 3 → 4 (Update von v0.1.0 auf 0.4.0): Daten bleiben, neue Regeln greifen. */
+    @Test
+    fun migrate1To4KeepsDataAndLifeRulesWork() {
+        helper.createDatabase(name, 1).apply {
+            execSQL("INSERT INTO node VALUES ('00000000-0000-4000-8000-000000000001', 'ACCOUNT', 'Haushaltskasse', 0, 0, NULL, 0)")
+            execSQL("INSERT INTO account VALUES ('00000000-0000-4000-8000-000000000001', 'CHECKING', 'EUR', 1000, 0)")
+            close()
+        }
+        val db = helper.runMigrationsAndValidate(
+            name, 4, true, Migrations.MIGRATION_1_2, Migrations.MIGRATION_2_3, Migrations.MIGRATION_3_4,
+        )
+        db.query("SELECT opening_balance_minor FROM account").use { c ->
+            assertTrue(c.moveToFirst())
+            assertEquals(1000L, c.getLong(0))
+        }
+        assertEquals(TriggerInstaller.names.size, triggerCount(db))
+        db.execSQL("PRAGMA foreign_keys = ON")
+
+        db.execSQL("INSERT INTO node VALUES ('00000000-0000-4000-8000-000000000020', 'VEHICLE', 'Samurai', 0, 0, NULL, 0)")
+        db.execSQL("INSERT INTO vehicle VALUES ('00000000-0000-4000-8000-000000000020', 'Suzuki', 'Samurai', 1993, NULL, NULL, 150000, NULL, NULL, NULL)")
+        db.execSQL("INSERT INTO node VALUES ('00000000-0000-4000-8000-000000000021', 'VEHICLE_EVENT', 'HU', 0, 0, NULL, 0)")
+        try {
+            db.execSQL("INSERT INTO vehicle_event VALUES ('00000000-0000-4000-8000-000000000021', '00000000-0000-4000-8000-000000000020', 'INSPECTION', '2027-02-30', NULL, 0, NULL)")
+            fail("Trigger hätte greifen müssen – " + diagnostics(db))
+        } catch (e: SQLiteException) {
+            assertTrue(e.message.orEmpty().contains("LIFEOS_VEHICLE_EVENT_DATE"))
+        }
+        db.execSQL("INSERT INTO vehicle_event VALUES ('00000000-0000-4000-8000-000000000021', '00000000-0000-4000-8000-000000000020', 'INSPECTION', '2027-02-28', NULL, 0, NULL)")
+
+        // Lernzeit: nur eine laufende Sitzung
+        db.execSQL("INSERT INTO study_session VALUES ('s1', NULL, 1000, NULL, 'TIMER', NULL)")
+        try {
+            db.execSQL("INSERT INTO study_session VALUES ('s2', NULL, 2000, NULL, 'TIMER', NULL)")
+            fail("Trigger hätte greifen müssen")
+        } catch (e: SQLiteException) {
+            assertTrue(e.message.orEmpty().contains("LIFEOS_SESSION_RUNNING"))
+        }
+        // Fahrzeug löschen → Ereignis samt Knoten weg
+        db.execSQL("DELETE FROM node WHERE id = '00000000-0000-4000-8000-000000000020'")
+        db.query("SELECT COUNT(*) FROM node WHERE type IN ('VEHICLE', 'VEHICLE_EVENT')").use { c ->
+            assertTrue(c.moveToFirst())
+            assertEquals(0, c.getInt(0))
         }
         db.close()
     }

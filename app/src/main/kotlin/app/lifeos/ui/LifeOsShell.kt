@@ -65,6 +65,11 @@ import app.lifeos.feature.projects.ProjectsHomeSection
 import app.lifeos.feature.projects.ProjectsHomeViewModel
 import app.lifeos.feature.projects.ProjectsRoutes
 import app.lifeos.feature.projects.projectsGraph
+import app.lifeos.feature.life.LifeCrossNavigation
+import app.lifeos.feature.life.LifeRoutes
+import app.lifeos.feature.life.hub.LearningHomeSection
+import app.lifeos.feature.life.hub.LifeHubViewModel
+import app.lifeos.feature.life.lifeGraph
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -145,6 +150,11 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                         }
                         projectId?.let { navController.navigate(ProjectsRoutes.detail(it)) }
                     }
+                    NodeType.VEHICLE -> navController.navigate(LifeRoutes.vehicle(id))
+                    NodeType.VEHICLE_EVENT -> container.vehicleRepository.events().firstOrNull { it.id == id }?.let { navController.navigate(LifeRoutes.vehicle(it.vehicleId)) }
+                    NodeType.ASSET -> navController.navigate(LifeRoutes.asset(id))
+                    NodeType.DOCUMENT -> navController.navigate(LifeRoutes.document(id))
+                    NodeType.COURSE, NodeType.TOPIC, NodeType.EXAM -> navController.navigate(LifeRoutes.LEARNING)
                     else -> Unit
                 }
             }
@@ -177,6 +187,7 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                         newTask = { openCapture(CaptureType.TASK) },
                     )
                     val projectsHome: ProjectsHomeViewModel = viewModel(factory = viewModelFactory { initializer { ProjectsHomeViewModel(container.projects) } })
+                    val lifeHub: LifeHubViewModel = viewModel(factory = viewModelFactory { initializer { LifeHubViewModel(container.life) } })
                     HomeRoute(
                         vm = vm,
                         sectionContent = mapOf(
@@ -189,6 +200,7 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                                     newProject = { navController.navigate(ProjectsRoutes.edit(null)) },
                                 )
                             },
+                            HomeSectionId.LEARNING to { index, _ -> LearningHomeSection(lifeHub, index, open = { navController.navigate(LifeRoutes.LEARNING) }) },
                         ),
                         todayContent = { density ->
                             PlanningTodayBlock(
@@ -232,9 +244,16 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                         openNode = { openNode(it) },
                     ),
                 )
-                composable(LifeDestination.LIFE.route) {
-                    LifeHubScreen(onOpenSystem = { navController.navigate(SYSTEM_ROUTE) })
-                }
+                lifeGraph(
+                    navController, container.life,
+                    LifeCrossNavigation(
+                        openTransaction = { navController.navigate(LedgerRoutes.edit(it)) },
+                        openNode = { openNode(it) },
+                        openEvent = { navController.navigate(PlanningRoutes.event(it)) },
+                        newLesson = { navController.navigate(PlanningRoutes.event(null, container.clock.today())) },
+                        openSystem = { navController.navigate(SYSTEM_ROUTE) },
+                    ),
+                )
                 composable(SYSTEM_ROUTE) {
                     SystemScreen(container, systemAnimationsOff, onBack = { navController.popBackStack() })
                 }

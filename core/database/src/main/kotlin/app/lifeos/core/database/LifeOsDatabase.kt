@@ -7,11 +7,20 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import app.lifeos.core.database.dao.IntegrityDao
 import app.lifeos.core.database.dao.LedgerDao
+import app.lifeos.core.database.dao.LifeDao
 import app.lifeos.core.database.dao.LinkDao
 import app.lifeos.core.database.dao.NodeDao
 import app.lifeos.core.database.dao.PlanningDao
 import app.lifeos.core.database.dao.ProjectDao
+import app.lifeos.core.database.entity.AssetEntity
 import app.lifeos.core.database.entity.CalendarEventEntity
+import app.lifeos.core.database.entity.DocumentEntity
+import app.lifeos.core.database.entity.ExamEntity
+import app.lifeos.core.database.entity.StudySessionEntity
+import app.lifeos.core.database.entity.SubjectEntity
+import app.lifeos.core.database.entity.TopicEntity
+import app.lifeos.core.database.entity.VehicleEntity
+import app.lifeos.core.database.entity.VehicleEventEntity
 import app.lifeos.core.database.entity.MilestoneEntity
 import app.lifeos.core.database.entity.ProjectEntity
 import app.lifeos.core.database.entity.ReminderEntity
@@ -52,6 +61,14 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         TaskCompletionEntity::class,
         CalendarEventEntity::class,
         ReminderEntity::class,
+        VehicleEntity::class,
+        VehicleEventEntity::class,
+        AssetEntity::class,
+        DocumentEntity::class,
+        SubjectEntity::class,
+        TopicEntity::class,
+        StudySessionEntity::class,
+        ExamEntity::class,
     ],
     version = LifeOsDatabase.VERSION,
     exportSchema = true,
@@ -64,9 +81,10 @@ abstract class LifeOsDatabase : RoomDatabase() {
     abstract fun integrityDao(): IntegrityDao
     abstract fun planningDao(): PlanningDao
     abstract fun projectDao(): ProjectDao
+    abstract fun lifeDao(): LifeDao
 
     companion object {
-        const val VERSION = 3
+        const val VERSION = 4
         const val FILE_NAME = "lifeos.db"
 
         /**

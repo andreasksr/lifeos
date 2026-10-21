@@ -41,6 +41,7 @@ sealed interface LifeError {
     data object SessionOverlaps : LifeError
     data object SessionRunning : LifeError
     data object NoRunningSession : LifeError
+    data object SessionTooShort : LifeError
     data object InFuture : LifeError
     data object InvalidDate : LifeError
 }

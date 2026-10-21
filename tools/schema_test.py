@@ -399,7 +399,7 @@ class MigrationTest(unittest.TestCase):
         before = {t: db.execute(f"SELECT * FROM {t} ORDER BY 1").fetchall()
                   for t in ["node", "account", "category", "ledger_transaction", "transaction_split", "budget"]}
 
-        self.migrate(db, "MIGRATION_1_2", "MIGRATION_2_3")
+        self.migrate(db, "MIGRATION_1_2", "MIGRATION_2_3", "MIGRATION_3_4")
 
         for t, rows in before.items():
             self.assertEqual(rows, db.execute(f"SELECT * FROM {t} ORDER BY 1").fetchall(), t)
@@ -426,7 +426,7 @@ class MigrationTest(unittest.TestCase):
         db.execute("INSERT INTO node VALUES (?, 'ACCOUNT', 'Giro', 0, 0, NULL, 0)", (uid(1),))
         db.execute("INSERT INTO account VALUES (?, 'CHECKING', 'EUR', 1000, 0)", (uid(1),))
         before = db.execute("SELECT * FROM node ORDER BY 1").fetchall()
-        self.migrate(db, "MIGRATION_2_3")
+        self.migrate(db, "MIGRATION_2_3", "MIGRATION_3_4")
         self.assertEqual(before, db.execute("SELECT * FROM node ORDER BY 1").fetchall())
         self.assertEqual(self.describe(self.reference()), self.describe(db))
         self.assertEqual([], db.execute(SQL["QUERY_SPLIT_VIOLATIONS"]).fetchall())
@@ -483,12 +483,98 @@ class MigrationTest(unittest.TestCase):
             if target in tables:
                 db.execute(stmt)
 
-    def test_room_v3_schema_matches_reference_if_present(self):
-        path = self.SCHEMA_DIR / "3.json"
-        if not path.exists():
-            self.skipTest("3.json entsteht beim ersten Gradle-Build")
-        self.assertEqual(self.describe(self.reference()), self.describe(self.build(3)))
+    def test_room_v3_schema_is_prefix_of_reference(self):
+        ref = self.describe(self.reference())
+        for t, d in self.describe(self.build(3)).items():
+            self.assertEqual(ref[t], d, t)
 
+    def test_room_v4_schema_matches_reference_if_present(self):
+        path = self.SCHEMA_DIR / "4.json"
+        if not path.exists():
+            self.skipTest("4.json entsteht beim ersten Gradle-Build")
+        self.assertEqual(self.describe(self.reference()), self.describe(self.build(4)))
+
+    def test_v3_to_v4_keeps_data_and_enforces_life_rules(self):
+        db = self.build(3)
+        self.reinstall_triggers_for_existing(db)
+        db.execute("INSERT INTO node VALUES (?, 'PROJECT', 'Samurai', 0, 0, NULL, 0)", (uid(1),))
+        db.execute("INSERT INTO project VALUES (?, NULL, NULL, 'ACTIVE', '2026-10-01', NULL, 'TASKS', NULL, NULL, NULL)", (uid(1),))
+        db.execute("INSERT INTO node VALUES (?, 'TASK', 'Bremsen', 0, 0, NULL, 0)", (uid(2),))
+        db.execute("INSERT INTO task VALUES (?, NULL, 'OPEN', 'HIGH', '2026-10-25', NULL, NULL, 1, NULL, ?, NULL)", (uid(2), uid(1)))
+        before = {t: db.execute(f"SELECT * FROM {t} ORDER BY 1").fetchall() for t in ["node", "project", "task"]}
+        self.migrate(db, "MIGRATION_3_4")
+        for t, rows in before.items():
+            self.assertEqual(rows, db.execute(f"SELECT * FROM {t} ORDER BY 1").fetchall(), t)
+        self.assertEqual(self.describe(self.reference()), self.describe(db))
+        self.assertEqual([], db.execute(SQL["QUERY_ORPHAN_NODES"]).fetchall())
+
+        def node(n, typ, title="x"):
+            db.execute("INSERT INTO node VALUES (?, ?, ?, 0, 0, NULL, 0)", (uid(n), typ, title))
+        # gültige Daten
+        node(10, "VEHICLE", "Samurai")
+        db.execute("INSERT INTO vehicle VALUES (?, 'Suzuki', 'Samurai', 1993, 'AB-CD 12', NULL, 150000, '2024-05-01', 650000, NULL)", (uid(10),))
+        node(11, "VEHICLE_EVENT", "HU")
+        db.execute("INSERT INTO vehicle_event VALUES (?, ?, 'INSPECTION', '2026-11-10', NULL, 0, NULL)", (uid(11), uid(10)))
+        db.execute("INSERT INTO reminder VALUES (?, ?, 1440, 1, NULL, NULL)", (uid(12), uid(11)))
+        node(13, "ASSET", "Bohrhammer")
+        db.execute("INSERT INTO asset VALUES (?, 'TOOL', 'Bosch', NULL, 'SN1', '2026-01-02', 19900, '2028-01-02', 'Werkstatt', NULL)", (uid(13),))
+        node(14, "DOCUMENT", "Rechnung")
+        db.execute("INSERT INTO document VALUES (?, 'r.pdf', 'application/pdf', 10, ?, 0, NULL, NULL, NULL)", (uid(14), "a" * 64))
+        node(15, "COURSE", "Technische Kommunikation")
+        db.execute("INSERT INTO subject VALUES (?, 'BQ', 0, NULL)", (uid(15),))
+        node(16, "TOPIC", "Normgerechtes Zeichnen")
+        db.execute("INSERT INTO topic VALUES (?, ?, 'OPEN', 0)", (uid(16), uid(15)))
+        node(17, "EXAM", "BQ")
+        db.execute("INSERT INTO exam VALUES (?, 'BQ', '2027-04', 'Ende April 2027', NULL, NULL, NULL)", (uid(17),))
+        db.execute("INSERT INTO study_session VALUES (?, ?, 1000, 3601000, 'MANUAL', NULL)", (uid(18), uid(15)))
+        db.execute("INSERT INTO study_session VALUES (?, ?, 4000000, NULL, 'TIMER', NULL)", (uid(19), uid(15)))
+        db.execute("INSERT INTO link VALUES (?, ?, ?, 'CONCERNS', 0)", (uid(20), uid(14), uid(10)))
+        self.assertEqual([], db.execute(SQL["QUERY_ORPHAN_NODES"]).fetchall())
+
+        bad = [
+            ("INSERT INTO vehicle VALUES (?, 'a', 'b', 1700, NULL, NULL, NULL, NULL, NULL, NULL)", "VEHICLE"),
+            ("INSERT INTO vehicle VALUES (?, 'a', 'b', NULL, NULL, NULL, -1, NULL, NULL, NULL)", "VEHICLE"),
+            ("INSERT INTO vehicle VALUES (?, 'a', 'b', NULL, NULL, NULL, NULL, '2026-02-30', NULL, NULL)", "VEHICLE"),
+            ("INSERT INTO vehicle_event VALUES (?, '" + uid(10) + "', 'WASH', '2026-01-01', NULL, 1, NULL)", "VEHICLE_EVENT"),
+            ("INSERT INTO asset VALUES (?, 'TOOL', NULL, NULL, NULL, '2026-05-01', NULL, '2026-04-01', NULL, NULL)", "ASSET"),
+            ("INSERT INTO document VALUES (?, 'x.pdf', 'application/pdf', 1, 'zz', 0, NULL, NULL, NULL)", "DOCUMENT"),
+            ("INSERT INTO document VALUES (?, 'x.pdf', 'application/pdf', 1, '" + "a" * 64 + "', 0, NULL, NULL, NULL)", "DOCUMENT"),  # gleiche Datei
+            ("INSERT INTO subject VALUES (?, 'XQ', 0, NULL)", "COURSE"),
+            ("INSERT INTO exam VALUES (?, 'HQ', '2028-13', NULL, NULL, NULL, NULL)", "EXAM"),
+            ("INSERT INTO exam VALUES (?, 'HQ', NULL, NULL, '2028-02-30', NULL, NULL)", "EXAM"),
+            ("INSERT INTO topic VALUES (?, '" + uid(15) + "', 'OPEN', 0)", "EXAM"),  # falscher Knotentyp
+        ]
+        for n, (sql, typ) in enumerate(bad):
+            nid = uid(100 + n)
+            db.execute("INSERT INTO node VALUES (?, ?, 'x', 0, 0, NULL, 0)", (nid, typ))
+            with self.assertRaises(sqlite3.DatabaseError, msg=sql):
+                db.execute(sql, (nid,))
+        # Lernzeit: keine zweite laufende Sitzung, Ende nach Start, max. 12 h
+        for sql in [
+            "INSERT INTO study_session VALUES ('s1', NULL, 5000000, NULL, 'TIMER', NULL)",
+            "INSERT INTO study_session VALUES ('s2', NULL, 5000000, 5000000, 'MANUAL', NULL)",
+            "INSERT INTO study_session VALUES ('s3', NULL, 0, 43200001, 'MANUAL', NULL)",
+            "INSERT INTO study_session VALUES ('s4', NULL, 0, 1, 'GUESS', NULL)",
+        ]:
+            with self.assertRaises(sqlite3.DatabaseError, msg=sql):
+                db.execute(sql)
+        db.execute("UPDATE study_session SET end_at = 5000000 WHERE id = ?", (uid(19),))  # Stoppen erlaubt
+        db.execute("INSERT INTO study_session VALUES ('s5', NULL, 6000000, NULL, 'TIMER', NULL)")  # danach neu starten erlaubt
+        with self.assertRaises(sqlite3.DatabaseError):
+            db.execute("UPDATE study_session SET end_at = NULL WHERE id = ?", (uid(19),))  # zweite laufende per Update
+
+        # Fahrzeug löschen: Ereignis + dessen Knoten + Erinnerung + Link gehen mit; Dokument bleibt
+        db.execute("DELETE FROM node WHERE id = ?", (uid(10),))
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM vehicle_event").fetchone()[0])
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM node WHERE id = ?", (uid(11),)).fetchone()[0])
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM reminder").fetchone()[0])
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM link").fetchone()[0])
+        self.assertEqual(1, db.execute("SELECT COUNT(*) FROM document").fetchone()[0])
+        # Fach löschen: Themen (inkl. Knoten) gehen mit, Lernzeit bleibt erhalten (ohne Fach)
+        db.execute("DELETE FROM node WHERE id = ?", (uid(15),))
+        self.assertEqual(0, db.execute("SELECT COUNT(*) FROM node WHERE id = ?", (uid(16),)).fetchone()[0])
+        self.assertEqual(3, db.execute("SELECT COUNT(*) FROM study_session WHERE subject_id IS NULL").fetchone()[0])
+        self.assertEqual([], db.execute("PRAGMA foreign_key_check").fetchall())
 
 if __name__ == "__main__":
     unittest.main()
