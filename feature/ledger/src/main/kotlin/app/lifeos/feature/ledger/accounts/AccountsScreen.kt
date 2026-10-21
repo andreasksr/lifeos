@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -159,7 +160,7 @@ fun AccountsRoute(vm: AccountsViewModel, onBack: () -> Unit) {
     LaunchedEffect(vm) { vm.events.collect { (t, ok) -> if (ok) signal.confirm(t) else signal.toast(LifeToastMessage(t, tone = NodeTone.ALERT)) } }
     val s = snap ?: return
 
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 120.dp)) {
+    LazyColumn(Modifier.fillMaxSize().testTag("lifeos-screen"), contentPadding = PaddingValues(bottom = 120.dp)) {
         item { LifeTopBar(overline = "Finanzen", title = "Konten & Kategorien", onBack = onBack) }
         item {
             SpineSection("Konten", index = 0, shape = NodeShape.RING, tone = NodeTone.ACTIVE, fullBleed = true,

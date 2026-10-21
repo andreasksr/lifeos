@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -135,7 +136,7 @@ fun BudgetsRoute(vm: BudgetsViewModel, onBack: () -> Unit) {
     val expenseTotals = s.expenseLines.associate { it.category.id to it.totalMinor }
     val effective = LedgerMath.effectiveBudgets(s.budgets, s.month, s.currency)
 
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 120.dp)) {
+    LazyColumn(Modifier.fillMaxSize().testTag("lifeos-screen"), contentPadding = PaddingValues(bottom = 120.dp)) {
         item {
             LifeTopBar(
                 overline = "Budgets", title = LifeFormat.monthTitle(s.month), onBack = onBack,

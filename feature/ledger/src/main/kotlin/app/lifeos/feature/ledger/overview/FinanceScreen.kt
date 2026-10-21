@@ -15,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -80,7 +81,7 @@ fun FinanceRoute(viewModel: FinanceViewModel, nav: FinanceNavigation) {
 @Composable
 private fun FinanceScreen(s: LedgerMonthSnapshot, vm: FinanceViewModel, nav: FinanceNavigation) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("lifeos-screen"),
         contentPadding = PaddingValues(bottom = 140.dp),
     ) {
         item(key = "top") {

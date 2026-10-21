@@ -18,6 +18,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,7 +48,7 @@ data class LifeModule(val title: String, val subtitle: String, val glyph: Glyph,
 /** „Mein Leben" – Einstieg in persönliche Verwaltung. Zeigt nur implementierte Module. */
 @Composable
 fun LifeHubScreen(onOpenSystem: () -> Unit, modules: List<LifeModule> = emptyList()) {
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 150.dp)) {
+    LazyColumn(Modifier.fillMaxSize().testTag("lifeos-screen"), contentPadding = PaddingValues(bottom = 150.dp)) {
         item { LifeTopBar(overline = "Mein Leben", title = "Verwaltung", subtitle = "Besitz, Unterlagen, Weiterbildung und System", large = true) }
         if (modules.isNotEmpty()) {
             item { SpineSection("Module", index = 0, shape = NodeShape.HEX, tone = NodeTone.ACTIVE, fullBleed = true) {} }
@@ -85,7 +86,7 @@ fun SystemScreen(container: AppContainer, systemAnimationsOff: Boolean, onBack: 
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "?"
     }
 
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 80.dp)) {
+    LazyColumn(Modifier.fillMaxSize().testTag("lifeos-screen"), contentPadding = PaddingValues(bottom = 80.dp)) {
         item { LifeTopBar(overline = "Mein Leben", title = "System & Sicherheit", onBack = onBack) }
         item {
             SpineSection("Bewegung", index = 0, shape = NodeShape.LINKED, tone = if (motion && !systemAnimationsOff) NodeTone.ACTIVE else NodeTone.NEUTRAL) {
