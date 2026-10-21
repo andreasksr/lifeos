@@ -1,0 +1,13 @@
+androidx.room__room-runtime-android__2.7.1__room-runtime-release-api.jar
+androidx.room__room-common-jvm__2.7.1__room-common-jvm-2.7.1.jar
+androidx.room__room-ktx__2.7.1__room-ktx-2.7.1-api.jar
+org.jetbrains.kotlinx__kotlinx-coroutines-core-jvm__1.10.2__kotlinx-coroutines-core-jvm-1.10.2.jar
+org.jetbrains.kotlinx__kotlinx-coroutines-android__1.10.2__kotlinx-coroutines-android-1.10.2.jar
+androidx.sqlite__sqlite-framework-android__2.5.1__sqlite-framework-release-api.jar
+androidx.sqlite__sqlite-android__2.5.1__sqlite-release-api.jar
+androidx.collection__collection-jvm__1.4.2__collection-jvm-1.4.2.jar
+androidx.annotation__annotation-jvm__1.9.1__annotation-jvm-1.9.1.jar
+org.jetbrains.kotlin__kotlin-stdlib__2.1.21__kotlin-stdlib-2.1.21.jar
+net.zetetic__sqlcipher-android__4.9.0__sqlcipher-android-4.9.0-api.jar
+org.jetbrains__annotations__23.0.0__annotations-23.0.0.jar
+org.jspecify__jspecify__1.0.0__jspecify-1.0.0.jar
