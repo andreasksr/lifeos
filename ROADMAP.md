@@ -32,12 +32,12 @@ Status-Legende: ✅ erledigt und verifiziert · 🟡 implementiert, Verifikation
 | 1.13 | Animationen abschaltbar (Einstellung + System-Einstellung) | 🟡 |
 | 1.14 | Navigation zeigt nur implementierte Bereiche | 🟡 |
 
-## Phase 1b – Build-Verifikation (NÄCHSTER SCHRITT) ⬜
+## Phase 1b – Build-Verifikation 🟡
 Abnahme:
-- `./gradlew build` grün (inkl. `allWarningsAsErrors` in JVM-Modulen)
-- `./gradlew :core:database:connectedAndroidTest :core:security:connectedAndroidTest` grün
-- Schema-JSON `core/database/schemas/…/1.json` erzeugt und eingecheckt
-- APK auf echtem Gerät: Buchung erfassen → App beenden → neu starten → Buchung vorhanden
+- ✅ `./gradlew test :app:assembleDebug` grün (GitHub Actions, 2026-10-21)
+- ⬜ `./gradlew :core:database:connectedAndroidTest :core:security:connectedAndroidTest` grün
+- ✅ Schema-JSON `core/database/schemas/…/1.json` erzeugt, eingecheckt, = Referenz-DDL
+- ⬜ APK auf echtem Gerät: Buchung erfassen → App beenden → neu starten → Buchung vorhanden
 - Screenshot-Tests (Roborazzi) für alle CONTINUUM-Komponenten, Motion an/aus
 - Versionsnummern im Version Catalog auf aktuellen Stand prüfen und gebündelt anheben
 

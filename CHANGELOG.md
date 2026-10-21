@@ -2,6 +2,26 @@
 
 Format: Was wurde **implementiert**, was wurde **gebaut**, was wurde **getestet** – jeweils mit Nachweis.
 
+## [0.1.1] – 2026-10-21 · Phase 1b: erster echter Android-Build
+
+### Gebaut
+- ✅ **Debug-APK gebaut** über GitHub Actions (`andreasksr/lifeos`, Workflow `Android Build`, Commit `b525afb`):
+  `./gradlew test :app:assembleDebug`, JDK 17, AGP 8.10.1, Kotlin 2.1.21. APK ≈ 30 MB, enthält
+  `libsqlcipher.so` für arm64-v8a, armeabi-v7a, x86, x86_64.
+- Erster Build-Lauf scheiterte an genau einem Fehler (`:app` sah `RoomDatabase` nicht) → `room-runtime`
+  in `:core:database` als `api` deklariert. Alle übrigen Android-Module kompilierten beim ersten Versuch.
+
+### Getestet
+- ✅ **53 Unit-Tests über Gradle grün** (0 Fehler) – bestätigt die vorherigen kotlinc-Ergebnisse.
+- ✅ 17 SQLite-Schematests in CI grün.
+- ✅ **Room-Schema `1.json` erzeugt, eingecheckt und mit `SchemaSql`-Referenz verglichen:** Spalten,
+  Fremdschlüssel und Indizes aller 8 Tabellen identisch.
+- ⬜ Weiterhin nicht ausgeführt: instrumentierte Tests (Gerät/Emulator), App auf echtem Gerät.
+
+### CI
+- `.github/workflows/android.yml` legt `build.log`, `errors.txt`, Testergebnisse, Room-Schema und APK
+  zusätzlich im Branch `ci-output` ab.
+
 ## [0.1.0] – 2026-10-20 · Phase 0 + Phase 1 (unverifizierter Android-Build)
 
 ### Umgebung
