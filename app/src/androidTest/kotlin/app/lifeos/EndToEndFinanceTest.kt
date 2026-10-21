@@ -98,8 +98,9 @@ class EndToEndFinanceTest {
         rule.onNodeWithText("LÖSCHEN").performClick()
         waitForText("RÜCKGÄNGIG", timeout = 5_000)
         rule.onNodeWithText("RÜCKGÄNGIG").performClick()
-        waitFor(txLine, timeout = 20_000)
-        scrollTo(txLine)
+        // Die Zeile kann unterhalb des sichtbaren Bereichs liegen (LazyColumn komponiert sie dann nicht):
+        // bis zu 20 s lang wiederholt hinscrollen.
+        rule.waitUntil(20_000) { runCatching { scrollTo(txLine) }.isSuccess && rule.onAllNodes(txLine).fetchSemanticsNodes().isNotEmpty() }
         rule.onAllNodesWithText("8,00", substring = true).fetchSemanticsNodes().let {
             check(it.isNotEmpty()) { "Wiederhergestellte Buchung (8,00 €) nicht sichtbar" }
         }

@@ -1,0 +1,49 @@
+name: Export Classpath
+
+# Exportiert alle aufgelösten Bibliotheken (JARs, R-Klassen, android.jar) in den Branch `ci-deps`.
+# Zweck: schnelle Typprüfung mit kotlinc in Umgebungen ohne Zugriff auf Google-Maven (tools/typecheck.sh).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - gradle/libs.versions.toml
+      - '**/build.gradle.kts'
+      - tools/ci/export-classpath.gradle
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deps
+  cancel-in-progress: true
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Ressourcen erzeugen und Klassenpfade exportieren
+        env:
+          DEPS_OUT: /tmp/deps
+        run: |
+          ./gradlew --init-script tools/ci/export-classpath.gradle \
+            assembleDebug assembleDebugAndroidTest exportCompileClasspath --continue --stacktrace || true
+          cp "$ANDROID_HOME/platforms/android-35/android.jar" /tmp/deps/android.jar
+          du -sh /tmp/deps
+      - name: In Branch ci-deps ablegen
+        run: |
+          cd /tmp/deps
+          echo "${{ github.sha }}" > SOURCE_SHA.txt
+          git init -q -b ci-deps
+          git config user.name "lifeos-ci"
+          git config user.email "ci@lifeos.local"
+          git add -A
+          git commit -q -m "Classpath ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci-deps

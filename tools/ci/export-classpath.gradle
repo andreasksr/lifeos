@@ -1,0 +1,46 @@
+// Gradle-Init-Skript (nur CI, Workflow "deps"): exportiert die aufgelösten Compile-Klassenpfade aller
+// Module als JARs. Damit lassen sich Android-/Compose-Quellen in einer Umgebung ohne Zugriff auf
+// Google-Maven mit kotlinc typprüfen (tools/typecheck.sh). Beeinflusst den normalen Build nicht.
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.attributes.Attribute
+
+allprojects { p ->
+    p.afterEvaluate {
+        p.tasks.register("exportCompileClasspath") {
+            doLast {
+                def out = new File(System.getenv("DEPS_OUT") ?: "${p.rootDir}/build/deps")
+                def jars = new File(out, "jars"); jars.mkdirs()
+                def lists = new File(out, "classpath"); lists.mkdirs()
+                def isAndroid = p.plugins.hasPlugin("com.android.base")
+                def names = isAndroid ?
+                    ["debugCompileClasspath", "debugUnitTestCompileClasspath", "debugAndroidTestCompileClasspath"] :
+                    ["compileClasspath", "testCompileClasspath"]
+                names.each { n ->
+                    def cfg = p.configurations.findByName(n)
+                    if (cfg == null || !cfg.canBeResolved) return
+                    def view = cfg.incoming.artifactView { v ->
+                        v.lenient = true
+                        v.componentFilter { it instanceof ModuleComponentIdentifier }
+                        if (isAndroid) {
+                            v.attributes { a -> a.attribute(Attribute.of("artifactType", String), "android-classes-jar") }
+                        }
+                    }
+                    def entries = []
+                    view.artifacts.each { art ->
+                        def id = art.id.componentIdentifier
+                        def target = "${id.group}__${id.module}__${id.version}__${art.file.name}".replaceAll("[^A-Za-z0-9._-]", "_")
+                        def dest = new File(jars, target)
+                        if (!dest.exists()) dest.bytes = art.file.bytes
+                        entries << target
+                    }
+                    new File(lists, "${p.path.replace(':', '_')}__${n}.txt").text = entries.unique().join("\n")
+                }
+                // R-Klassen (Ressourcen-IDs) dieses Moduls
+                def rDir = new File(out, "r"); rDir.mkdirs()
+                p.fileTree("${p.buildDir}/intermediates") { include "**/R.jar" }.files.each { f ->
+                    new File(rDir, "${p.path.replace(':', '_')}__${f.parentFile.name}.jar").bytes = f.bytes
+                }
+            }
+        }
+    }
+}

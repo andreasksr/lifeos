@@ -17,8 +17,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        // Fester Entwicklungsschlüssel: jede CI-APK trägt dieselbe Signatur, damit neue Versionen
+        // als Update über die alte installiert werden können (Daten bleiben erhalten).
+        // Für eine Veröffentlichung durch einen privaten Schlüssel (GitHub-Secret) ersetzen.
+        create("lifeosDev") {
+            storeFile = file("signing/lifeos-dev.p12")
+            storeType = "PKCS12"
+            storePassword = "lifeos-dev-signing"
+            keyAlias = "lifeos"
+            keyPassword = "lifeos-dev-signing"
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("lifeosDev")
+        }
         release {
+            signingConfig = signingConfigs.getByName("lifeosDev")
             // R8 wird aktiviert, sobald Regeln für SQLCipher/Room mit einem Release-Build verifiziert sind.
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -53,6 +70,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.work.runtime.ktx)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

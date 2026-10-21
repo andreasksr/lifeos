@@ -99,10 +99,16 @@ class MigrationInstrumentedTest {
                 "'00000000-0000-4000-8000-000000000010', NULL)",
         )
         try {
-            db.execSQL("UPDATE task SET due_date = '2026-02-30' WHERE node_id = '00000000-0000-4000-8000-000000000011'")
-            fail("Trigger hätte greifen müssen")
+            db.execSQL("UPDATE task SET due_date = '2026-13-01' WHERE node_id = '00000000-0000-4000-8000-000000000011'")
+            fail("Trigger hätte greifen müssen – " + diagnostics(db))
         } catch (e: SQLiteException) {
             assertTrue(e.message.orEmpty().contains("LIFEOS_TASK_DATE"))
+        }
+        try {
+            db.execSQL("UPDATE task SET status = 'MAYBE' WHERE node_id = '00000000-0000-4000-8000-000000000011'")
+            fail("Trigger hätte greifen müssen – " + diagnostics(db))
+        } catch (e: SQLiteException) {
+            assertTrue(e.message.orEmpty().contains("LIFEOS_TASK_STATUS"))
         }
         // Projekt löschen → Aufgabe bleibt, ohne Projekt
         db.execSQL("DELETE FROM node WHERE id = '00000000-0000-4000-8000-000000000010'")
@@ -112,6 +118,13 @@ class MigrationInstrumentedTest {
         }
         db.close()
     }
+
+    /** Hilft bei Abweichungen zwischen Android-SQLite und Referenz-SQLite (Version, date()-Verhalten). */
+    private fun diagnostics(db: androidx.sqlite.db.SupportSQLiteDatabase): String =
+        db.query("SELECT sqlite_version(), date('2026-02-30'), date('2026-13-01'), (SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='task')").use { c ->
+            c.moveToFirst()
+            "sqlite=${c.getString(0)} date(02-30)=${c.getString(1)} date(13-01)=${c.getString(2)} taskTrigger=${c.getInt(3)}"
+        }
 
     private fun triggerCount(db: androidx.sqlite.db.SupportSQLiteDatabase): Int =
         db.query("SELECT COUNT(*) FROM sqlite_master WHERE type = 'trigger'").use { c -> c.moveToFirst(); c.getInt(0) }
