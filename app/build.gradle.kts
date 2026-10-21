@@ -12,8 +12,8 @@ android {
         applicationId = "app.lifeos.continuum"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -63,6 +63,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":feature:ledger"))
     implementation(project(":feature:home"))
+    implementation(project(":feature:planning"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
@@ -79,5 +80,6 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

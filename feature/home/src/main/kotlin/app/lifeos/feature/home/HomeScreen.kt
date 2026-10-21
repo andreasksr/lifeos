@@ -126,11 +126,12 @@ private val sectionNames = mapOf(
 private fun TodaySection(s: HomeState, index: Int, extra: (@Composable (HomeDensity) -> Unit)?) {
     val todaySpent = s.finance?.days?.firstOrNull { it.date == s.today }?.entries
         ?.filter { it.transaction.kind == TransactionKind.EXPENSE }?.sumOf { it.transaction.amount.minor } ?: 0L
-    SpineSection("Heute", index = index, shape = NodeShape.RING, tone = NodeTone.ACTIVE) {
+    // Volle Breite: Termine/Aufgaben von heute setzen ihre Knoten direkt auf die LifeLine.
+    SpineSection("Heute", index = index, shape = NodeShape.RING, tone = NodeTone.ACTIVE, fullBleed = true) {
         if (extra != null) {
             extra(s.density)
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.padding48().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             LifeNode(shape = NodeShape.DIAMOND, tone = if (todaySpent > 0) NodeTone.OUTFLOW else NodeTone.NEUTRAL, size = 10.dp)
             Text(
                 if (todaySpent > 0) "Heute ausgegeben: ${MoneyText.format(todaySpent)}" else "Heute noch keine Ausgaben erfasst.",

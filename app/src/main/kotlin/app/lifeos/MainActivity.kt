@@ -1,12 +1,15 @@
 package app.lifeos
 
+import android.Manifest
+import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,13 +20,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.fragment.app.FragmentActivity
 import app.lifeos.core.designsystem.theme.ContinuumColors
 import app.lifeos.core.designsystem.theme.ContinuumTheme
 import app.lifeos.ui.LifeOsShell
 import app.lifeos.ui.RecoveryScreen
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+/**
+ * Einzige Activity. FragmentActivity, damit die biometrische App-Sperre (BiometricPrompt) möglich ist.
+ * Öffnet Einträge aus Benachrichtigungen und Widget über [EXTRA_OPEN] („task:<id>", „event:<id>", …).
+ */
+class MainActivity : FragmentActivity() {
+
+    /** Zu öffnendes Ziel (aus Benachrichtigung/Widget) – die Shell navigiert und setzt es zurück. */
+    val pendingOpen = MutableStateFlow<String?>(null)
+
+    private var container: AppContainer? = null
+
+    private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        container?.notificationAccess?.let { access ->
+            access.refresh()
+            if (!granted) access.openSettings()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
@@ -31,6 +52,7 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
         super.onCreate(savedInstanceState)
+        handle(intent)
         val app = application as LifeOsApplication
         val systemAnimationsOff = Settings.Global.getFloat(
             contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f,
@@ -39,7 +61,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             var start by remember { mutableStateOf<StartResult?>(null) }
             val scope = rememberCoroutineScope()
-            LaunchedEffect(Unit) { start = app.start() }
+            LaunchedEffect(Unit) {
+                val r = app.start()
+                if (r is StartResult.Ready) attach(r.container)
+                start = r
+            }
 
             when (val s = start) {
                 null -> ContinuumTheme(motionEnabled = false) {
@@ -53,8 +79,43 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-                is StartResult.Ready -> LifeOsShell(s.container, systemAnimationsOff)
+                is StartResult.Ready -> LifeOsShell(s.container, systemAnimationsOff, pendingOpen)
             }
         }
+    }
+
+    private fun attach(c: AppContainer) {
+        container = c
+        c.notificationAccess.requester = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                c.notificationAccess.openSettings()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        container?.notificationAccess?.refresh()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handle(intent)
+    }
+
+    private fun handle(intent: Intent?) {
+        intent?.getStringExtra(EXTRA_OPEN)?.let { pendingOpen.value = it }
+    }
+
+    override fun onDestroy() {
+        container?.notificationAccess?.requester = null
+        super.onDestroy()
+    }
+
+    companion object {
+        const val EXTRA_OPEN = "lifeos.open"
     }
 }

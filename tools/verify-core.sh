@@ -29,9 +29,9 @@ echo "▸ kompiliere :core:domain"
 # Präsentationslogik der Haushaltskasse ist bewusst Android-frei und daher hier mitprüfbar.
 echo "▸ kompiliere :feature:ledger (presentation, Android-frei)"
 "$KOTLINC" -jvm-target 17 -Werror -cp "$OUT/model.jar:$OUT/domain.jar:$COROUTINES" -d "$OUT/feature-ledger.jar" \
-  $(find "$ROOT/feature/ledger/src/main/kotlin/app/lifeos/feature/ledger/presentation" -name '*.kt')
+  $(find "$ROOT/feature/ledger/src/main/kotlin/app/lifeos/feature/ledger/presentation" "$ROOT/feature/planning/src/main/kotlin/app/lifeos/feature/planning/presentation" -name '*.kt')
 
-TEST_SOURCES=$(find "$ROOT/core/model/src/test" "$ROOT/core/domain/src/test" "$ROOT/feature/ledger/src/test" -name '*.kt')
+TEST_SOURCES=$(find "$ROOT/core/model/src/test" "$ROOT/core/domain/src/test" "$ROOT/feature/ledger/src/test" "$ROOT/feature/planning/src/test" -name '*.kt')
 echo "▸ kompiliere Tests"
 "$KOTLINC" -jvm-target 17 -cp "$OUT/model.jar:$OUT/domain.jar:$OUT/feature-ledger.jar:$COROUTINES:$JUNIT_JAR" \
   -d "$OUT/tests.jar" $TEST_SOURCES

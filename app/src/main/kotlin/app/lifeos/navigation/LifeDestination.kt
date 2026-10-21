@@ -14,7 +14,7 @@ enum class LifeDestination(
 ) {
     HOME("home", "Home", Glyph.HOME, implemented = true),
     FINANCE("finance", "Finanzen", Glyph.WALLET, implemented = true),
-    PLANNING("planning", "Planung", Glyph.TASKS, implemented = false),
+    PLANNING("planning", "Planung", Glyph.TASKS, implemented = true),
     PROJECTS("projects", "Projekte", Glyph.PROJECT, implemented = false),
     LIFE("life", "Mein Leben", Glyph.LIFE, implemented = true);
 

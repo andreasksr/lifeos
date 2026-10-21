@@ -102,13 +102,13 @@ class MigrationInstrumentedTest {
             db.execSQL("UPDATE task SET due_date = '2026-13-01' WHERE node_id = '00000000-0000-4000-8000-000000000011'")
             fail("Trigger hätte greifen müssen – " + diagnostics(db))
         } catch (e: SQLiteException) {
-            assertTrue(e.message.orEmpty().contains("LIFEOS_TASK_DATE"))
+            assertTrue("${e.message} – ${diagnostics(db)}", e.message.orEmpty().contains("LIFEOS_TASK_DATE"))
         }
         try {
             db.execSQL("UPDATE task SET status = 'MAYBE' WHERE node_id = '00000000-0000-4000-8000-000000000011'")
             fail("Trigger hätte greifen müssen – " + diagnostics(db))
         } catch (e: SQLiteException) {
-            assertTrue(e.message.orEmpty().contains("LIFEOS_TASK_STATUS"))
+            assertTrue("${e.message} – ${diagnostics(db)}", e.message.orEmpty().contains("LIFEOS_TASK_STATUS"))
         }
         // Projekt löschen → Aufgabe bleibt, ohne Projekt
         db.execSQL("DELETE FROM node WHERE id = '00000000-0000-4000-8000-000000000010'")

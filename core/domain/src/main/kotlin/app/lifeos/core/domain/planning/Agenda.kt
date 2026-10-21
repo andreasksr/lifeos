@@ -103,3 +103,39 @@ object AgendaBuilder {
             }
         }
 }
+
+/** Gruppen der Aufgabenliste – jede offene Aufgabe steht in genau einer Gruppe. */
+data class TaskGroups(
+    val overdue: List<Task>,
+    val today: List<Task>,
+    val upcoming: List<Task>,
+    val someday: List<Task>,
+    val done: List<Task>,
+) {
+    val openCount: Int get() = overdue.size + today.size + upcoming.size + someday.size
+}
+
+object TaskGrouping {
+    fun group(tasks: List<Task>, today: LocalDate, doneLimit: Int = 30): TaskGroups {
+        val open = tasks.filter { it.status == TaskStatus.OPEN }
+        val byUrgency = compareByDescending<Task> { it.priority }.thenBy { it.dueTime ?: LocalTime.MAX }.thenBy { it.title.lowercase() }
+        return TaskGroups(
+            overdue = open.filter { it.dueDate?.isBefore(today) == true }.sortedWith(compareBy<Task> { it.dueDate }.then(byUrgency)),
+            today = open.filter { it.dueDate == today }.sortedWith(byUrgency),
+            upcoming = open.filter { it.dueDate?.isAfter(today) == true }.sortedWith(compareBy<Task> { it.dueDate }.then(byUrgency)),
+            someday = open.filter { it.dueDate == null }.sortedWith(byUrgency),
+            done = tasks.filter { it.status == TaskStatus.DONE }.sortedByDescending { it.completedAt }.take(doneLimit),
+        )
+    }
+
+    /** Montag der Woche von [date]. */
+    fun weekStart(date: LocalDate): LocalDate = date.minusDays((date.dayOfWeek.value - 1).toLong())
+
+    /** Nächste Termine (inkl. Wiederholungen) ab [from] – für Home und Widget. */
+    fun upcomingEvents(events: List<CalendarEvent>, from: LocalDateTime, days: Long, limit: Int): List<AgendaItem.EventItem> =
+        events.flatMap { e ->
+            AgendaBuilder.occurrences(e, from.toLocalDate(), from.toLocalDate().plusDays(days))
+                .filter { (_, end) -> !end.isBefore(from) }
+                .map { (s, en) -> AgendaItem.EventItem(e, s, en) }
+        }.sortedBy { it.occurrenceStart }.take(limit)
+}

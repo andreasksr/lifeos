@@ -13,7 +13,17 @@ import app.lifeos.core.domain.links.LinkNodes
 import app.lifeos.core.domain.ports.IntegrityChecker
 import app.lifeos.core.domain.settings.AppSettings
 import app.lifeos.core.security.DatabaseKeyManager
+import app.lifeos.core.database.repository.RoomPlanningRepository
+import app.lifeos.core.database.repository.RoomProjectRepository
+import app.lifeos.core.domain.home.HomeSectionId
+import app.lifeos.core.domain.planning.AgendaBuilder
 import app.lifeos.feature.home.HomeDependencies
+import app.lifeos.feature.home.HomeSectionSource
+import app.lifeos.feature.planning.PlanningDependencies
+import app.lifeos.notifications.AlarmReminderScheduler
+import app.lifeos.notifications.AndroidNotificationAccess
+import app.lifeos.notifications.ReminderNotifier
+import kotlinx.coroutines.flow.map
 import app.lifeos.feature.ledger.LedgerDependencies
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +34,7 @@ import kotlinx.coroutines.SupervisorJob
  * miteinander verdrahtet. Features erhalten nur Domänen-Schnittstellen.
  */
 class AppContainer private constructor(
+    val context: Context,
     val database: LifeOsDatabase,
     val clock: LifeClock,
     val ids: IdGenerator,
@@ -40,10 +51,34 @@ class AppContainer private constructor(
     val linkNodes = LinkNodes(linkRepository, ids, clock)
     val ensureLedgerDefaults = EnsureLedgerDefaults(ledgerRepository, settingsRepository, ids, clock)
     val ledger = LedgerDependencies(ledgerRepository, linkRepository, clock, ids, appScope)
+
+    // ── Planung & Projekte ──
+    val planningRepository = RoomPlanningRepository(database)
+    val projectRepository = RoomProjectRepository(database)
+    val notificationAccess = AndroidNotificationAccess(context)
+    val reminderScheduler = AlarmReminderScheduler(context, planningRepository, clock)
+    val reminderNotifier = ReminderNotifier(context, planningRepository, clock, reminderScheduler)
+    val planning = PlanningDependencies(
+        repository = planningRepository,
+        projects = projectRepository,
+        links = linkRepository,
+        clock = clock,
+        ids = ids,
+        scheduler = reminderScheduler,
+        notifications = notificationAccess,
+        background = appScope,
+    )
+
     val home = HomeDependencies(
         settings = settingsRepository,
         clock = clock,
         finance = { month -> ledger.observeMonth(month) },
+        extraSections = listOf(
+            object : HomeSectionSource {
+                override val id = HomeSectionId.PLANNING
+                override val attention = planningRepository.observeTasks().map { tasks -> AgendaBuilder.attention(tasks, clock.today()) }
+            },
+        ),
     )
 
     companion object {
@@ -54,7 +89,7 @@ class AppContainer private constructor(
                 is DatabaseKeyManager.KeyState.Ready -> {
                     val db = LifeOsDatabase.open(context, key.passphrase)
                     key.passphrase.fill(0)
-                    StartResult.Ready(AppContainer(db, LifeClock.System, IdGenerator.Random))
+                    StartResult.Ready(AppContainer(context.applicationContext, db, LifeClock.System, IdGenerator.Random))
                 }
                 is DatabaseKeyManager.KeyState.Unrecoverable -> StartResult.KeyLost(key.reason)
             }
