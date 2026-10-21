@@ -61,6 +61,8 @@ import java.time.LocalTime
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TaskEditorRoute(vm: TaskEditorViewModel, onClose: () -> Unit) {
+    val keyboardOnExit = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { keyboardOnExit?.hide() } }
     val state by vm.state.collectAsStateWithLifecycle()
     val allowed by vm.notificationsAllowed.collectAsStateWithLifecycle()
     val signal = LocalLifeSignal.current

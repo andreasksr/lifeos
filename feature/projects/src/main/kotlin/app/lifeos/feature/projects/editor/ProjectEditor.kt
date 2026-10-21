@@ -190,6 +190,8 @@ private enum class DateTarget { START, TARGET }
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ProjectEditorRoute(vm: ProjectEditorViewModel, onClose: () -> Unit, onSaved: (NodeId, Boolean) -> Unit) {
+    val keyboardOnExit = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { keyboardOnExit?.hide() } }
     val state by vm.state.collectAsStateWithLifecycle()
     val signal = LocalLifeSignal.current
     val haptics = rememberLifeHaptics()

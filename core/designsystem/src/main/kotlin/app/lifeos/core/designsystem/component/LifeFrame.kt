@@ -247,7 +247,8 @@ fun SpineSection(
             if (fullBleed) Modifier.fillMaxWidth() else Modifier.fillMaxWidth().padding(start = ContinuumSpacing.spineRail, end = ContinuumSpacing.gutter),
             verticalArrangement = Arrangement.spacedBy(if (fullBleed) 0.dp else ContinuumSpacing.m),
         ) { content() }
-        Spacer(Modifier.height(ContinuumSpacing.xl))
+        // fullBleed-Abschnitte werden meist von Listenzeilen fortgesetzt – dort kein großer Abstand.
+        Spacer(Modifier.height(if (fullBleed) ContinuumSpacing.s else ContinuumSpacing.xl))
     }
 }
 

@@ -58,6 +58,8 @@ private enum class PickTarget { START_DATE, END_DATE, START_TIME, END_TIME }
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EventEditorRoute(vm: EventEditorViewModel, onClose: () -> Unit) {
+    val keyboardOnExit = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { keyboardOnExit?.hide() } }
     val state by vm.state.collectAsStateWithLifecycle()
     val allowed by vm.notificationsAllowed.collectAsStateWithLifecycle()
     val signal = LocalLifeSignal.current

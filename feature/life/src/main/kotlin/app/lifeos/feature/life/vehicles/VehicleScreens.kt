@@ -173,7 +173,7 @@ fun VehicleDetailRoute(vm: VehicleDetailViewModel, nav: VehicleDetailNavigation)
             LifeTopBar(
                 overline = listOfNotNull("Fahrzeug", v.buildYear?.let { "Baujahr $it" }).joinToString(" · "),
                 title = v.name,
-                subtitle = listOfNotNull(v.plate, listOf(v.make, v.model).filter { it.isNotBlank() }.joinToString(" ").ifBlank { null }).joinToString(" · ").ifEmpty { null },
+                subtitle = listOfNotNull(v.plate, listOf(v.make, v.model).filter { it.isNotBlank() }.joinToString(" ").takeIf { it.isNotBlank() && it != v.name }).joinToString(" · ").ifEmpty { null },
                 onBack = nav.back,
                 actions = {
                     nav.openMap?.let { LifeIconButton(Glyph.MAP, "In der LifeMap zeigen", it) }
@@ -227,7 +227,7 @@ fun VehicleDetailRoute(vm: VehicleDetailViewModel, nav: VehicleDetailNavigation)
                 is VehicleLineItem.Event -> LifeTimelineRow(nodeShape = NodeShape.SQUARE, nodeTone = NodeTone.DONE, onClick = { vm.editEvent(li.event) }, onClickLabel = "Eintrag bearbeiten") {
                     Column(Modifier.weight(1f)) {
                         Text(li.event.title, style = Continuum.type.body, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(listOfNotNull(LifeText.eventKind(li.event.kind), LifeFormat.dayTitle(li.date, s.today), li.event.odometerKm?.let(LifeText::km)).joinToString(" · "), style = Continuum.type.small, maxLines = 1)
+                        Text(listOfNotNull(LifeText.eventKind(li.event.kind).takeIf { it != li.event.title }, LifeFormat.dayTitle(li.date, s.today), li.event.odometerKm?.let(LifeText::km)).joinToString(" · "), style = Continuum.type.small, maxLines = 1)
                     }
                 }
                 is VehicleLineItem.Cost -> {
@@ -328,7 +328,7 @@ private fun UpcomingRow(e: VehicleEvent, today: LocalDate, onDone: () -> Unit, o
         Row(Modifier.weight(1f).heightIn(min = 56.dp).clickable(role = Role.Button, onClickLabel = "Bearbeiten", onClick = onEdit), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(e.title, style = Continuum.type.body, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(LifeText.eventKind(e.kind) + " · " + LifeFormat.relativeDue(e.date, today), style = Continuum.type.small, color = if (overdue) ContinuumColors.Alert else ContinuumColors.Muted)
+                Text(listOfNotNull(LifeText.eventKind(e.kind).takeIf { it != e.title }, LifeFormat.relativeDue(e.date, today)).joinToString(" · "), style = Continuum.type.small, color = if (overdue) ContinuumColors.Alert else ContinuumColors.Muted)
             }
             LifeGlyph(Glyph.EDIT, tint = ContinuumColors.Faint, size = 16.dp)
         }

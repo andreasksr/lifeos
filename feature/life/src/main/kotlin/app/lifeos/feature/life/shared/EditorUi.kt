@@ -39,6 +39,9 @@ fun EditorScaffold(
     generalError: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    // Tastatur beim Verlassen des Formulars schließen (sonst bleibt sie über der Detailansicht stehen).
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { keyboard?.hide() } }
     Column(Modifier.fillMaxSize().imePadding()) {
         LifeTopBar(overline = overline, title = title, onBack = onBack)
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).testTag("lifeos-editor"), verticalArrangement = Arrangement.spacedBy(ContinuumSpacing.l)) {
