@@ -1,0 +1,28 @@
+=== BackupRestoreTest 14:50:44 ===
+List of devices attached
+emulator-5554	device
+
+=== ReminderInstrumentedTest 14:51:32 ===
+List of devices attached
+emulator-5554	device
+
+=== EndToEndPlanningTest 14:51:44 ===
+List of devices attached
+emulator-5554	device
+
+=== EndToEndProjectTest 14:52:03 ===
+List of devices attached
+emulator-5554	device
+
+=== EndToEndLifeTest 14:52:24 ===
+List of devices attached
+emulator-5554	device
+
+=== EndToEndFinanceTest 14:52:46 ===
+List of devices attached
+emulator-5554	device
+
+=== Ende 14:53:10 ===
+List of devices attached
+emulator-5554	device
+

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="app.lifeos.core.security.DatabaseKeyManagerTest" tests="2" failures="0" errors="0" skipped="0" time="0.682" timestamp="2026-10-22T14:50:35" hostname="localhost">
+  <properties>
+    <property name="device" value="emulator-5554 - 14" />
+    <property name="flavor" value="" />
+    <property name="project" value=":core:security" />
+  </properties>
+  <testcase name="missingKeyWithExistingDatabaseIsReportedNotSilentlyReplaced" classname="app.lifeos.core.security.DatabaseKeyManagerTest" time="0.017" />
+  <testcase name="passphraseIsStableAcrossInstances" classname="app.lifeos.core.security.DatabaseKeyManagerTest" time="0.0" />
+</testsuite>

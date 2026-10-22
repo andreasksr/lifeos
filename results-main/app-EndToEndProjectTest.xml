@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="app.lifeos.EndToEndProjectTest" tests="1" failures="0" errors="0" skipped="0" time="10.446" timestamp="2026-10-22T14:52:24" hostname="localhost">
+  <properties>
+    <property name="device" value="emulator-5554 - 14" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="buchungZuordnenUndKorrigieren" classname="app.lifeos.EndToEndProjectTest" time="9.97" />
+</testsuite>

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="app.lifeos.core.database.DatabaseInstrumentedTest" tests="9" failures="0" errors="0" skipped="0" time="1.484" timestamp="2026-10-22T14:50:43" hostname="localhost">
+  <properties>
+    <property name="device" value="emulator-5554 - 14" />
+    <property name="flavor" value="" />
+    <property name="project" value=":core:database" />
+  </properties>
+  <testcase name="planningAndProjectsRoundTripAndCascade" classname="app.lifeos.core.database.DatabaseInstrumentedTest" time="0.194" />
+  <testcase name="roomSchemaMatchesReferenceSql" classname="app.lifeos.core.database.DatabaseInstrumentedTest" time="0.078" />
+  <testcase name="saveEditDeleteRoundTrip" classname="app.lifeos.core.database.DatabaseInstrumentedTest" time="0.076" />
+  <testcase name="triggerRejectsInvalidBookingEvenWhenDomainIsBypassed" classname="app.lifeos.core.database.DatabaseInstrumentedTest" time="0.082" />
+  <testcase name="taskTriggerRejectsRepeatWithoutDueDate" classname="app.lifeos.core.database.DatabaseInstrumentedTest" time="0.082" />
+  <testcase name="linkedTransactionCascadesLinksOnDelete" classname="app.lifeos.core.database.DatabaseInstrumentedTest" time="0.075" />
+  <testcase name="migrate1To4KeepsDataAndLifeRulesWork" classname="app.lifeos.core.database.MigrationInstrumentedTest" time="0.254" />
+  <testcase name="migrate1To3KeepsDataAndPlanningRulesWork" classname="app.lifeos.core.database.MigrationInstrumentedTest" time="0.178" />
+  <testcase name="migrate1To2KeepsAllDataAndActivatesNewRules" classname="app.lifeos.core.database.MigrationInstrumentedTest" time="0.129" />
+</testsuite>

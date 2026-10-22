@@ -1,0 +1,300 @@
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{58be296 com.android.providers.partnerbookmarks/10073} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{19d5e17 com.android.wallpaper.livepicker/10056} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{f764204 com.android.cellbroadcastreceiver.module/10086} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{1c9b9fe com.android.phone.auto_generated_rro_vendor__/10039} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{8f83ed com.android.apps.tag/10049} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{8382bac com.android.internal.emulation.pixel_2_xl/10014} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{413075 com.android.internal.emulation.pixel_3_xl/10010} BLOCKED
+10-22 14:53:08.508 D/ApplicationLoaders( 3315): Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{803780a com.android.internal.emulation.pixel_4_xl/10013} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{9c9587b com.android.internal.emulation.pixel_fold/10002} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{d9b9222 com.android.bookmarkprovider/10065} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{a815ef1 com.android.systemui.emulation.pixel_3a/10012} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{3690ad6 com.android.systemui.emulation.pixel_4a/10020} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{c8b0157 com.android.systemui.emulation.pixel_6a/10032} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{1e24444 com.android.systemui.emulation.pixel_7a/10009} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{be2aed8 com.android.cts.ctsshim/10104} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{ebbf92d com.android.connectivity.resources.goldfish.overlay/10043} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{a0fc4b3 com.android.hotspot2.osulogin/10088} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{c177a70 com.android.bluetoothmidiservice/10077} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{fed71e9 com.android.captiveportallogin/10069} BLOCKED
+10-22 14:53:08.508 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{e8bfb29 android.auto_generated_rro_vendor__/10041} BLOCKED
+10-22 14:53:08.513 D/nativeloader( 3315): Configuring clns-7 for other apk /system/framework/android.test.runner.jar. target_sdk_version=35, uses_libraries=ALL, library_path=/data/app/~~f4B9W7mm-7jyT4txKNWryQ==/app.lifeos.continuum.test-9ZB3aGlnDhbllYekeRiDuw==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/app.lifeos.continuum.test
+10-22 14:53:08.513 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{75fb01a com.android.cts.priv.ctsshim/10103} BLOCKED
+10-22 14:53:08.513 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{982174b com.android.uwb.resources/10098} BLOCKED
+10-22 14:53:08.513 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{e7ef528 com.android.healthconnect.controller/10101} BLOCKED
+10-22 14:53:08.513 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{fb0c241 com.android.health.connect.backuprestore/10102} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{8b8b3e6 com.android.virtualmachine.res/10095} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{4ce43f0 com.android.carrierconfig.auto_generated_rro_vendor__/10038} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{263d69 android.slim.overlay/10042} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{f3453ee com.android.systemui.emulation.pixel_3_xl/10026} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{2ee708f com.android.systemui.emulation.pixel_4_xl/10000} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{36baf1c com.android.systemui.emulation.pixel_fold/10005} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{758dd27 com.android.htmlviewer/10063} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{7623bd4 com.android.federatedcompute.services/10097} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{76b86ab com.android.networkstack.tethering.emulator/10019} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{f12a108 com.android.internal.emulation.pixel_3a_xl/10033} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{c2f30a1 com.android.internal.emulation.pixel_6_pro/10004} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{e6ef2c6 com.android.internal.emulation.pixel_7_pro/10030} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{e59e287 com.android.internal.emulation.pixel_8_pro/10001} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{ab4c5b4 com.android.internal.emulation.pixel_3a/10003} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{6d35dd com.android.internal.emulation.pixel_4a/10023} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{ad77552 com.android.internal.emulation.pixel_6a/10015} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{2e82023 com.android.internal.emulation.pixel_7a/10031} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{d06417d com.android.safetycenter.resources/10099} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{74c2872 com.android.simappdialog/10078} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{9ec24c3 com.android.connectivity.resources/10105} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{e914140 com.android.modulemetadata/10079} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{d3a7879 com.android.wifi.dialog/10089} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{fe64395 com.android.internal.systemui.navbar.twobutton/10007} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{7e05caa com.android.systemui.emulation.pixel_3/10028} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{c3f709b com.android.systemui.emulation.pixel_4/10016} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{e345c38 com.android.systemui.emulation.pixel_5/10021} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{bb48411 com.android.systemui.emulation.pixel_6/10034} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{23f9976 com.android.systemui.emulation.pixel_7/10027} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{d1a7b77 com.android.systemui.emulation.pixel_8/10017} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{93059be com.android.printspooler/10067} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{be24a1f com.android.dreams.basic/10064} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{4e9316c com.android.webview/10080} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{9e12335 com.android.rkpdapp/10091} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{28a7a50 com.android.internal.emulation.pixel_3/10029} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{1aa449 com.android.internal.emulation.pixel_4/10024} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{2dc614e com.android.internal.emulation.pixel_5/10008} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{dcf626f com.android.internal.emulation.pixel_6/10035} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{224eb7c com.android.internal.emulation.pixel_7/10006} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{7603c05 com.android.internal.emulation.pixel_8/10011} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{d9453ca com.android.musicfx/10050} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{399b68b com.android.providers.settings.auto_generated_rro_vendor__/10040} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{1eb693b com.android.printservice.recommendation/10071} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{9edf858 com.android.wifi.resources/10087} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{80dbdb1 com.android.nearby.halfsheet/10106} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{66b3067 com.android.systemui.emulation.pixel_3a_xl/10037} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{b0d2e14 com.android.systemui.emulation.pixel_6_pro/10018} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{1ee6bd com.android.systemui.emulation.pixel_7_pro/10036} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{aa404b2 com.android.systemui.emulation.pixel_8_pro/10022} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{58be296 com.android.providers.partnerbookmarks/10073} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{19d5e17 com.android.wallpaper.livepicker/10056} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{f764204 com.android.cellbroadcastreceiver.module/10086} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{1c9b9fe com.android.phone.auto_generated_rro_vendor__/10039} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{8f83ed com.android.apps.tag/10049} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{8382bac com.android.internal.emulation.pixel_2_xl/10014} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{413075 com.android.internal.emulation.pixel_3_xl/10010} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{803780a com.android.internal.emulation.pixel_4_xl/10013} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{9c9587b com.android.internal.emulation.pixel_fold/10002} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{d9b9222 com.android.bookmarkprovider/10065} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{a815ef1 com.android.systemui.emulation.pixel_3a/10012} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{3690ad6 com.android.systemui.emulation.pixel_4a/10020} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{c8b0157 com.android.systemui.emulation.pixel_6a/10032} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{1e24444 com.android.systemui.emulation.pixel_7a/10009} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{be2aed8 com.android.cts.ctsshim/10104} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{ebbf92d com.android.connectivity.resources.goldfish.overlay/10043} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{a0fc4b3 com.android.hotspot2.osulogin/10088} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{c177a70 com.android.bluetoothmidiservice/10077} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{fed71e9 com.android.captiveportallogin/10069} BLOCKED
+10-22 14:53:08.514 I/AppsFilter(  506): interaction: PackageSetting{96e7444 app.lifeos.continuum.test/10121} -> PackageSetting{e8bfb29 android.auto_generated_rro_vendor__/10041} BLOCKED
+10-22 14:53:08.515 W/ziparchive( 3315): Unable to open '/data/app/~~f4B9W7mm-7jyT4txKNWryQ==/app.lifeos.continuum.test-9ZB3aGlnDhbllYekeRiDuw==/base.dm': No such file or directory
+10-22 14:53:08.515 W/ziparchive( 3315): Unable to open '/data/app/~~f4B9W7mm-7jyT4txKNWryQ==/app.lifeos.continuum.test-9ZB3aGlnDhbllYekeRiDuw==/base.dm': No such file or directory
+10-22 14:53:08.532 D/nativeloader( 3315): Configuring clns-8 for other apk /data/app/~~f4B9W7mm-7jyT4txKNWryQ==/app.lifeos.continuum.test-9ZB3aGlnDhbllYekeRiDuw==/base.apk. target_sdk_version=35, uses_libraries=, library_path=/data/app/~~f4B9W7mm-7jyT4txKNWryQ==/app.lifeos.continuum.test-9ZB3aGlnDhbllYekeRiDuw==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/app.lifeos.continuum.test
+10-22 14:53:08.538 V/GraphicsEnvironment( 3315): Currently set values for:
+10-22 14:53:08.538 V/GraphicsEnvironment( 3315):   angle_gl_driver_selection_pkgs=[]
+10-22 14:53:08.538 V/GraphicsEnvironment( 3315):   angle_gl_driver_selection_values=[]
+10-22 14:53:08.538 V/GraphicsEnvironment( 3315): ANGLE GameManagerService for app.lifeos.continuum.test: false
+10-22 14:53:08.538 V/GraphicsEnvironment( 3315): app.lifeos.continuum.test is not listed in per-application setting
+10-22 14:53:08.538 V/GraphicsEnvironment( 3315): Neither updatable production driver nor prerelease driver is supported.
+10-22 14:53:08.541 I/ActivityManager(  506): Flag disabled. Ignoring finishAttachApplication from uid: 10121. pid: 3315
+10-22 14:53:08.546 D/libEGL  ( 3315): loaded /vendor/lib64/egl/libEGL_emulation.so
+10-22 14:53:08.548 D/libEGL  ( 3315): loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+10-22 14:53:08.550 D/libEGL  ( 3315): loaded /vendor/lib64/egl/libGLESv2_emulation.so
+10-22 14:53:08.552 D/CompatibilityChangeReporter(  506): Compat change id reported: 161145287; UID 10121; state: ENABLED
+10-22 14:53:08.566 D/CompatibilityChangeReporter( 3315): Compat change id reported: 237531167; UID 10121; state: DISABLED
+10-22 14:53:08.568 W/OpenGLRenderer( 3315): Unknown dataspace 0
+10-22 14:53:08.581 D/CoreBackPreview(  506): Window{80617e3 u0 app.lifeos.continuum.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6b4bf5e, mPriority=0, mIsAnimationCallback=false}
+10-22 14:53:08.583 W/ServiceManagerCppClient(  390): Permission failure: android.permission.ROTATE_SURFACE_FLINGER from uid=10121 pid=3315
+10-22 14:53:08.583 D/PermissionCache(  390): checking android.permission.ROTATE_SURFACE_FLINGER for uid=10121 => denied (144 us)
+10-22 14:53:08.584 W/ServiceManagerCppClient(  390): Permission failure: android.permission.INTERNAL_SYSTEM_WINDOW from uid=10121 pid=3315
+10-22 14:53:08.584 D/PermissionCache(  390): checking android.permission.INTERNAL_SYSTEM_WINDOW for uid=10121 => denied (111 us)
+10-22 14:53:08.584 W/ServiceManagerCppClient(  390): Permission failure: android.permission.ACCESS_SURFACE_FLINGER from uid=10121 pid=3315
+10-22 14:53:08.584 D/PermissionCache(  390): checking android.permission.ACCESS_SURFACE_FLINGER for uid=10121 => denied (305 us)
+10-22 14:53:08.591 W/OpenGLRenderer( 3315): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+10-22 14:53:08.801 I/servicemanager(    0): Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+10-22 14:53:08.602 I/hwservicemanager(  134): getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-22 14:53:08.603 I/Gralloc4( 3315): mapper 4.x is not supported
+10-22 14:53:08.621 W/ServiceManagerCppClient(  506): Permission failure: android.permission.ROTATE_SURFACE_FLINGER from uid=10121 pid=0
+10-22 14:53:08.621 D/PermissionCache(  506): checking android.permission.ROTATE_SURFACE_FLINGER for uid=10121 => denied (422 us)
+10-22 14:53:08.621 W/ServiceManagerCppClient(  506): Permission failure: android.permission.INTERNAL_SYSTEM_WINDOW from uid=10121 pid=0
+10-22 14:53:08.621 D/PermissionCache(  506): checking android.permission.INTERNAL_SYSTEM_WINDOW for uid=10121 => denied (32 us)
+10-22 14:53:08.621 W/ServiceManagerCppClient(  506): Permission failure: android.permission.ACCESS_SURFACE_FLINGER from uid=10121 pid=0
+10-22 14:53:08.621 D/PermissionCache(  506): checking android.permission.ACCESS_SURFACE_FLINGER for uid=10121 => denied (29 us)
+10-22 14:53:08.653 I/ImeTracker(  506): com.android.fakesystemapp:d1a8914: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+10-22 14:53:08.653 I/ImeTracker(  506): com.android.fakesystemapp:d1a8914: onCancelled at PHASE_SERVER_SHOULD_HIDE
+10-22 14:53:08.657 W/WindowOnBackDispatcher( 3315): sendCancelIfRunning: isInProgress=falsecallback=android.view.ViewRootImpl$$ExternalSyntheticLambda17@cae8110
+10-22 14:53:08.657 D/CoreBackPreview(  506): Window{80617e3 u0 app.lifeos.continuum.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity}: Setting back callback null
+10-22 14:53:08.658 W/InputManager-JNI(  506): Input channel object '80617e3 app.lifeos.continuum.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity (client)' was disposed without first being removed with the input manager!
+10-22 14:53:08.679 D/LifecycleMonitor( 3243): Lifecycle status change: app.lifeos.MainActivity@a7ee6fc in: STOPPED
+10-22 14:53:08.681 V/ActivityScenario( 3243): Update currentActivityStage to STOPPED, currentActivity=app.lifeos.MainActivity@a7ee6fc
+10-22 14:53:08.778 D/LifecycleMonitor( 3243): Lifecycle status change: app.lifeos.MainActivity@a7ee6fc in: DESTROYED
+10-22 14:53:08.779 V/ActivityScenario( 3243): Update currentActivityStage to DESTROYED, currentActivity=null
+10-22 14:53:08.779 W/WindowOnBackDispatcher( 3243): sendCancelIfRunning: isInProgress=falsecallback=android.view.ViewRootImpl$$ExternalSyntheticLambda17@b1d4620
+10-22 14:53:08.780 D/CoreBackPreview(  506): Window{b34f47e u0 app.lifeos.continuum/app.lifeos.MainActivity}: Setting back callback null
+10-22 14:53:08.782 W/InputManager-JNI(  506): Input channel object 'b34f47e app.lifeos.continuum/app.lifeos.MainActivity (client)' was disposed without first being removed with the input manager!
+10-22 14:53:08.795 D/IdlingRegistry( 3243): Unregistering idling resources: [androidx.compose.ui.test.EspressoLink@4a7f4ff]
+10-22 14:53:08.796 I/TestRunner( 3243): finished: ausgabeAnlegenBearbeitenLoeschenUndRueckgaengig(app.lifeos.EndToEndFinanceTest)
+10-22 14:53:08.800 I/TestRunner( 3243): run finished: 1 tests, 0 failed, 0 ignored
+10-22 14:53:08.805 W/WindowMagnificationMgr(  506): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+10-22 14:53:08.805 D/AccessibilityManagerService(  506): restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+10-22 14:53:08.806 I/ActivityManager(  506): Force stopping app.lifeos.continuum appid=10120 user=0: finished inst
+10-22 14:53:08.809 E/ActivityManager(  506): Unable to freeze binder for 3243: -11
+10-22 14:53:09.008 I/binder  (    0): 506:1829 ioctl 400c620e 75bd32903930 returned -11
+10-22 14:53:09.010 I/binder  (    0): 506:1829 ioctl 400c620e 75bd32903930 returned -11
+10-22 14:53:08.810 D/DisplayManagerService(  506): Drop pending events for gone uid 10120
+10-22 14:53:08.811 I/ActivityManager(  506): Killing 3243:app.lifeos.continuum/u0a120 (adj 0): stop app.lifeos.continuum due to finished inst
+10-22 14:53:08.812 D/BatterySaverPolicy(  506): accessibility changed to false, updating policy.
+10-22 14:53:08.823 I/app_process( 3231): System.exit called, status: 0
+10-22 14:53:08.823 I/AndroidRuntime( 3231): VM exiting with result code 0.
+10-22 14:53:09.040 W/binder_debug(    0): 32 callbacks suppressed
+10-22 14:53:09.040 I/binder  (    0): undelivered TRANSACTION_COMPLETE
+10-22 14:53:09.043 I/binder  (    0): undelivered transaction 146407, process died.
+10-22 14:53:09.044 I/binder  (    0): undelivered transaction 146388, process died.
+10-22 14:53:08.843 I/Zygote  (  327): Process 3243 exited due to signal 9 (Killed)
+10-22 14:53:08.844 V/ActivityManager(  506): Got obituary of 3243:app.lifeos.continuum
+10-22 14:53:08.847 W/ActivityManager(  506): setHasOverlayUi called on unknown pid: 3243
+10-22 14:53:09.046 I/binder  (    0): undelivered transaction 146383, process died.
+10-22 14:53:09.069 I/ActivityManager(  506): Force stopping app.lifeos.continuum appid=10120 user=-1: deletePackageX
+10-22 14:53:09.069 E/libprocessgroup(  506): No such cgroup attribute: /sys/fs/cgroup/uid_4294877416/cgroup.freeze
+10-22 14:53:09.069 W/libprocessgroup(  506): Failed to apply Frozen process profile: No such file or directory
+10-22 14:53:09.070 E/libprocessgroup(  506): No such cgroup attribute: /sys/fs/cgroup/uid_4294877416/cgroup.freeze
+10-22 14:53:09.070 W/libprocessgroup(  506): Failed to apply Unfrozen process profile: No such file or directory
+10-22 14:53:09.276 I/servicemanager(    0): Since 'artd' could not be found, trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+10-22 14:53:09.279 I/init    (    0): starting service 'artd'...
+10-22 14:53:09.300 I/init    (    0): ... started service 'artd' has pid 3369
+10-22 14:53:09.301 I/init    (    0): Control message: Processed ctl.interface_start for 'aidl/artd' from pid: 133 (/system/bin/servicemanager)
+10-22 14:53:09.111 I/artd    ( 3369): Starting artd
+10-22 14:53:09.112 I/AidlLazyServiceRegistrar( 3369): Registering service artd
+10-22 14:53:09.116 I/AidlLazyServiceRegistrar( 3369): Process has 1 (of 1 available) client(s) in use after notification artd has clients: 1
+10-22 14:53:09.314 I/BpBinder(    0): onLastStrongRef automatically unlinking death recipients:
+10-22 14:53:09.316 I/servicemanager(    0): Notifying artd they do (previously: don't) have clients when service is guaranteed to be in use
+10-22 14:53:09.118 I/PermissionManager(  506): Removing permission app.lifeos.continuum.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION that used to be declared by app.lifeos.continuum
+10-22 14:53:09.119 I/PermissionManager(  506): Permission ownership changed. Updating all permissions.
+10-22 14:53:09.119 W/PermissionManager(  506): Package com.android.adservices.api is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.adservices APEX instead.
+10-22 14:53:09.128 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.128 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.128 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.128 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.129 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.129 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.129 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.129 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.129 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.129 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.130 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.130 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.130 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.145 D/PackageManager(  506): Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+10-22 14:53:09.145 D/PackageManager(  506): Clear ephemeral installer activity
+10-22 14:53:09.150 I/ActivityManager(  506): Force stopping app.lifeos.continuum appid=10120 user=0: pkg removed
+10-22 14:53:09.163 D/CarrierSvcBindHelper(  917): onPackageRemoved: app.lifeos.continuum
+10-22 14:53:09.164 D/CarrierSvcBindHelper(  917): No carrier app for: 0
+10-22 14:53:09.166 V/MediaPlayerList(  891): mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_REMOVED
+10-22 14:53:09.167 V/MediaPlayerList(  891): mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_REMOVED
+10-22 14:53:09.175 W/MediaProvider( 1051): WorkProfileOwnerApps cache is empty
+10-22 14:53:09.189 E/TaskPersister(  506): File error accessing recents directory (directory doesn't exist?).
+10-22 14:53:09.193 I/MediaProvider( 1051): Begin Intent { act=android.intent.action.PACKAGE_FULLY_REMOVED dat=package: flg=0x5000010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+10-22 14:53:09.198 D/MediaProvider( 1051): Deleted 0 Android/media items belonging to app.lifeos.continuum on /data/user/0/com.android.providers.media.module/databases/external.db
+10-22 14:53:09.207 D/SafetySourceDataValidator(  506): No cert check requested for package com.android.permissioncontroller
+10-22 14:53:09.213 I/RoleService(  506): Granting default roles...
+10-22 14:53:09.215 I/ActivityManager(  506): Force stopping app.lifeos.continuum.test appid=10121 user=-1: deletePackageX
+10-22 14:53:09.215 E/libprocessgroup(  506): No such cgroup attribute: /sys/fs/cgroup/uid_4294877417/cgroup.freeze
+10-22 14:53:09.215 W/libprocessgroup(  506): Failed to apply Frozen process profile: No such file or directory
+10-22 14:53:09.216 D/DisplayManagerService(  506): Drop pending events for gone uid 10121
+10-22 14:53:09.217 I/ActivityManager(  506): Killing 3315:app.lifeos.continuum.test/u0a121 (adj 905): stop app.lifeos.continuum.test due to deletePackageX
+10-22 14:53:09.219 E/libprocessgroup(  506): No such cgroup attribute: /sys/fs/cgroup/uid_4294877417/cgroup.freeze
+10-22 14:53:09.219 W/libprocessgroup(  506): Failed to apply Unfrozen process profile: No such file or directory
+10-22 14:53:09.223 I/Zygote  (  327): Process 3315 exited due to signal 9 (Killed)
+10-22 14:53:09.223 W/ActivityManager(  506): setHasOverlayUi called on unknown pid: 3315
+10-22 14:53:09.223 V/ActivityManager(  506): Got obituary of 3315:app.lifeos.continuum.test
+10-22 14:53:09.224 D/PersistedStoragePackageUninstalledReceiver(  797): Received android.intent.action.PACKAGE_FULLY_REMOVED for app.lifeos.continuum for u0
+10-22 14:53:09.224 W/PermissionManager(  506): Package com.android.adservices.api is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.adservices APEX instead.
+10-22 14:53:09.226 V/StorageManagerService(  506): Package app.lifeos.continuum does not have legacy storage
+10-22 14:53:09.226 I/RollbackManager(  506): broadcast=ACTION_PACKAGE_FULLY_REMOVED pkg=app.lifeos.continuum
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.235 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.236 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.236 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.236 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.236 W/PermissionManager(  506): Package com.android.providers.media.module is an APK in APEX, but has permission allowlist on the system image. Please bundle the allowlist in the com.android.mediaprovider APEX instead.
+10-22 14:53:09.252 I/ConditionProviders(  506): Disallowing condition provider app.lifeos.continuum (userSet: true)
+10-22 14:53:09.252 W/WifiService(  506): Couldn't get PackageInfo for package:app.lifeos.continuum
+10-22 14:53:09.252 D/WifiService(  506): Remove settings for package:app.lifeos.continuum
+10-22 14:53:09.252 D/WifiConfigManager(  506): Remove all networks for app ApplicationInfo{92cc60b app.lifeos.continuum}
+10-22 14:53:09.255 E/AppOps  (  506): attributionTag VCN not declared in manifest of android
+10-22 14:53:09.255 I/Telecom (  506): CarModeTracker: Package app.lifeos.continuum is not tracked.: SSH.oR@AMg🔒
+10-22 14:53:09.255 I/Telecom (  506): InCallController: updateCarModeForConnections: car mode apps: : SSH.oR@AMg🔒
+10-22 14:53:09.256 I/Telecom (  506): InCallController: update carmode current:UserHandle{0} parent:null: SSH.oR@AMg🔒
+10-22 14:53:09.258 D/ActivityManager(  506): sync unfroze 1313 android.process.media for 3
+10-22 14:53:09.262 D/WifiConfigStore(  506): Writing to stores completed in 2 ms.
+10-22 14:53:09.262 I/PasspointManager(  506): No app ops listener found for app.lifeos.continuum
+10-22 14:53:09.262 W/WifiService(  506): Couldn't get PackageInfo for package:app.lifeos.continuum
+10-22 14:53:09.262 D/WifiService(  506): Remove settings for package:app.lifeos.continuum
+10-22 14:53:09.262 D/WifiConfigManager(  506): Remove all networks for app ApplicationInfo{c91bcdf app.lifeos.continuum}
+10-22 14:53:09.264 W/Role    (  797): Cannot get ApplicationInfo for default holder: com.android.contacts
+10-22 14:53:09.266 W/Role    (  797): Cannot get ApplicationInfo for default holder: com.android.settings.intelligence
+10-22 14:53:09.267 D/WifiConfigStore(  506): Writing to stores completed in 3 ms.
+10-22 14:53:09.267 I/PasspointManager(  506): No app ops listener found for app.lifeos.continuum
+10-22 14:53:09.267 I/InputReader(  506): Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-22 14:53:09.276 D/PackageManager(  506): Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+10-22 14:53:09.276 D/PackageManager(  506): Clear ephemeral installer activity
+10-22 14:53:09.282 W/TextServicesManagerService(  506): no available spell checker services found
+10-22 14:53:09.282 W/Searchables(  506): No global search activity found
+10-22 14:53:09.285 E/DocumentManagerRoleBehavior(  797): There should be exactly one documenter; found 0: matches=[]
+10-22 14:53:09.287 E/TaskPersister(  506): File error accessing recents directory (directory doesn't exist?).
+10-22 14:53:09.295 I/netd    (  326): tetherGetStats() -> {[]} <0.40ms>
+10-22 14:53:09.299 I/netd    (  326): bandwidthRemoveInterfaceQuota(eth0) <0.35ms>
+10-22 14:53:09.299 I/netd    (  326): bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.40ms>
+10-22 14:53:09.302 I/ActivityManager(  506): Force stopping app.lifeos.continuum.test appid=10121 user=0: pkg removed
+10-22 14:53:09.303 W/Role    (  797): Cannot get ApplicationInfo for default holder: com.android.gallery3d
+10-22 14:53:09.313 D/MediaProvider( 1051): Orphaned 9 items belonging to app.lifeos.continuum on /data/user/0/com.android.providers.media.module/databases/external.db
+10-22 14:53:09.313 D/MediaGrants( 1051): Removed 0 media_grants for 0 user for app.lifeos.continuum. Reason: Package orphaned
+10-22 14:53:09.314 I/MediaProvider( 1051): End Intent { act=android.intent.action.PACKAGE_FULLY_REMOVED dat=package: flg=0x5000010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+10-22 14:53:09.325 D/CarrierSvcBindHelper(  917): onPackageRemoved: app.lifeos.continuum.test
+10-22 14:53:09.325 D/CarrierSvcBindHelper(  917): No carrier app for: 0
+10-22 14:53:09.327 W/WifiService(  506): Couldn't get PackageInfo for package:app.lifeos.continuum.test
+10-22 14:53:09.327 D/WifiService(  506): Remove settings for package:app.lifeos.continuum.test
+10-22 14:53:09.327 D/WifiConfigManager(  506): Remove all networks for app ApplicationInfo{2865192 app.lifeos.continuum.test}
+10-22 14:53:09.328 V/StorageManagerService(  506): Package app.lifeos.continuum.test does not have legacy storage
+10-22 14:53:09.329 I/InputReader(  506): Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-22 14:53:09.333 E/AppOps  (  506): attributionTag VCN not declared in manifest of android
+10-22 14:53:09.335 W/TextServicesManagerService(  506): no available spell checker services found
+10-22 14:53:09.335 D/WifiConfigStore(  506): Writing to stores completed in 8 ms.
+10-22 14:53:09.336 V/MediaPlayerList(  891): mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_REMOVED
+10-22 14:53:09.336 I/PasspointManager(  506): No app ops listener found for app.lifeos.continuum.test
+10-22 14:53:09.336 V/MediaPlayerList(  891): mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_REMOVED
+10-22 14:53:09.340 I/RollbackManager(  506): broadcast=ACTION_PACKAGE_FULLY_REMOVED pkg=app.lifeos.continuum.test
+10-22 14:53:09.342 W/Searchables(  506): No global search activity found
+10-22 14:53:09.343 W/MediaProvider( 1051): WorkProfileOwnerApps cache is empty
+10-22 14:53:09.344 W/ProcessStats(  506): Tracking association SourceState{f7cb4f8 system/1000 ImpFg #1016} whose proc state 5 is better than process ProcessState{c9b5993 com.android.keychain/1000 pkg=com.android.keychain} proc state 8 (0 skipped)
+10-22 14:53:09.347 W/WifiService(  506): Couldn't get PackageInfo for package:app.lifeos.continuum.test
+10-22 14:53:09.349 D/WifiService(  506): Remove settings for package:app.lifeos.continuum.test
+10-22 14:53:09.349 I/Telecom (  506): CarModeTracker: Package app.lifeos.continuum.test is not tracked.: SSH.oR@AMs🔒
+10-22 14:53:09.350 D/WifiConfigManager(  506): Remove all networks for app ApplicationInfo{8a5f5bc app.lifeos.continuum.test}
+10-22 14:53:09.350 I/Telecom (  506): InCallController: updateCarModeForConnections: car mode apps: : SSH.oR@AMs🔒
+10-22 14:53:09.351 I/Telecom (  506): InCallController: update carmode current:UserHandle{0} parent:null: SSH.oR@AMs🔒
+10-22 14:53:09.352 I/ConditionProviders(  506): Disallowing condition provider app.lifeos.continuum.test (userSet: true)
+10-22 14:53:09.355 I/system_server(  506): Background concurrent copying GC freed 295341(14MB) AllocSpace objects, 34(1096KB) LOS objects, 50% free, 18MB/36MB, paused 61us,284us total 207.628ms
+10-22 14:53:09.387 D/SafetySourceDataValidator(  506): No cert check requested for package com.android.permissioncontroller
+10-22 14:53:09.388 I/MediaProvider( 1051): Begin Intent { act=android.intent.action.PACKAGE_FULLY_REMOVED dat=package: flg=0x5000010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+10-22 14:53:09.388 D/MediaProvider( 1051): Deleted 0 Android/media items belonging to app.lifeos.continuum.test on /data/user/0/com.android.providers.media.module/databases/external.db
+10-22 14:53:09.391 I/netd    (  326): tetherGetStats() -> {[]} <0.37ms>
+10-22 14:53:09.393 D/WifiConfigStore(  506): Writing to stores completed in 35 ms.
+10-22 14:53:09.394 I/PasspointManager(  506): No app ops listener found for app.lifeos.continuum.test
+10-22 14:53:09.400 D/PersistedStoragePackageUninstalledReceiver(  797): Received android.intent.action.PACKAGE_FULLY_REMOVED for app.lifeos.continuum.test for u0
+10-22 14:53:09.404 D/MediaGrants( 1051): Removed 0 media_grants for 0 user for app.lifeos.continuum.test. Reason: Package orphaned
+10-22 14:53:09.404 I/MediaProvider( 1051): End Intent { act=android.intent.action.PACKAGE_FULLY_REMOVED dat=package: flg=0x5000010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+10-22 14:53:09.411 W/Role    (  797): Cannot get ApplicationInfo for default holder: com.android.dialer
+10-22 14:53:09.414 W/Role    (  797): Cannot get ApplicationInfo for default holder: com.android.systemui

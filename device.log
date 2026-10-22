@@ -1,0 +1,151 @@
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:security:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:security:preBuild UP-TO-DATE
+> Task :core:security:preDebugBuild UP-TO-DATE
+> Task :core:domain:processResources NO-SOURCE
+> Task :core:security:generateDebugResValues FROM-CACHE
+> Task :core:security:generateDebugResources FROM-CACHE
+> Task :core:database:generateDebugResValues UP-TO-DATE
+> Task :core:database:generateDebugResources UP-TO-DATE
+> Task :core:security:packageDebugResources FROM-CACHE
+> Task :core:database:packageDebugResources UP-TO-DATE
+> Task :core:database:parseDebugLocalResources UP-TO-DATE
+> Task :core:security:parseDebugLocalResources FROM-CACHE
+> Task :core:database:generateDebugRFile UP-TO-DATE
+> Task :core:model:compileKotlin UP-TO-DATE
+> Task :core:model:compileJava NO-SOURCE
+> Task :core:security:generateDebugRFile FROM-CACHE
+> Task :core:model:processResources NO-SOURCE
+> Task :core:model:classes UP-TO-DATE
+> Task :core:model:jar UP-TO-DATE
+> Task :core:domain:compileKotlin UP-TO-DATE
+> Task :core:domain:compileJava NO-SOURCE
+> Task :core:domain:classes UP-TO-DATE
+> Task :core:domain:jar UP-TO-DATE
+> Task :core:database:javaPreCompileDebug FROM-CACHE
+> Task :core:database:kspDebugKotlin UP-TO-DATE
+> Task :core:security:compileDebugKotlin FROM-CACHE
+> Task :core:security:javaPreCompileDebug FROM-CACHE
+> Task :core:security:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:security:preDebugAndroidTestBuild UP-TO-DATE
+> Task :core:security:writeDebugAarMetadata
+> Task :core:security:compileDebugLibraryResources FROM-CACHE
+> Task :core:database:compileDebugKotlin FROM-CACHE
+> Task :core:database:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:security:bundleLibCompileToJarDebug
+> Task :core:database:preDebugAndroidTestBuild UP-TO-DATE
+> Task :core:database:compileDebugLibraryResources FROM-CACHE
+> Task :core:database:generateDebugAndroidTestResValues FROM-CACHE
+> Task :core:database:writeDebugAarMetadata
+> Task :core:database:bundleLibCompileToJarDebug
+> Task :core:security:generateDebugAndroidTestResValues FROM-CACHE
+> Task :core:security:mapDebugAndroidTestSourceSetPaths
+> Task :core:database:mapDebugAndroidTestSourceSetPaths
+> Task :core:security:checkDebugAndroidTestAarMetadata
+> Task :core:security:generateDebugAndroidTestResources FROM-CACHE
+> Task :core:database:checkDebugAndroidTestAarMetadata
+> Task :core:database:generateDebugAndroidTestResources FROM-CACHE
+> Task :core:security:mergeDebugAndroidTestResources FROM-CACHE
+> Task :core:security:extractDeepLinksDebug FROM-CACHE
+> Task :core:database:mergeDebugAndroidTestResources FROM-CACHE
+> Task :core:database:extractDeepLinksDebug FROM-CACHE
+> Task :core:security:processDebugManifest FROM-CACHE
+> Task :core:database:processDebugManifest FROM-CACHE
+> Task :core:security:processDebugAndroidTestManifest
+> Task :core:database:processDebugAndroidTestManifest
+> Task :core:security:processDebugAndroidTestResources FROM-CACHE
+> Task :core:database:processDebugAndroidTestResources FROM-CACHE
+> Task :core:database:kspDebugAndroidTestKotlin FROM-CACHE
+> Task :core:security:compileDebugAndroidTestKotlin FROM-CACHE
+> Task :core:security:javaPreCompileDebugAndroidTest FROM-CACHE
+> Task :core:security:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :core:database:compileDebugAndroidTestKotlin FROM-CACHE
+> Task :core:security:mergeDebugAndroidTestShaders
+> Task :core:database:javaPreCompileDebugAndroidTest FROM-CACHE
+> Task :core:security:compileDebugAndroidTestShaders NO-SOURCE
+> Task :core:security:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :core:database:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :core:database:copyRoomSchemas NO-SOURCE
+> Task :core:security:mergeDebugShaders
+> Task :core:security:compileDebugShaders NO-SOURCE
+> Task :core:security:generateDebugAssets UP-TO-DATE
+> Task :core:database:mergeDebugAndroidTestShaders
+> Task :core:database:compileDebugAndroidTestShaders NO-SOURCE
+> Task :core:security:mergeDebugAssets
+> Task :core:database:copyRoomSchemasToAndroidTestAssetsDebugAndroidTest
+> Task :core:database:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :core:security:mergeDebugAndroidTestAssets
+> Task :core:database:mergeDebugShaders
+> Task :core:security:compressDebugAndroidTestAssets FROM-CACHE
+> Task :core:database:compileDebugShaders NO-SOURCE
+> Task :core:database:generateDebugAssets UP-TO-DATE
+> Task :core:database:mergeDebugAssets
+> Task :core:security:bundleLibRuntimeToJarDebug
+> Task :core:security:desugarDebugAndroidTestFileDependencies FROM-CACHE
+> Task :core:database:mergeDebugAndroidTestAssets
+> Task :core:security:dexBuilderDebugAndroidTest FROM-CACHE
+> Task :core:database:compressDebugAndroidTestAssets FROM-CACHE
+> Task :core:database:desugarDebugAndroidTestFileDependencies FROM-CACHE
+> Task :core:database:dexBuilderDebugAndroidTest FROM-CACHE
+> Task :core:security:mergeDebugAndroidTestGlobalSynthetics FROM-CACHE
+> Task :core:database:processDebugAndroidTestJavaRes
+> Task :core:security:processDebugAndroidTestJavaRes
+> Task :core:database:processDebugJavaRes
+> Task :core:database:bundleLibRuntimeToJarDebug
+> Task :core:security:processDebugJavaRes
+> Task :core:security:checkDebugAndroidTestDuplicateClasses
+> Task :core:database:checkDebugAndroidTestDuplicateClasses
+> Task :core:database:mergeDebugAndroidTestGlobalSynthetics FROM-CACHE
+> Task :core:security:mergeExtDexDebugAndroidTest FROM-CACHE
+> Task :core:security:bundleLibRuntimeToDirDebug
+> Task :core:database:mergeExtDexDebugAndroidTest FROM-CACHE
+> Task :core:security:mergeLibDexDebugAndroidTest FROM-CACHE
+> Task :core:database:mergeProjectDexDebugAndroidTest FROM-CACHE
+> Task :core:database:mergeDebugJniLibFolders
+> Task :core:database:mergeDebugNativeLibs NO-SOURCE
+> Task :core:database:copyDebugJniLibsProjectOnly
+> Task :core:database:mergeDebugAndroidTestJniLibFolders
+> Task :core:database:bundleLibRuntimeToDirDebug
+> Task :core:security:mergeProjectDexDebugAndroidTest FROM-CACHE
+> Task :core:security:mergeDebugAndroidTestJavaResource
+> Task :core:security:mergeDebugJniLibFolders
+> Task :core:security:mergeDebugNativeLibs NO-SOURCE
+> Task :core:security:copyDebugJniLibsProjectOnly
+> Task :core:security:mergeDebugAndroidTestJniLibFolders
+> Task :core:database:mergeDebugAndroidTestJavaResource
+> Task :core:security:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :core:security:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :core:database:mergeDebugAndroidTestNativeLibs
+> Task :core:security:validateSigningDebugAndroidTest
+> Task :core:database:validateSigningDebugAndroidTest
+> Task :core:database:mergeLibDexDebugAndroidTest FROM-CACHE
+> Task :core:security:writeDebugAndroidTestSigningConfigVersions
+> Task :core:database:writeDebugAndroidTestSigningConfigVersions
+
+> Task :core:database:stripDebugAndroidTestDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libsqlcipher.so. Run with --info option to learn more.
+
+> Task :core:security:packageDebugAndroidTest
+> Task :core:security:createDebugAndroidTestApkListingFileRedirect
+> Task :core:database:packageDebugAndroidTest
+> Task :core:database:createDebugAndroidTestApkListingFileRedirect
+[EmulatorConsole]: Failed to start Emulator console for 5554
+
+> Task :core:security:connectedDebugAndroidTest
+Starting 2 tests on emulator-5554 - 14
+
+Finished 2 tests on emulator-5554 - 14
+[EmulatorConsole]: Failed to start Emulator console for 5554
+
+> Task :core:database:connectedDebugAndroidTest
+Starting 9 tests on emulator-5554 - 14
+
+Finished 9 tests on emulator-5554 - 14
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__reactivecircus_android-emulator-runner-1792680620687.json
+
+BUILD SUCCESSFUL in 24s
+101 actionable tasks: 49 executed, 42 from cache, 10 up-to-date

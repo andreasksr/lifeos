@@ -1,0 +1,2 @@
+/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/qemu-system-x86_64: error while loading shared libraries: libpulse.so.0: cannot open shared object file: No such file or directory
+Android/sdk_slim_x86_64/emulator64_x86_64:14/UE1A.230829.036.A1/11228894:userdebug/test-keys
