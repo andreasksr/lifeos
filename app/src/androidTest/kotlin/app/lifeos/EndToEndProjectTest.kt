@@ -5,7 +5,7 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -33,7 +33,7 @@ class EndToEndProjectTest {
     val rule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule(order = 10)
-    val failure = FailureCapture { rule.onRoot(useUnmergedTree = true).printToString(maxDepth = 60) }
+    val failure = FailureCapture { rule.onAllNodes(isRoot(), useUnmergedTree = true).printToString(maxDepth = 60) }
 
     private fun waitForText(text: String, substring: Boolean = false, timeout: Long = 15_000) {
         rule.waitUntil(timeout) { rule.onAllNodesWithText(text, substring = substring, ignoreCase = true).fetchSemanticsNodes().isNotEmpty() }
@@ -80,7 +80,8 @@ class EndToEndProjectTest {
         waitForText("Bremsbeläge")
         Shots.take("21_buchung_zuordnen")
         rule.onAllNodesWithText("Bremsbeläge").onLast().performClick()
-        waitForText("1 verknüpfte Buchung", substring = true, timeout = 20_000)
+        // Kennzahl ist eine zusammengefasste Einheit (Beschreibung statt Einzeltexte)
+        rule.waitUntil(20_000) { rule.onAllNodes(hasContentDescription("1 verknüpfte Buchung", substring = true)).fetchSemanticsNodes().isNotEmpty() }
         Shots.take("22_projekt_mit_kosten")
 
         // ── Korrigieren: aus dem Projekt heraus die Buchung öffnen und Betrag ändern ──

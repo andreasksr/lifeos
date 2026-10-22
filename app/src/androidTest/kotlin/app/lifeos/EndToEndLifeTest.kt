@@ -5,7 +5,7 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -32,7 +32,7 @@ class EndToEndLifeTest {
     val rule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule(order = 10)
-    val failure = FailureCapture { rule.onRoot(useUnmergedTree = true).printToString(maxDepth = 60) }
+    val failure = FailureCapture { rule.onAllNodes(isRoot(), useUnmergedTree = true).printToString(maxDepth = 60) }
 
     private fun waitForText(text: String, substring: Boolean = false, timeout: Long = 15_000) {
         rule.waitUntil(timeout) { rule.onAllNodesWithText(text, substring = substring, ignoreCase = true).fetchSemanticsNodes().isNotEmpty() }
@@ -68,7 +68,7 @@ class EndToEndLifeTest {
         rule.onNodeWithText("Planen  →").performClick()
         waitForText("Hauptuntersuchung")
         rule.onNodeWithText("SPEICHERN").performClick()
-        rule.waitUntil(15_000) { rule.onAllNodesWithText("Hauptuntersuchung · ", substring = true).fetchSemanticsNodes().isNotEmpty() }
+        rule.waitUntil(15_000) { rule.onAllNodesWithText("Tagen fällig", substring = true).fetchSemanticsNodes().isNotEmpty() }
         Shots.take("32_fahrzeug_detail")
 
         // ── Weiterbildung ──
