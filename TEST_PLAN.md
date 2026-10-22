@@ -28,29 +28,27 @@ Dokumente, Fächer, Themen, Prüfungen, Lernzeit), Kaskaden (Fahrzeug löschen �
 weg, Dokument bleibt; Fach löschen → Themen weg, Lernzeit bleibt), Migrationen 1→2→3→4 mit Altdaten,
 Room-Schemata 1–4 = Referenz-DDL.
 
-### Emulator (API 34) – CI-Läufe `a5afadf` und `c2fc86e`
+### Emulator (API 34, ATD-Abbild) – **17 Gerätetests, 0 Fehler** (CI-Lauf Commit `fcf2d2b`)
 | Test | Ergebnis |
 |---|---|
 | `DatabaseInstrumentedTest` (6): Room = Referenz-DDL, Round-Trip, Trigger durch Room, Kaskaden | ✅ |
-| `MigrationInstrumentedTest`: 1→2, 1→3, **1→4 mit Altdaten** (Auftrag: „Datensatz bleibt nach Update erhalten") | ✅ |
-| `DatabaseKeyManagerTest` (2): Schlüssel stabil, Verlust wird gemeldet | ✅ (`a5afadf`) |
-| `ReminderInstrumentedTest`: Benachrichtigung erscheint, nach Erledigen deaktiviert | ✅ (`a5afadf`) |
-| `BackupRestoreTest`: Sicherung auf „Gerät A", Wiederherstellung mit völlig anderem DB- und Dokumentschlüssel, falsches Passwort ändert nichts | ✅ (`a5afadf`, `c2fc86e`) |
-| `EndToEndPlanningTest`: Aufgabe erfassen, abhaken, Termin planen, Tag/Woche/Monat | ✅ (`a5afadf`) |
-| `EndToEndFinanceTest`: Ausgabe anlegen → bearbeiten → löschen → rückgängig | siehe §3 |
-| `EndToEndProjectTest`: Buchung einem Projekt zuordnen, korrigieren, Kosten folgen | siehe §3 |
-| `EndToEndLifeTest`: Fahrzeug + HU planen, Prüfungsziele, Lernzeit, Überschneidung abgewiesen | siehe §3 |
+| `MigrationInstrumentedTest` (3): 1→2, 1→3, **1→4 mit Altdaten** („Datensatz bleibt nach Update erhalten") | ✅ |
+| `DatabaseKeyManagerTest` (2): Schlüssel stabil, Verlust wird gemeldet statt ersetzt | ✅ |
+| `ReminderInstrumentedTest`: Benachrichtigung erscheint, nach Erledigen der Aufgabe deaktiviert | ✅ |
+| `BackupRestoreTest`: Sicherung auf „Gerät A", Wiederherstellung mit völlig anderem DB- und Dokumentschlüssel; falsches Passwort ändert nichts; Sicherung enthält keinen Klartext | ✅ |
+| `EndToEndFinanceTest`: Ausgabe anlegen → bearbeiten → löschen → rückgängig (über die echte Oberfläche) | ✅ |
+| `EndToEndProjectTest`: Buchung einem Projekt zuordnen, Betrag korrigieren → Projektkosten folgen, alter Betrag nirgends mehr | ✅ |
+| `EndToEndPlanningTest`: Aufgabe erfassen, abhaken, Termin mit Erinnerung, Tag/Woche/Monat/Aufgaben | ✅ |
+| `EndToEndLifeTest`: Fahrzeug anlegen, HU planen, Prüfungsziele „noch nicht bestätigt", Lernzeit Start/Stopp, Nachtrag, Überschneidung abgewiesen | ✅ |
 
-## 3. Offene bzw. instabile Prüfungen (ehrlich)
-- Die drei UI-Ende-zu-Ende-Tests Finanzen/Projekte/Mein Leben scheiterten in den Läufen bis `a5afadf` an
-  **Testfehlern** (Groß-/Kleinschreibung von Überschriften, mehrdeutige Klickziele, ein Hinweis, der auf dem
-  langsamen Emulator vor dem Tipp verschwand, eine falsche Annahme zur Überschneidung). Alle sind korrigiert;
-  die Funktionen selbst arbeiteten laut Bildschirmfotos/Semantikbaum korrekt (Fahrzeug angelegt, HU geplant,
-  Prüfungsziele „noch nicht bestätigt", Lernzeit gemessen). Im letzten Lauf (`c2fc86e`) ist der **Emulator
-  während des Finanztests abgestürzt** („device not found") – die korrigierten Tests müssen noch einmal
-  vollständig durchlaufen. Aktueller Stand: siehe CHANGELOG / letzter Lauf im Branch `ci-device`.
-- App-Sperre (BiometricPrompt) und Widget: kein automatisierter Test (Emulator ohne Biometrie, kein Launcher-Test).
-- Layout nur auf Pixel 6 (1080×2400) und mit Standard-Schriftgröße per Screenshot geprüft.
+## 3. Grenzen der Prüfung (ehrlich)
+- Der Standard-Emulator (google_apis) fiel in der CI ab dem 21.10. reproduzierbar während der UI-Tests aus
+  („device not found", unabhängig vom Test). Seit dem Wechsel auf das für CI gedachte ATD-Abbild laufen alle
+  Tests stabil. Auf dem ATD-Abbild liefert der System-Screenshot nur Schwarz → Bildschirmfotos werden dort per
+  Software-Zeichnung der App-Fenster erzeugt (Unschärfe-/Leuchteffekte können darin fehlen).
+- App-Sperre (BiometricPrompt) und Widget: kein automatisierter Test (Emulator ohne Biometrie, kein Launcher).
+- Dokumentimport über die Android-Dateiauswahl: Logik (Dedupe, Tresor) getestet, der Systemdialog selbst nicht.
+- Layout nur auf Pixel 6 (1080×2400) mit Standard-Schriftgröße geprüft.
 
 ## 4. Manuelle Abnahme auf dem eigenen Gerät
 - [ ] Update von 0.4.x/0.5.0 installieren → alle Daten vorhanden

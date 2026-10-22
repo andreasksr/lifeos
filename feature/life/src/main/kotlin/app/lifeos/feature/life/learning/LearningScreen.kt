@@ -210,7 +210,7 @@ fun LearningRoute(vm: LearningViewModel, nav: LearningNavigation) {
                         Text(r.subjectId?.let { s.subjectNames[it] } ?: "Ohne Fach", style = Continuum.type.body, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(LifeFormat.dayTitle(start.toLocalDate(), s.today) + " · " + LifeFormat.time(start.toLocalTime()) + (if (r.source == app.lifeos.core.model.SessionSource.MANUAL) " · nachgetragen" else ""), style = Continuum.type.small)
                     }
-                    Text(LifeFormat.duration(minutes), style = Continuum.type.figures)
+                    Text(if (minutes == 0L) "< 1 Min" else LifeFormat.duration(minutes), style = Continuum.type.figures)
                     LifeIconButton(Glyph.TRASH, "Lerneinheit löschen", { vm.deleteSession(r) }, tint = ContinuumColors.Faint)
                 }
             }

@@ -38,8 +38,9 @@ unverändert; alle Builds mit festem Entwicklungsschlüssel → installieren sic
 ### Getestet (Details und Zahlen: TEST_PLAN.md)
 - ✅ JVM-Unit-Tests (Domäne, Geld, Präsentationslogik, Kryptografie) – lokal und in der CI.
 - ✅ SQLite-Schematests inkl. Migrationen 1→2→3→4 und Room-Schema `4.json` = Referenz-DDL.
-- ✅ Emulator (API 34): Datenbank-, Migrations-, Keystore-, Erinnerungs- und Sicherungs-/Wiederherstellungstests.
-- Ergebnisse der UI-Ende-zu-Ende-Tests: siehe TEST_PLAN.md §3 (Stand des letzten CI-Laufs).
+- ✅ Emulator (API 34): **alle 17 Gerätetests grün** (Commit `fcf2d2b`) – Datenbank, Migration 1→4,
+  Keystore, Erinnerungen, Sicherung/Wiederherstellung mit fremden Schlüsseln und vier UI-Ende-zu-Ende-Abläufe
+  (Finanzen, Projekte, Planung, Mein Leben).
 
 ### Nicht enthalten / bekannte Einschränkungen
 - Keine Texterkennung (OCR) – nur vorbereitet (`document.ocr_text`).
