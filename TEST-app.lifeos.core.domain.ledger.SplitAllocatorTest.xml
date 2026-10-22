@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.domain.ledger.SplitAllocatorTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:05:14.575Z" hostname="runnervm8k3b6" time="0.097">
+  <properties/>
+  <testcase name="summe ist immer exakt - zufallstest" classname="app.lifeos.core.domain.ledger.SplitAllocatorTest" time="0.089"/>
+  <testcase name="ungueltige eingaben" classname="app.lifeos.core.domain.ledger.SplitAllocatorTest" time="0.002"/>
+  <testcase name="proportional mit groesstem rest" classname="app.lifeos.core.domain.ledger.SplitAllocatorTest" time="0.0"/>
+  <testcase name="gleichmaessig mit rest" classname="app.lifeos.core.domain.ledger.SplitAllocatorTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

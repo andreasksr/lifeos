@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.feature.ledger.presentation.LedgerFormatTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:22:46.532Z" hostname="runnervm8k3b6" time="0.053">
+  <properties/>
+  <testcase name="monat und tag" classname="app.lifeos.feature.ledger.presentation.LedgerFormatTest" time="0.024"/>
+  <testcase name="prozent ist abgerundet" classname="app.lifeos.feature.ledger.presentation.LedgerFormatTest" time="0.007"/>
+  <testcase name="faelligkeit und begruessung" classname="app.lifeos.feature.ledger.presentation.LedgerFormatTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

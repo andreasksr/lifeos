@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.model.MoneyTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-21T11:19:41.635Z" hostname="runnervm8k3b6" time="0.071">
+  <properties/>
+  <testcase name="addition und subtraktion sind exakt" classname="app.lifeos.core.model.MoneyTest" time="0.0"/>
+  <testcase name="node id akzeptiert nur kanonische uuids" classname="app.lifeos.core.model.MoneyTest" time="0.017"/>
+  <testcase name="ueberlauf wird erkannt statt still verfaelscht" classname="app.lifeos.core.model.MoneyTest" time="0.029"/>
+  <testcase name="waehrungscode wird validiert" classname="app.lifeos.core.model.MoneyTest" time="0.003"/>
+  <testcase name="vergleich und vorzeichen" classname="app.lifeos.core.model.MoneyTest" time="0.0"/>
+  <testcase name="verschiedene waehrungen werden nie still verrechnet" classname="app.lifeos.core.model.MoneyTest" time="0.013"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

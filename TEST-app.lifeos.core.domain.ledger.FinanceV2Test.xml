@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.domain.ledger.FinanceV2Test" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:05:14.085Z" hostname="runnervm8k3b6" time="0.344">
+  <properties/>
+  <testcase name="gesamtbudget gilt ab monat bis zur aenderung" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.047"/>
+  <testcase name="kategorievorschlaege nach haeufigkeit und aktualitaet" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.011"/>
+  <testcase name="umbuchung erhoeht nicht die gesamtausgaben" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.022"/>
+  <testcase name="buchung korrigieren aktualisiert alle auswertungen" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.032"/>
+  <testcase name="erstattung mindert ausgaben der kategorie" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.019"/>
+  <testcase name="wiederkehrende zahlung wird nie automatisch gebucht und nur einmal ausgefuehrt" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.04"/>
+  <testcase name="budgetueberschreitung wird nicht auf 100 prozent begrenzt" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.018"/>
+  <testcase name="kontostand abgleichen erzeugt korrektur ohne statistik" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.02"/>
+  <testcase name="prognose trennt kontostand budget und voraussichtlich verfuegbar" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.017"/>
+  <testcase name="verlauf ueber sechs monate" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.014"/>
+  <testcase name="loeschen und rueckgaengig stellt buchung links und planzuordnung wieder her" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.023"/>
+  <testcase name="erstattung braucht ausgabenkategorie" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.009"/>
+  <testcase name="konto und kategorie umbenennen und archivieren" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.007"/>
+  <testcase name="buchungen filtern und durchsuchen" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.011"/>
+  <testcase name="plan validierung" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.019"/>
+  <testcase name="budgetverlauf und soll linie" classname="app.lifeos.core.domain.ledger.FinanceV2Test" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

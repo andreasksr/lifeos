@@ -1,0 +1,578 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :core:designsystem:preBuild UP-TO-DATE
+> Task :core:designsystem:preDebugBuild UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:domain:processResources NO-SOURCE
+> Task :core:security:preBuild UP-TO-DATE
+> Task :core:security:preDebugBuild UP-TO-DATE
+> Task :core:designsystem:writeDebugAarMetadata
+> Task :core:security:writeDebugAarMetadata
+> Task :feature:home:preBuild UP-TO-DATE
+> Task :feature:ledger:preBuild UP-TO-DATE
+> Task :feature:ledger:preDebugBuild UP-TO-DATE
+> Task :feature:home:preDebugBuild UP-TO-DATE
+> Task :core:database:writeDebugAarMetadata
+> Task :feature:life:preBuild UP-TO-DATE
+> Task :feature:life:preDebugBuild UP-TO-DATE
+> Task :feature:home:writeDebugAarMetadata
+> Task :feature:planning:preBuild UP-TO-DATE
+> Task :feature:planning:preDebugBuild UP-TO-DATE
+> Task :feature:ledger:writeDebugAarMetadata
+> Task :feature:projects:preBuild UP-TO-DATE
+> Task :feature:projects:preDebugBuild UP-TO-DATE
+> Task :feature:life:writeDebugAarMetadata
+> Task :feature:planning:writeDebugAarMetadata
+> Task :feature:projects:writeDebugAarMetadata
+> Task :app:generateDebugResValues FROM-CACHE
+> Task :core:database:generateDebugResValues FROM-CACHE
+> Task :core:designsystem:generateDebugResValues FROM-CACHE
+> Task :core:database:generateDebugResources FROM-CACHE
+> Task :core:designsystem:generateDebugResources FROM-CACHE
+> Task :core:database:packageDebugResources FROM-CACHE
+> Task :core:security:generateDebugResValues FROM-CACHE
+> Task :core:model:compileKotlin FROM-CACHE
+> Task :core:model:compileJava NO-SOURCE
+> Task :core:security:generateDebugResources FROM-CACHE
+> Task :core:model:processResources NO-SOURCE
+> Task :core:model:classes UP-TO-DATE
+> Task :core:security:packageDebugResources FROM-CACHE
+> Task :feature:home:generateDebugResValues FROM-CACHE
+> Task :feature:home:generateDebugResources FROM-CACHE
+> Task :core:designsystem:packageDebugResources FROM-CACHE
+> Task :feature:ledger:generateDebugResValues FROM-CACHE
+> Task :feature:home:packageDebugResources FROM-CACHE
+> Task :feature:ledger:generateDebugResources FROM-CACHE
+> Task :feature:life:generateDebugResValues FROM-CACHE
+> Task :feature:life:generateDebugResources FROM-CACHE
+> Task :feature:ledger:packageDebugResources FROM-CACHE
+> Task :feature:planning:generateDebugResValues FROM-CACHE
+> Task :feature:life:packageDebugResources FROM-CACHE
+> Task :feature:projects:generateDebugResValues FROM-CACHE
+> Task :feature:planning:generateDebugResources FROM-CACHE
+> Task :feature:projects:generateDebugResources FROM-CACHE
+> Task :feature:planning:packageDebugResources FROM-CACHE
+> Task :feature:projects:packageDebugResources FROM-CACHE
+> Task :core:database:extractDeepLinksDebug FROM-CACHE
+> Task :core:designsystem:extractDeepLinksDebug FROM-CACHE
+> Task :core:model:jar
+> Task :core:database:processDebugManifest FROM-CACHE
+> Task :core:designsystem:processDebugManifest FROM-CACHE
+> Task :core:security:extractDeepLinksDebug FROM-CACHE
+> Task :feature:home:extractDeepLinksDebug FROM-CACHE
+> Task :core:security:processDebugManifest FROM-CACHE
+> Task :feature:home:processDebugManifest FROM-CACHE
+> Task :feature:ledger:extractDeepLinksDebug FROM-CACHE
+> Task :feature:life:extractDeepLinksDebug FROM-CACHE
+> Task :feature:ledger:processDebugManifest FROM-CACHE
+> Task :feature:life:processDebugManifest FROM-CACHE
+> Task :feature:planning:extractDeepLinksDebug FROM-CACHE
+> Task :feature:projects:extractDeepLinksDebug FROM-CACHE
+> Task :feature:planning:processDebugManifest FROM-CACHE
+> Task :core:database:compileDebugLibraryResources FROM-CACHE
+> Task :feature:projects:processDebugManifest FROM-CACHE
+> Task :core:designsystem:compileDebugLibraryResources FROM-CACHE
+> Task :core:database:parseDebugLocalResources FROM-CACHE
+> Task :core:designsystem:parseDebugLocalResources FROM-CACHE
+> Task :core:designsystem:generateDebugRFile FROM-CACHE
+> Task :core:database:generateDebugRFile FROM-CACHE
+> Task :core:security:compileDebugLibraryResources FROM-CACHE
+> Task :feature:home:compileDebugLibraryResources FROM-CACHE
+> Task :core:security:parseDebugLocalResources FROM-CACHE
+> Task :core:security:generateDebugRFile FROM-CACHE
+> Task :feature:home:parseDebugLocalResources FROM-CACHE
+> Task :feature:home:generateDebugRFile FROM-CACHE
+> Task :feature:ledger:compileDebugLibraryResources FROM-CACHE
+> Task :feature:ledger:parseDebugLocalResources FROM-CACHE
+> Task :feature:ledger:generateDebugRFile FROM-CACHE
+> Task :feature:life:compileDebugLibraryResources FROM-CACHE
+> Task :feature:life:parseDebugLocalResources FROM-CACHE
+> Task :app:checkDebugAarMetadata
+> Task :feature:life:generateDebugRFile FROM-CACHE
+> Task :feature:planning:compileDebugLibraryResources FROM-CACHE
+> Task :feature:projects:compileDebugLibraryResources FROM-CACHE
+> Task :feature:planning:parseDebugLocalResources FROM-CACHE
+> Task :feature:projects:parseDebugLocalResources FROM-CACHE
+> Task :feature:planning:generateDebugRFile FROM-CACHE
+> Task :core:database:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:projects:generateDebugRFile FROM-CACHE
+> Task :core:designsystem:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:domain:compileKotlin FROM-CACHE
+> Task :app:mapDebugSourceSetPaths
+> Task :core:domain:compileJava NO-SOURCE
+> Task :core:domain:classes UP-TO-DATE
+> Task :app:generateDebugResources FROM-CACHE
+> Task :core:database:javaPreCompileDebug FROM-CACHE
+> Task :core:database:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:database:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :core:database:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :core:database:preReleaseBuild UP-TO-DATE
+> Task :core:database:generateReleaseResValues FROM-CACHE
+> Task :core:database:generateReleaseResources FROM-CACHE
+> Task :core:database:packageReleaseResources FROM-CACHE
+> Task :core:database:parseReleaseLocalResources FROM-CACHE
+> Task :core:database:generateReleaseRFile FROM-CACHE
+> Task :core:database:javaPreCompileRelease FROM-CACHE
+> Task :core:database:preReleaseUnitTestBuild UP-TO-DATE
+> Task :core:database:generateReleaseUnitTestStubRFile FROM-CACHE
+> Task :core:database:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :core:security:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:mergeDebugResources FROM-CACHE
+> Task :app:packageDebugResources FROM-CACHE
+> Task :app:parseDebugLocalResources FROM-CACHE
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug FROM-CACHE
+> Task :core:domain:jar
+> Task :core:security:compileDebugKotlin FROM-CACHE
+> Task :core:security:javaPreCompileDebug FROM-CACHE
+> Task :core:security:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:database:kspDebugKotlin FROM-CACHE
+> Task :core:designsystem:compileDebugKotlin FROM-CACHE
+> Task :core:designsystem:javaPreCompileDebug FROM-CACHE
+> Task :core:designsystem:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:processDebugMainManifest FROM-CACHE
+> Task :app:processDebugManifest FROM-CACHE
+> Task :app:processDebugManifestForPackage FROM-CACHE
+> Task :core:security:bundleLibCompileToJarDebug
+> Task :core:designsystem:bundleLibCompileToJarDebug
+> Task :feature:home:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:ledger:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:compileDebugKotlin FROM-CACHE
+> Task :core:database:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:database:bundleLibCompileToJarDebug
+> Task :core:database:kspDebugUnitTestKotlin NO-SOURCE
+> Task :core:database:compileDebugUnitTestKotlin NO-SOURCE
+> Task :core:database:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:database:kspReleaseKotlin FROM-CACHE
+> Task :feature:home:compileDebugKotlin FROM-CACHE
+> Task :feature:home:javaPreCompileDebug FROM-CACHE
+> Task :app:processDebugResources FROM-CACHE
+> Task :feature:life:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:home:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:home:bundleLibCompileToJarDebug
+> Task :feature:planning:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:ledger:compileDebugKotlin FROM-CACHE
+> Task :feature:ledger:javaPreCompileDebug FROM-CACHE
+> Task :feature:ledger:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:database:compileReleaseKotlin FROM-CACHE
+> Task :core:database:compileReleaseJavaWithJavac NO-SOURCE
+> Task :core:database:bundleLibCompileToJarRelease
+> Task :feature:ledger:bundleLibCompileToJarDebug
+> Task :core:database:kspReleaseUnitTestKotlin NO-SOURCE
+> Task :feature:projects:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:compileReleaseUnitTestKotlin NO-SOURCE
+> Task :core:database:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :core:database:copyRoomSchemas NO-SOURCE
+> Task :app:javaPreCompileDebug FROM-CACHE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :feature:planning:compileDebugKotlin FROM-CACHE
+> Task :feature:planning:javaPreCompileDebug FROM-CACHE
+> Task :feature:planning:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:planning:bundleLibCompileToJarDebug
+> Task :core:database:bundleLibRuntimeToJarDebug
+> Task :core:designsystem:bundleLibRuntimeToJarDebug
+> Task :core:database:processDebugJavaRes
+> Task :core:security:bundleLibRuntimeToJarDebug
+> Task :core:designsystem:processDebugJavaRes
+> Task :core:security:processDebugJavaRes
+> Task :feature:home:bundleLibRuntimeToJarDebug
+> Task :feature:home:processDebugJavaRes
+> Task :feature:ledger:processDebugJavaRes
+> Task :feature:projects:compileDebugKotlin FROM-CACHE
+> Task :feature:ledger:bundleLibRuntimeToJarDebug
+> Task :feature:projects:javaPreCompileDebug FROM-CACHE
+> Task :feature:projects:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:planning:bundleLibRuntimeToJarDebug
+> Task :feature:planning:processDebugJavaRes
+> Task :feature:projects:bundleLibCompileToJarDebug
+> Task :core:database:writeReleaseAarMetadata
+> Task :app:buildKotlinToolingMetadata
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :feature:projects:bundleLibRuntimeToJarDebug
+> Task :core:designsystem:preReleaseBuild UP-TO-DATE
+> Task :feature:projects:processDebugJavaRes
+> Task :core:security:preReleaseBuild UP-TO-DATE
+> Task :feature:home:preReleaseBuild UP-TO-DATE
+> Task :core:designsystem:writeReleaseAarMetadata
+> Task :feature:ledger:preReleaseBuild UP-TO-DATE
+> Task :feature:home:writeReleaseAarMetadata
+> Task :core:security:writeReleaseAarMetadata
+> Task :feature:planning:preReleaseBuild UP-TO-DATE
+> Task :feature:projects:preReleaseBuild UP-TO-DATE
+> Task :feature:ledger:writeReleaseAarMetadata
+> Task :feature:projects:writeReleaseAarMetadata
+> Task :feature:planning:writeReleaseAarMetadata
+> Task :core:designsystem:generateReleaseResValues FROM-CACHE
+> Task :app:generateReleaseResValues FROM-CACHE
+> Task :core:security:generateReleaseResValues FROM-CACHE
+> Task :feature:home:generateReleaseResValues FROM-CACHE
+> Task :core:designsystem:generateReleaseResources FROM-CACHE
+> Task :core:security:generateReleaseResources FROM-CACHE
+> Task :feature:home:generateReleaseResources FROM-CACHE
+> Task :feature:home:packageReleaseResources FROM-CACHE
+> Task :core:security:packageReleaseResources FROM-CACHE
+> Task :feature:planning:generateReleaseResValues FROM-CACHE
+> Task :feature:ledger:generateReleaseResValues FROM-CACHE
+> Task :feature:ledger:generateReleaseResources FROM-CACHE
+> Task :feature:planning:generateReleaseResources FROM-CACHE
+> Task :feature:ledger:packageReleaseResources FROM-CACHE
+> Task :feature:planning:packageReleaseResources FROM-CACHE
+> Task :core:designsystem:packageReleaseResources FROM-CACHE
+> Task :feature:projects:generateReleaseResValues FROM-CACHE
+> Task :feature:life:javaPreCompileDebug FROM-CACHE
+> Task :feature:life:preReleaseBuild UP-TO-DATE
+> Task :app:generateReleaseResources FROM-CACHE
+> Task :feature:projects:generateReleaseResources FROM-CACHE
+> Task :feature:life:writeReleaseAarMetadata
+> Task :feature:life:generateReleaseResValues FROM-CACHE
+> Task :feature:life:generateReleaseResources FROM-CACHE
+> Task :feature:projects:packageReleaseResources FROM-CACHE
+> Task :app:packageReleaseResources FROM-CACHE
+> Task :core:database:extractDeepLinksRelease FROM-CACHE
+> Task :feature:life:packageReleaseResources FROM-CACHE
+> Task :core:database:processReleaseManifest FROM-CACHE
+> Task :core:security:extractDeepLinksRelease FROM-CACHE
+> Task :core:designsystem:extractDeepLinksRelease FROM-CACHE
+> Task :core:security:processReleaseManifest FROM-CACHE
+> Task :core:designsystem:processReleaseManifest FROM-CACHE
+> Task :feature:home:extractDeepLinksRelease FROM-CACHE
+> Task :feature:ledger:extractDeepLinksRelease FROM-CACHE
+> Task :feature:home:processReleaseManifest FROM-CACHE
+> Task :feature:life:extractDeepLinksRelease FROM-CACHE
+> Task :feature:ledger:processReleaseManifest FROM-CACHE
+> Task :feature:life:processReleaseManifest FROM-CACHE
+> Task :feature:planning:extractDeepLinksRelease FROM-CACHE
+> Task :feature:projects:extractDeepLinksRelease FROM-CACHE
+> Task :feature:planning:processReleaseManifest FROM-CACHE
+> Task :core:database:compileReleaseLibraryResources FROM-CACHE
+> Task :app:checkReleaseAarMetadata
+> Task :feature:projects:processReleaseManifest FROM-CACHE
+> Task :core:security:compileReleaseLibraryResources FROM-CACHE
+> Task :app:mapReleaseSourceSetPaths
+> Task :core:security:parseReleaseLocalResources FROM-CACHE
+> Task :core:security:generateReleaseRFile FROM-CACHE
+> Task :feature:home:compileReleaseLibraryResources FROM-CACHE
+> Task :feature:home:parseReleaseLocalResources FROM-CACHE
+> Task :feature:home:generateReleaseRFile FROM-CACHE
+> Task :feature:ledger:compileReleaseLibraryResources FROM-CACHE
+> Task :feature:ledger:parseReleaseLocalResources FROM-CACHE
+> Task :feature:ledger:generateReleaseRFile FROM-CACHE
+> Task :feature:life:compileReleaseLibraryResources FROM-CACHE
+> Task :feature:life:parseReleaseLocalResources FROM-CACHE
+> Task :core:designsystem:compileReleaseLibraryResources FROM-CACHE
+> Task :core:designsystem:parseReleaseLocalResources FROM-CACHE
+> Task :feature:life:generateReleaseRFile FROM-CACHE
+> Task :feature:planning:compileReleaseLibraryResources FROM-CACHE
+> Task :core:designsystem:generateReleaseRFile FROM-CACHE
+> Task :feature:projects:compileReleaseLibraryResources FROM-CACHE
+> Task :feature:planning:parseReleaseLocalResources FROM-CACHE
+> Task :feature:projects:parseReleaseLocalResources FROM-CACHE
+> Task :feature:planning:generateReleaseRFile FROM-CACHE
+> Task :feature:projects:generateReleaseRFile FROM-CACHE
+> Task :app:mergeReleaseResources FROM-CACHE
+> Task :core:designsystem:compileReleaseKotlin FROM-CACHE
+> Task :app:parseReleaseLocalResources FROM-CACHE
+> Task :core:designsystem:javaPreCompileRelease FROM-CACHE
+> Task :core:designsystem:compileReleaseJavaWithJavac NO-SOURCE
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease FROM-CACHE
+> Task :core:security:compileReleaseKotlin FROM-CACHE
+> Task :app:processReleaseMainManifest FROM-CACHE
+> Task :core:security:javaPreCompileRelease FROM-CACHE
+> Task :app:processReleaseManifest FROM-CACHE
+> Task :core:designsystem:bundleLibCompileToJarRelease
+> Task :core:security:compileReleaseJavaWithJavac NO-SOURCE
+> Task :app:processReleaseManifestForPackage FROM-CACHE
+> Task :core:security:bundleLibCompileToJarRelease
+> Task :feature:home:compileReleaseKotlin FROM-CACHE
+> Task :feature:home:javaPreCompileRelease FROM-CACHE
+> Task :app:processReleaseResources FROM-CACHE
+> Task :feature:home:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:home:bundleLibCompileToJarRelease
+> Task :feature:ledger:compileReleaseKotlin FROM-CACHE
+> Task :feature:ledger:javaPreCompileRelease FROM-CACHE
+> Task :feature:ledger:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:ledger:bundleLibCompileToJarRelease
+> Task :feature:planning:compileReleaseKotlin FROM-CACHE
+> Task :feature:planning:javaPreCompileRelease FROM-CACHE
+> Task :feature:planning:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:planning:bundleLibCompileToJarRelease
+> Task :app:javaPreCompileRelease FROM-CACHE
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :feature:projects:compileReleaseKotlin FROM-CACHE
+> Task :feature:projects:javaPreCompileRelease FROM-CACHE
+> Task :feature:projects:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:projects:bundleLibCompileToJarRelease
+> Task :core:database:bundleLibRuntimeToJarRelease
+> Task :core:database:processReleaseJavaRes
+> Task :core:designsystem:bundleLibRuntimeToJarRelease
+> Task :core:security:bundleLibRuntimeToJarRelease
+> Task :core:designsystem:processReleaseJavaRes
+> Task :core:security:processReleaseJavaRes
+> Task :feature:home:bundleLibRuntimeToJarRelease
+> Task :feature:home:processReleaseJavaRes
+> Task :feature:ledger:processReleaseJavaRes
+> Task :feature:ledger:bundleLibRuntimeToJarRelease
+> Task :feature:planning:bundleLibRuntimeToJarRelease
+> Task :feature:planning:processReleaseJavaRes
+> Task :core:database:processDebugUnitTestJavaRes NO-SOURCE
+> Task :feature:projects:bundleLibRuntimeToJarRelease
+> Task :feature:projects:processReleaseJavaRes
+> Task :core:designsystem:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:database:testDebugUnitTest NO-SOURCE
+> Task :core:database:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :core:database:testReleaseUnitTest NO-SOURCE
+> Task :core:database:test UP-TO-DATE
+> Task :core:designsystem:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :core:designsystem:compileDebugUnitTestKotlin NO-SOURCE
+> Task :core:designsystem:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :core:designsystem:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:designsystem:processDebugUnitTestJavaRes NO-SOURCE
+> Task :core:designsystem:testDebugUnitTest NO-SOURCE
+> Task :core:designsystem:preReleaseUnitTestBuild UP-TO-DATE
+> Task :core:designsystem:generateReleaseUnitTestStubRFile FROM-CACHE
+> Task :core:domain:compileTestKotlin FROM-CACHE
+> Task :core:designsystem:compileReleaseUnitTestKotlin NO-SOURCE
+> Task :feature:life:javaPreCompileRelease FROM-CACHE
+> Task :core:domain:compileTestJava NO-SOURCE
+> Task :core:domain:processTestResources NO-SOURCE
+> Task :core:domain:testClasses UP-TO-DATE
+> Task :core:designsystem:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :core:designsystem:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :core:designsystem:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :core:designsystem:testReleaseUnitTest NO-SOURCE
+> Task :core:designsystem:test UP-TO-DATE
+> Task :core:domain:test FROM-CACHE
+> Task :core:security:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:model:compileTestKotlin FROM-CACHE
+> Task :core:model:compileTestJava NO-SOURCE
+> Task :core:model:processTestResources NO-SOURCE
+> Task :core:model:testClasses UP-TO-DATE
+> Task :core:security:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :core:model:test FROM-CACHE
+> Task :feature:home:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:security:compileDebugUnitTestKotlin FROM-CACHE
+> Task :core:security:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :feature:home:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :core:security:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:home:compileDebugUnitTestKotlin NO-SOURCE
+> Task :feature:home:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :feature:home:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:home:processDebugUnitTestJavaRes NO-SOURCE
+> Task :feature:home:testDebugUnitTest NO-SOURCE
+> Task :feature:home:preReleaseUnitTestBuild UP-TO-DATE
+> Task :core:security:processDebugUnitTestJavaRes
+> Task :core:security:testDebugUnitTest FROM-CACHE
+> Task :core:security:preReleaseUnitTestBuild UP-TO-DATE
+> Task :core:security:generateReleaseUnitTestStubRFile FROM-CACHE
+> Task :feature:home:generateReleaseUnitTestStubRFile FROM-CACHE
+> Task :feature:home:compileReleaseUnitTestKotlin NO-SOURCE
+> Task :feature:home:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :feature:home:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:home:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :feature:home:testReleaseUnitTest NO-SOURCE
+> Task :feature:home:test UP-TO-DATE
+> Task :feature:ledger:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:security:compileReleaseUnitTestKotlin FROM-CACHE
+> Task :core:security:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :core:security:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :core:security:processReleaseUnitTestJavaRes
+> Task :feature:ledger:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :core:security:testReleaseUnitTest FROM-CACHE
+> Task :core:security:test UP-TO-DATE
+> Task :feature:life:preDebugUnitTestBuild UP-TO-DATE
+> Task :feature:life:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :feature:life:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :feature:life:preReleaseUnitTestBuild UP-TO-DATE
+> Task :feature:life:generateReleaseUnitTestStubRFile FROM-CACHE
+> Task :feature:life:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :feature:planning:preDebugUnitTestBuild UP-TO-DATE
+> Task :feature:planning:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :feature:ledger:compileDebugUnitTestKotlin FROM-CACHE
+> Task :feature:ledger:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :feature:ledger:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:ledger:processDebugUnitTestJavaRes
+> Task :feature:planning:compileDebugUnitTestKotlin FROM-CACHE
+> Task :feature:planning:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :feature:planning:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:planning:processDebugUnitTestJavaRes
+> Task :feature:ledger:testDebugUnitTest FROM-CACHE
+> Task :feature:ledger:preReleaseUnitTestBuild UP-TO-DATE
+> Task :feature:planning:testDebugUnitTest FROM-CACHE
+> Task :feature:planning:preReleaseUnitTestBuild UP-TO-DATE
+> Task :feature:ledger:generateReleaseUnitTestStubRFile FROM-CACHE
+> Task :feature:planning:generateReleaseUnitTestStubRFile FROM-CACHE
+> Task :feature:ledger:compileReleaseUnitTestKotlin FROM-CACHE
+> Task :feature:ledger:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :feature:planning:compileReleaseUnitTestKotlin FROM-CACHE
+> Task :feature:ledger:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:planning:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :feature:planning:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:ledger:processReleaseUnitTestJavaRes
+> Task :feature:planning:processReleaseUnitTestJavaRes
+> Task :feature:ledger:testReleaseUnitTest FROM-CACHE
+> Task :feature:ledger:test UP-TO-DATE
+> Task :feature:projects:preDebugUnitTestBuild UP-TO-DATE
+> Task :feature:planning:testReleaseUnitTest FROM-CACHE
+> Task :feature:planning:test UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :feature:projects:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :feature:projects:compileDebugUnitTestKotlin NO-SOURCE
+> Task :feature:projects:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :feature:projects:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:projects:processDebugUnitTestJavaRes NO-SOURCE
+> Task :feature:projects:testDebugUnitTest NO-SOURCE
+> Task :feature:projects:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :feature:projects:generateReleaseUnitTestStubRFile FROM-CACHE
+> Task :feature:projects:compileReleaseUnitTestKotlin NO-SOURCE
+> Task :core:database:mergeDebugShaders
+> Task :core:database:compileDebugShaders NO-SOURCE
+> Task :core:database:generateDebugAssets UP-TO-DATE
+> Task :feature:projects:javaPreCompileReleaseUnitTest FROM-CACHE
+> Task :feature:projects:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:projects:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :feature:projects:testReleaseUnitTest NO-SOURCE
+> Task :feature:projects:test UP-TO-DATE
+> Task :core:database:mergeDebugAssets
+> Task :core:designsystem:mergeDebugShaders
+> Task :core:security:mergeDebugShaders
+> Task :core:designsystem:compileDebugShaders NO-SOURCE
+> Task :core:designsystem:generateDebugAssets UP-TO-DATE
+> Task :core:security:compileDebugShaders NO-SOURCE
+> Task :core:security:generateDebugAssets UP-TO-DATE
+> Task :core:designsystem:mergeDebugAssets
+> Task :core:security:mergeDebugAssets
+> Task :feature:home:mergeDebugShaders
+> Task :feature:home:compileDebugShaders NO-SOURCE
+> Task :feature:home:generateDebugAssets UP-TO-DATE
+> Task :feature:ledger:mergeDebugShaders
+> Task :feature:ledger:compileDebugShaders NO-SOURCE
+> Task :feature:ledger:generateDebugAssets UP-TO-DATE
+> Task :feature:home:mergeDebugAssets
+> Task :feature:ledger:mergeDebugAssets
+> Task :feature:life:mergeDebugShaders
+> Task :feature:planning:mergeDebugShaders
+> Task :feature:life:compileDebugShaders NO-SOURCE
+> Task :feature:life:generateDebugAssets UP-TO-DATE
+> Task :feature:planning:compileDebugShaders NO-SOURCE
+> Task :feature:planning:generateDebugAssets UP-TO-DATE
+> Task :feature:planning:mergeDebugAssets
+> Task :feature:life:mergeDebugAssets
+> Task :feature:projects:mergeDebugShaders
+> Task :feature:projects:compileDebugShaders NO-SOURCE
+> Task :feature:projects:generateDebugAssets UP-TO-DATE
+> Task :feature:projects:mergeDebugAssets
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets FROM-CACHE
+> Task :app:desugarDebugFileDependencies FROM-CACHE
+> Task :app:checkDebugDuplicateClasses
+> Task :core:database:bundleLibRuntimeToDirDebug
+> Task :feature:ledger:bundleLibRuntimeToDirDebug
+> Task :feature:home:bundleLibRuntimeToDirDebug
+> Task :feature:planning:bundleLibRuntimeToDirDebug
+> Task :app:mergeExtDexDebug FROM-CACHE
+> Task :core:designsystem:bundleLibRuntimeToDirDebug
+> Task :feature:projects:bundleLibRuntimeToDirDebug
+> Task :core:security:bundleLibRuntimeToDirDebug
+> Task :core:database:mergeDebugJniLibFolders
+> Task :app:mergeDebugJniLibFolders
+> Task :core:database:mergeDebugNativeLibs NO-SOURCE
+> Task :core:designsystem:mergeDebugJniLibFolders
+> Task :core:designsystem:mergeDebugNativeLibs NO-SOURCE
+> Task :core:designsystem:copyDebugJniLibsProjectOnly
+> Task :core:database:copyDebugJniLibsProjectOnly
+> Task :feature:home:mergeDebugJniLibFolders
+> Task :core:security:mergeDebugJniLibFolders
+> Task :core:security:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:home:mergeDebugNativeLibs NO-SOURCE
+> Task :core:security:copyDebugJniLibsProjectOnly
+> Task :feature:home:copyDebugJniLibsProjectOnly
+> Task :feature:ledger:mergeDebugJniLibFolders
+> Task :feature:life:mergeDebugJniLibFolders
+> Task :feature:ledger:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:life:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:ledger:copyDebugJniLibsProjectOnly
+> Task :feature:life:copyDebugJniLibsProjectOnly
+> Task :feature:planning:mergeDebugJniLibFolders
+> Task :feature:projects:mergeDebugJniLibFolders
+> Task :feature:planning:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:projects:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:planning:copyDebugJniLibsProjectOnly
+> Task :app:validateSigningDebug
+> Task :feature:projects:copyDebugJniLibsProjectOnly
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:mergeDebugNativeLibs
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libsqlcipher.so. Run with --info option to learn more.
+
+> Task :feature:life:compileDebugKotlin
+> Task :feature:life:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:life:compileReleaseKotlin
+> Task :feature:life:bundleLibCompileToJarDebug
+> Task :feature:life:processDebugJavaRes
+> Task :feature:life:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:life:bundleLibRuntimeToJarDebug
+> Task :feature:life:processReleaseJavaRes
+> Task :feature:life:bundleLibCompileToJarRelease
+> Task :feature:life:bundleLibRuntimeToJarRelease
+> Task :feature:life:compileDebugUnitTestKotlin FROM-CACHE
+> Task :feature:life:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:life:processDebugUnitTestJavaRes
+> Task :app:compileDebugKotlin FROM-CACHE
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:processDebugJavaRes
+> Task :app:compileDebugUnitTestKotlin NO-SOURCE
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes NO-SOURCE
+> Task :app:testDebugUnitTest NO-SOURCE
+> Task :app:compileReleaseKotlin FROM-CACHE
+> Task :app:compileReleaseJavaWithJavac NO-SOURCE
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:bundleReleaseClassesToRuntimeJar
+> Task :app:compileReleaseUnitTestKotlin NO-SOURCE
+> Task :app:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processReleaseJavaRes
+> Task :app:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :app:testReleaseUnitTest NO-SOURCE
+> Task :app:test UP-TO-DATE
+> Task :app:dexBuilderDebug FROM-CACHE
+> Task :app:mergeProjectDexDebug FROM-CACHE
+> Task :app:mergeDebugJavaResource
+> Task :feature:life:testDebugUnitTest
+> Task :feature:life:compileReleaseUnitTestKotlin FROM-CACHE
+> Task :feature:life:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:life:processReleaseUnitTestJavaRes
+> Task :feature:life:testReleaseUnitTest
+> Task :feature:life:test
+> Task :feature:life:bundleLibRuntimeToDirDebug
+> Task :app:mergeDebugGlobalSynthetics FROM-CACHE
+> Task :app:mergeLibDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1792680377616.json
+
+[Incubating] Problems report is available at: file:///home/runner/work/lifeos/lifeos/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 11s
+388 actionable tasks: 144 executed, 244 from cache

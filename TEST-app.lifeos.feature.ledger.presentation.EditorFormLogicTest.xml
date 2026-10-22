@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:22:46.366Z" hostname="runnervm8k3b6" time="0.163">
+  <properties/>
+  <testcase name="startformular waehlt erstes aktives konto und heute" classname="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" time="0.04"/>
+  <testcase name="artwechsel setzt unpassende kategorie und zielkonto zurueck" classname="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" time="0.013"/>
+  <testcase name="gueltige ausgabe wird zu genau einem split" classname="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" time="0.026"/>
+  <testcase name="betrag null oder unklar wird abgelehnt" classname="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" time="0.001"/>
+  <testcase name="fehlende pflichtfelder werden alle gleichzeitig gemeldet" classname="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" time="0.027"/>
+  <testcase name="jeder domaenenfehler hat eine deutsche meldung" classname="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" time="0.022"/>
+  <testcase name="umbuchung braucht verschiedenes zielkonto und keine kategorie" classname="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" time="0.003"/>
+  <testcase name="aufgeteilte buchung behaelt ihre aufteilung beim bearbeiten" classname="app.lifeos.feature.ledger.presentation.EditorFormLogicTest" time="0.022"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

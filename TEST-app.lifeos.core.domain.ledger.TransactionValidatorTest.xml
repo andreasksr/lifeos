@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.domain.ledger.TransactionValidatorTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:05:14.674Z" hostname="runnervm8k3b6" time="0.028">
+  <properties/>
+  <testcase name="betrag muss positiv sein" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.001"/>
+  <testcase name="kategorie muss zur richtung passen" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.012"/>
+  <testcase name="ausgabe braucht mindestens eine aufteilung" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.001"/>
+  <testcase name="umbuchung regeln" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.0"/>
+  <testcase name="unbekannte und archivierte konten" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.001"/>
+  <testcase name="gueltige ausgabe mit einer und mehreren kategorien" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.0"/>
+  <testcase name="summe der aufteilungen muss exakt dem betrag entsprechen" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.0"/>
+  <testcase name="gegenkonto nur bei umbuchung" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.007"/>
+  <testcase name="buchungswaehrung muss kontowaehrung sein" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.005"/>
+  <testcase name="obergrenze und ueberlauf in splits" classname="app.lifeos.core.domain.ledger.TransactionValidatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

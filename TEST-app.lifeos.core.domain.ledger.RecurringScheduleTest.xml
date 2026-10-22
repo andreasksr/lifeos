@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.domain.ledger.RecurringScheduleTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:05:14.554Z" hostname="runnervm8k3b6" time="0.017">
+  <properties/>
+  <testcase name="pending enthaelt ueberfaellige und kommende im horizont" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.003"/>
+  <testcase name="enddatum und zeitraum vor anker" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.001"/>
+  <testcase name="vierteljaehrlich und jaehrlich" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.003"/>
+  <testcase name="plan erlaubt nur einnahmen oder ausgaben" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.002"/>
+  <testcase name="monatlich am monatsende klemmt ohne zu wandern" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.0"/>
+  <testcase name="weit entfernter zeitraum startet nah statt ab anker zu iterieren" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.004"/>
+  <testcase name="schaltjahr 29 februar jaehrlich" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.0"/>
+  <testcase name="naechste faelligkeit und monatsaequivalent" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.003"/>
+  <testcase name="inaktiver plan erzeugt keine offenen faelligkeiten" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.001"/>
+  <testcase name="zustaende offen ueberfaellig gebucht uebersprungen" classname="app.lifeos.core.domain.ledger.RecurringScheduleTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

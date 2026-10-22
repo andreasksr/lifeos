@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.model.MoneyTextTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-21T11:19:41.713Z" hostname="runnervm8k3b6" time="0.028">
+  <properties/>
+  <testcase name="formatierung" classname="app.lifeos.core.model.MoneyTextTest" time="0.011"/>
+  <testcase name="deutsche eingaben" classname="app.lifeos.core.model.MoneyTextTest" time="0.003"/>
+  <testcase name="round trip fuer editierfelder" classname="app.lifeos.core.model.MoneyTextTest" time="0.006"/>
+  <testcase name="vorzeichen" classname="app.lifeos.core.model.MoneyTextTest" time="0.0"/>
+  <testcase name="punkt als dezimaltrenner nur wenn eindeutig" classname="app.lifeos.core.model.MoneyTextTest" time="0.001"/>
+  <testcase name="fehlerhafte eingaben werden nie geraten" classname="app.lifeos.core.model.MoneyTextTest" time="0.003"/>
+  <testcase name="waehrungen ohne nachkommastellen" classname="app.lifeos.core.model.MoneyTextTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

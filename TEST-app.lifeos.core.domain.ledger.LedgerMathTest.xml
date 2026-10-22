@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.domain.ledger.LedgerMathTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:05:14.443Z" hostname="runnervm8k3b6" time="0.022">
+  <properties/>
+  <testcase name="salden aus anfangsbestand und allen buchungen" classname="app.lifeos.core.domain.ledger.LedgerMathTest" time="0.006"/>
+  <testcase name="gueltiges budget ist das juengste bis zum monat" classname="app.lifeos.core.domain.ledger.LedgerMathTest" time="0.001"/>
+  <testcase name="wirkung einer umbuchung auf beide konten" classname="app.lifeos.core.domain.ledger.LedgerMathTest" time="0.001"/>
+  <testcase name="monatsuebersicht ignoriert umbuchungen und andere monate" classname="app.lifeos.core.domain.ledger.LedgerMathTest" time="0.0"/>
+  <testcase name="promille ist ganzzahlig und robust" classname="app.lifeos.core.domain.ledger.LedgerMathTest" time="0.002"/>
+  <testcase name="kategoriesummen ueber splits" classname="app.lifeos.core.domain.ledger.LedgerMathTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

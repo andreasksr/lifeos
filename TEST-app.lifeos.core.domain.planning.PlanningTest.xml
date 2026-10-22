@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.domain.planning.PlanningTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:05:14.864Z" hostname="runnervm8k3b6" time="0.067">
+  <properties/>
+  <testcase name="wiederkehrender termin erinnert an naechstes vorkommen" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.009"/>
+  <testcase name="aufmerksamkeit aus planung" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.004"/>
+  <testcase name="agenda trennt aufgaben und termine und zeigt ueberfaelliges heute" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.011"/>
+  <testcase name="wiederkehrende aufgabe rueckt vor und erinnert erneut" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.017"/>
+  <testcase name="aufgabe validierung" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.009"/>
+  <testcase name="einmalige aufgabe erledigen deaktiviert erinnerungen" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.001"/>
+  <testcase name="nach ausloesen wird das naechste vorkommen eines wiederkehrenden termins geplant" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.0"/>
+  <testcase name="wiederholte termine im zeitraum" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.0"/>
+  <testcase name="termin validierung und ganztags normalisierung" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.009"/>
+  <testcase name="erinnerungsplanung regeln" classname="app.lifeos.core.domain.planning.PlanningTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.domain.SparePartScenarioTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:05:13.750Z" hostname="runnervm8k3b6" time="0.167">
+  <properties/>
+  <testcase name="ein ersatzteilkauf - drei sichten - eine buchung" classname="app.lifeos.core.domain.SparePartScenarioTest" time="0.167"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

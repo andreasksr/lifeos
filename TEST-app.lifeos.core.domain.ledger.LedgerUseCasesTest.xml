@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.domain.ledger.LedgerUseCasesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-21T17:05:14.467Z" hostname="runnervm8k3b6" time="0.081">
+  <properties/>
+  <testcase name="standardwerte werden genau einmal angelegt" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.007"/>
+  <testcase name="budget setzen und fuer denselben monat ersetzen" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.008"/>
+  <testcase name="ungueltige buchung wird nicht gespeichert" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.006"/>
+  <testcase name="buchung anlegen bereinigt texte und speichert genau eine buchung" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.008"/>
+  <testcase name="bearbeiten einer unbekannten buchung schlaegt fehl" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.004"/>
+  <testcase name="konto und kategorie anlegen" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.005"/>
+  <testcase name="monatsansicht reagiert auf neue buchungen" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.024"/>
+  <testcase name="buchung bearbeiten ersetzt statt zu duplizieren" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.01"/>
+  <testcase name="loeschen" classname="app.lifeos.core.domain.ledger.LedgerUseCasesTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

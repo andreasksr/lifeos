@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.lifeos.core.security.vault.VaultCryptoTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-21T16:46:51.117Z" hostname="runnervm8k3b6" time="1.973">
+  <properties/>
+  <testcase name="falsches passwort wird erkannt" classname="app.lifeos.core.security.vault.VaultCryptoTest" time="0.249"/>
+  <testcase name="sicherung rundreise fuer leere, kleine und segmentgrenzen-groessen" classname="app.lifeos.core.security.vault.VaultCryptoTest" time="1.089"/>
+  <testcase name="tresor speichert inhaltsadressiert, verschluesselt und ohne duplikat" classname="app.lifeos.core.security.vault.VaultCryptoTest" time="0.189"/>
+  <testcase name="abgeschnittene, veraenderte oder verlaengerte sicherung wird abgewiesen" classname="app.lifeos.core.security.vault.VaultCryptoTest" time="0.443"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

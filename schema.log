@@ -1,0 +1,37 @@
+test_room_v2_schema_is_prefix_of_reference (__main__.MigrationTest.test_room_v2_schema_is_prefix_of_reference)
+2.json (von Room erzeugt) stimmt für alle v2-Tabellen exakt mit SchemaSql überein. ... ok
+test_room_v3_schema_is_prefix_of_reference (__main__.MigrationTest.test_room_v3_schema_is_prefix_of_reference) ... ok
+test_room_v4_schema_matches_reference_if_present (__main__.MigrationTest.test_room_v4_schema_matches_reference_if_present) ... ok
+test_v1_to_v2_keeps_data_and_matches_reference (__main__.MigrationTest.test_v1_to_v2_keeps_data_and_matches_reference) ... ok
+test_v2_to_v3_keeps_data_and_enforces_planning_rules (__main__.MigrationTest.test_v2_to_v3_keeps_data_and_enforces_planning_rules) ... ok
+test_v3_to_v4_keeps_data_and_enforces_life_rules (__main__.MigrationTest.test_v3_to_v4_keeps_data_and_enforces_life_rules) ... ok
+test_account_and_category_in_use_cannot_be_deleted (__main__.SchemaTest.test_account_and_category_in_use_cannot_be_deleted) ... ok
+test_account_currency_locked_after_first_booking (__main__.SchemaTest.test_account_currency_locked_after_first_booking) ... ok
+test_amount_must_be_positive (__main__.SchemaTest.test_amount_must_be_positive) ... ok
+test_booking_date_must_be_real_iso_date (__main__.SchemaTest.test_booking_date_must_be_real_iso_date) ... ok
+test_budget_rules (__main__.SchemaTest.test_budget_rules) ... ok
+test_category_direction_locked_when_used (__main__.SchemaTest.test_category_direction_locked_when_used) ... ok
+test_corrections_have_no_splits_and_no_counter_account (__main__.SchemaTest.test_corrections_have_no_splits_and_no_counter_account) ... ok
+test_currency_must_match_account (__main__.SchemaTest.test_currency_must_match_account) ... ok
+test_deleting_booked_transaction_reopens_occurrence_and_plan_delete_keeps_transactions (__main__.SchemaTest.test_deleting_booked_transaction_reopens_occurrence_and_plan_delete_keeps_transactions) ... ok
+test_deleting_transaction_node_cascades_to_splits_and_links (__main__.SchemaTest.test_deleting_transaction_node_cascades_to_splits_and_links) ... ok
+test_insert_or_replace_on_node_would_destroy_data (__main__.SchemaTest.test_insert_or_replace_on_node_would_destroy_data)
+Begründet die Regel in CLAUDE.md: Nodes niemals mit REPLACE schreiben. ... ok
+test_integrity_queries_find_violations (__main__.SchemaTest.test_integrity_queries_find_violations) ... ok
+test_links (__main__.SchemaTest.test_links) ... ok
+test_node_type_must_match_table (__main__.SchemaTest.test_node_type_must_match_table) ... ok
+test_occurrence_can_only_be_booked_once (__main__.SchemaTest.test_occurrence_can_only_be_booked_once) ... ok
+test_recurring_rules (__main__.SchemaTest.test_recurring_rules) ... ok
+test_refund_uses_expense_categories (__main__.SchemaTest.test_refund_uses_expense_categories) ... ok
+test_refund_without_splits_is_found_by_integrity_check (__main__.SchemaTest.test_refund_without_splits_is_found_by_integrity_check) ... ok
+test_split_rules (__main__.SchemaTest.test_split_rules) ... ok
+test_total_budget (__main__.SchemaTest.test_total_budget) ... ok
+test_transfer_shape (__main__.SchemaTest.test_transfer_shape) ... ok
+test_triggers_are_idempotent (__main__.SchemaTest.test_triggers_are_idempotent) ... ok
+test_unknown_references_fail_on_foreign_keys (__main__.SchemaTest.test_unknown_references_fail_on_foreign_keys) ... ok
+test_valid_expense_with_splits (__main__.SchemaTest.test_valid_expense_with_splits) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.187s
+
+OK
