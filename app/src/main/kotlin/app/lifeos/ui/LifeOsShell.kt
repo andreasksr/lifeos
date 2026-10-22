@@ -84,6 +84,7 @@ enum class CaptureType(val label: String, val glyph: Glyph) {
     TASK("Aufgabe", Glyph.TASKS),
     EVENT("Termin", Glyph.CALENDAR),
     PROJECT("Projekt", Glyph.PROJECT),
+    DOCUMENT("Dokument", Glyph.DOCUMENT),
 }
 
 /** App-Rahmen: Theme, LifeFrame mit durchgehender LifeLine, Navigation, Schnellerfassung. */
@@ -115,6 +116,12 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                 CaptureType.PROJECT -> {
                     capture = null
                     navController.navigate(ProjectsRoutes.edit(null))
+                    return
+                }
+                CaptureType.DOCUMENT -> {
+                    // Öffnet das Archiv und direkt die Android-Dateiauswahl (PDF/Bild).
+                    capture = null
+                    navController.navigate(LifeRoutes.documents(pick = true))
                     return
                 }
             }
@@ -232,6 +239,7 @@ fun LifeOsShell(container: AppContainer, systemAnimationsOff: Boolean, pendingOp
                                 Triple("Aufgabe", Glyph.TASKS) { openCapture(CaptureType.TASK) },
                                 Triple("Termin", Glyph.CALENDAR) { openCapture(CaptureType.EVENT) },
                                 Triple("Projekt", Glyph.PROJECT) { openCapture(CaptureType.PROJECT) },
+                                Triple("Dokument", Glyph.DOCUMENT) { openCapture(CaptureType.DOCUMENT) },
                             ),
                         ),
                     )
@@ -309,13 +317,13 @@ private fun CaptureOverlay(
             when (type) {
                 CaptureType.EXPENSE, CaptureType.INCOME -> QuickExpenseCapture(captureVm, onDone = onDismiss)
                 CaptureType.TASK -> QuickTaskCapture(taskVm, onDone = onDismiss)
-                CaptureType.EVENT, CaptureType.PROJECT, null -> Text("", style = Continuum.type.small)
+                CaptureType.EVENT, CaptureType.PROJECT, CaptureType.DOCUMENT, null -> Text("", style = Continuum.type.small)
             }
         }
         when (type) {
             CaptureType.EXPENSE, CaptureType.INCOME -> QuickCaptureSaveBar(captureVm)
             CaptureType.TASK -> QuickTaskSaveBar(taskVm)
-            CaptureType.EVENT, CaptureType.PROJECT, null -> Unit
+            CaptureType.EVENT, CaptureType.PROJECT, CaptureType.DOCUMENT, null -> Unit
         }
     }
 }

@@ -3,6 +3,8 @@
 # Workflow-Skript zeilenweise ausgeführt – deshalb liegt die Logik in dieser Datei).
 # Die App-Tests laufen einzeln: fällt der Emulator aus, ist eindeutig, bei welchem Test.
 set -u
+"$ANDROID_HOME/emulator/emulator" -version 2>&1 | head -3 > emu-version.txt || true
+adb shell getprop ro.build.fingerprint >> emu-version.txt 2>&1 || true
 adb shell settings put global hide_error_dialogs 1 || true
 sleep 30
 adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true

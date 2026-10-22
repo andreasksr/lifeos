@@ -43,7 +43,7 @@ object LifeRoutes {
     const val ASSETS = "life/assets"
     const val ASSET = "life/asset/{id}"
     const val ASSET_EDIT = "life/asset-edit?id={id}"
-    const val DOCUMENTS = "life/documents"
+    const val DOCUMENTS = "life/documents?pick={pick}"
     const val DOCUMENT = "life/document/{id}"
     const val LEARNING = "life/learning"
 
@@ -52,6 +52,7 @@ object LifeRoutes {
     fun asset(id: NodeId) = "life/asset/${id.value}"
     fun assetEdit(id: NodeId?) = if (id == null) "life/asset-edit" else "life/asset-edit?id=${id.value}"
     fun document(id: NodeId) = "life/document/${id.value}"
+    fun documents(pick: Boolean = false) = if (pick) "life/documents?pick=true" else "life/documents"
 }
 
 /** Verbindungen in andere Bereiche – von der App gesetzt. */
@@ -78,7 +79,7 @@ fun NavGraphBuilder.lifeGraph(navController: NavController, deps: LifeDependenci
             LifeHubNavigation(
                 vehicles = { navController.navigate(LifeRoutes.VEHICLES) },
                 assets = { navController.navigate(LifeRoutes.ASSETS) },
-                documents = { navController.navigate(LifeRoutes.DOCUMENTS) },
+                documents = { navController.navigate(LifeRoutes.documents()) },
                 learning = { navController.navigate(LifeRoutes.LEARNING) },
                 system = cross.openSystem,
                 map = cross.openMap?.let { open -> { open(null) } },
@@ -146,9 +147,9 @@ fun NavGraphBuilder.lifeGraph(navController: NavController, deps: LifeDependenci
     }
 
     // ── Dokumente ──
-    composable(LifeRoutes.DOCUMENTS) {
+    composable(LifeRoutes.DOCUMENTS, arguments = listOf(navArgument("pick") { type = NavType.BoolType; defaultValue = false })) { entry ->
         val vm: DocumentsViewModel = viewModel(factory = viewModelFactory { initializer { DocumentsViewModel(deps) } })
-        DocumentsRoute(vm, back, onOpen = { navController.navigate(LifeRoutes.document(it)) })
+        DocumentsRoute(vm, back, onOpen = { navController.navigate(LifeRoutes.document(it)) }, autoPick = entry.arguments?.getBoolean("pick") == true)
     }
     composable(LifeRoutes.DOCUMENT, arguments = idArg()) { entry ->
         val id = NodeId(requireNotNull(entry.arguments?.getString("id")))

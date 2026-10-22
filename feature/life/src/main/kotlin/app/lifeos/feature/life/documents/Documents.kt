@@ -237,10 +237,18 @@ class DocumentDetailViewModel(private val deps: LifeDependencies, val documentId
 // ───────────────────────────── Oberfläche ─────────────────────────────
 
 @Composable
-fun DocumentsRoute(vm: DocumentsViewModel, onBack: () -> Unit, onOpen: (NodeId) -> Unit) {
+fun DocumentsRoute(vm: DocumentsViewModel, onBack: () -> Unit, onOpen: (NodeId) -> Unit, autoPick: Boolean = false) {
     val state by vm.state.collectAsStateWithLifecycle()
     val openAfter by vm.openAfterImport.collectAsStateWithLifecycle()
     val pick = rememberDocumentPicker { open, name, mime -> vm.import(open, name, mime) }
+    // Schnellerfassung „Dokument": Dateiauswahl genau einmal automatisch öffnen
+    var autoPicked by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(autoPick) {
+        if (autoPick && !autoPicked) {
+            autoPicked = true
+            pick()
+        }
+    }
     CollectLifeMessages(vm.events)
     LaunchedEffect(openAfter) {
         openAfter?.let {

@@ -79,18 +79,20 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
-          target: google_apis
+          # ATD-Abbild (Automated Test Device): für CI gedacht, ohne Launcher/Play-Dienste – stabiler unter Software-Rendering
+          target: aosp_atd
+          channel: canary
           arch: x86_64
           profile: pixel_6
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           script: bash tools/ci/device-tests.sh
 
       - name: Ergebnis in Branch ci-device ablegen
         if: always()
         run: |
           mkdir -p /tmp/dev
-          cp device*.log crash.txt devices.txt /tmp/dev/ 2>/dev/null || true
+          cp device*.log crash.txt devices.txt emu-version.txt /tmp/dev/ 2>/dev/null || true
           grep -E 'AndroidRuntime|FATAL|lifeos|emulator|lowmemory|Kernel panic|watchdog' full-logcat.txt | tail -400 > /tmp/dev/logcat-relevant.txt 2>/dev/null || true
           tail -300 full-logcat.txt > /tmp/dev/logcat-tail.txt 2>/dev/null || true
           cp -r results-main /tmp/dev/ 2>/dev/null || true
