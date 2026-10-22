@@ -84,24 +84,15 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            adb shell settings put global hide_error_dialogs 1 || true
-            sleep 30
-            adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true
-            adb logcat -c || true
-            # Finanz-Ende-zu-Ende-Test getrennt und zuletzt: falls der Emulator dabei ausfällt, sind alle übrigen Ergebnisse da.
-            timeout 1500 ./gradlew connectedDebugAndroidTest --continue --stacktrace -Pandroid.testInstrumentationRunnerArguments.notClass=app.lifeos.EndToEndFinanceTest > device.log 2>&1 || echo "TESTS_FAILED (oder Zeitlimit)" >> device.log
-            mkdir -p results-main && find . -path '*/outputs/androidTest-results/connected/*' -name '*.xml' -exec cp {} results-main/ \; || true
-            timeout 600 ./gradlew :app:connectedDebugAndroidTest --stacktrace -Pandroid.testInstrumentationRunnerArguments.class=app.lifeos.EndToEndFinanceTest > device-finance.log 2>&1 || echo "TESTS_FAILED (oder Zeitlimit)" >> device-finance.log
-            timeout 60 adb pull /sdcard/Download/lifeos-shots shots || true
-            timeout 30 adb logcat -d -b crash > crash.txt 2>&1 || true
-            timeout 30 adb logcat -d -v time AndroidRuntime:E TestRunner:* '*:S' > logcat.txt 2>&1 || true
+          script: bash tools/ci/device-tests.sh
 
       - name: Ergebnis in Branch ci-device ablegen
         if: always()
         run: |
           mkdir -p /tmp/dev
-          cp device.log device-finance.log crash.txt logcat.txt /tmp/dev/ 2>/dev/null || true
+          cp device*.log crash.txt devices.txt /tmp/dev/ 2>/dev/null || true
+          grep -E 'AndroidRuntime|FATAL|lifeos|emulator|lowmemory|Kernel panic|watchdog' full-logcat.txt | tail -400 > /tmp/dev/logcat-relevant.txt 2>/dev/null || true
+          tail -300 full-logcat.txt > /tmp/dev/logcat-tail.txt 2>/dev/null || true
           cp -r results-main /tmp/dev/ 2>/dev/null || true
           grep -E '^e: |FAILED|What went wrong|Exception|AssertionError|TESTS_FAILED' device.log > /tmp/dev/errors.txt 2>/dev/null || true
           cp -r shots /tmp/dev/ 2>/dev/null || true
